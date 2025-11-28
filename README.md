@@ -411,8 +411,10 @@ git commit -m "feat: 添加新功能"
 
 ## 👥 作者
 
-- 项目维护者：[Your Name]
-- 联系方式：[Your Email]
+- 项目维护者：编程两年半
+- 邮箱：gjhxue@qq.com
+- 微信：bclnb00
+- 抖音：编程两年半
 
 ## 🙏 致谢
 
@@ -420,20 +422,23 @@ git commit -m "feat: 添加新功能"
 
 特别感谢以下开源项目：
 
-- [lnb-admin](https://github.com/yourusername/lnb-admin) - 后台管理系统框架
+- [lnb-admin](https://github.com/mituya12/lnb-admin) - 后台管理系统框架
 - [Cool-Vue](https://github.com/cool-team-official/cool-vue) - 小程序框架
 
 ## 📞 联系方式
 
-- 问题反馈：[GitHub Issues](https://github.com/yourusername/qiyedianpin/issues)
-- 讨论交流：[GitHub Discussions](https://github.com/yourusername/qiyedianpin/discussions)
+- **邮箱**：gjhxue@qq.com
+- **微信**：bclnb00
+- **抖音**：编程两年半
+- **GitHub Issues**：[问题反馈](https://github.com/mituya12/qiyedianpin/issues)
+- **Gitee Issues**：[问题反馈](https://gitee.com/get_mt/qiyedianpin/issues)
 
 ## 🔗 相关项目
 
 ### 前端项目
 
 - **Admin** - 后台管理系统
-  - 原始框架：[lnb-admin](https://github.com/yourusername/lnb-admin)
+  - 原始框架：[lnb-admin](https://github.com/mituya12/lnb-admin)
   - 技术栈：Vue 3 + Vite + TypeScript + Element Plus
   - 文档：[admin/README.md](./admin/README.md)
 
