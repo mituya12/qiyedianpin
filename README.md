@@ -7,7 +7,7 @@
 本项目是一个全栈企业点评系统，用户可以对企业进行评价、评分、发表评论等。系统包含三个主要部分：
 
 - **Admin** - 后台管理系统（Vue 3 + Vite）
-  - 基于 [lnb-admin](https://github.com/yourusername/lnb-admin) 开源框架开发
+  - 基于 [art-design-pro](https://github.com/Daymychen/art-design-pro) 开源框架开发
 - **Cool-Unix-Main** - 小程序端（UniApp）
   - 基于 [Cool-Vue](https://github.com/cool-team-official/cool-vue) 开源框架开发
 - **Server** - 后端接口服务（Node.js + Express）
@@ -422,7 +422,7 @@ git commit -m "feat: 添加新功能"
 
 特别感谢以下开源项目：
 
-- [lnb-admin](https://github.com/mituya12/lnb-admin) - 后台管理系统框架
+- [art-design-pro](https://github.com/Daymychen/art-design-pro) - 后台管理系统框架
 - [Cool-Vue](https://github.com/cool-team-official/cool-vue) - 小程序框架
 
 ## 📞 联系方式
@@ -438,7 +438,7 @@ git commit -m "feat: 添加新功能"
 ### 前端项目
 
 - **Admin** - 后台管理系统
-  - 原始框架：[lnb-admin](https://github.com/mituya12/lnb-admin)
+  - 原始框架：[art-design-pro](https://github.com/Daymychen/art-design-pro)
   - 技术栈：Vue 3 + Vite + TypeScript + Element Plus
   - 文档：[admin/README.md](./admin/README.md)
 
