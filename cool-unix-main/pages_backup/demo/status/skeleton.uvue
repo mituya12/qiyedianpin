@@ -1,0 +1,61 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('文本')">
+				<cl-skeleton :loading="loading">
+					<cl-text>云想衣裳花想容，春风拂槛露华浓。</cl-text>
+				</cl-skeleton>
+			</demo-item>
+
+			<demo-item :label="t('按钮')">
+				<view class="flex flex-row">
+					<cl-skeleton type="button" :loading="loading">
+						<cl-button>立即购买</cl-button>
+					</cl-skeleton>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('图片')">
+				<cl-skeleton type="image" :loading="loading">
+					<cl-image
+						src="https://unix.cool-js.com/images/demo/bg1.png"
+					></cl-image>
+				</cl-skeleton>
+			</demo-item>
+
+			<demo-item :label="t('圆形')">
+				<cl-skeleton type="circle" :loading="loading">
+					<cl-image
+						:radius="100"
+						src="https://unix.cool-js.com/images/demo/bg1.png"
+					></cl-image>
+				</cl-skeleton>
+			</demo-item>
+
+			<demo-item :label="t('组合')">
+				<view class="flex flex-row">
+					<cl-skeleton type="image" loading> </cl-skeleton>
+
+					<view class="flex-1 ml-2">
+						<cl-skeleton type="text" loading> </cl-skeleton>
+						<cl-skeleton type="text" loading class="mt-2 !w-[160rpx]"> </cl-skeleton>
+					</view>
+				</view>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { ref } from "vue";
+
+const loading = ref(true);
+
+onReady(() => {
+	setTimeout(() => {
+		loading.value = false;
+	}, 3000);
+});
+</script>

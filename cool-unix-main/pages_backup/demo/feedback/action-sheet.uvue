@@ -1,0 +1,206 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-button @tap="openActionSheet">{{ t("打开") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('带图标')">
+				<cl-button @tap="openActionSheet2">{{ t("打开") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('带标题、描述')">
+				<cl-button @tap="openActionSheet3">{{ t("打开") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('无法点击遮罩关闭')">
+				<cl-button @tap="openActionSheet4">{{ t("打开") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('不需要取消按钮')">
+				<cl-button @tap="openActionSheet5">{{ t("打开") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('插槽用法')">
+				<cl-button @tap="openActionSheet6">{{ t("打开") }}</cl-button>
+			</demo-item>
+		</view>
+
+		<cl-action-sheet ref="actionSheetRef"> </cl-action-sheet>
+		<cl-action-sheet ref="actionSheetRef2"> </cl-action-sheet>
+		<cl-action-sheet ref="actionSheetRef3"> </cl-action-sheet>
+		<cl-action-sheet ref="actionSheetRef4"> </cl-action-sheet>
+		<cl-action-sheet ref="actionSheetRef5"> </cl-action-sheet>
+		<cl-action-sheet
+			ref="actionSheetRef6"
+			:pt="{
+				list: {
+					className: 'flex-row mx-[-10rpx]'
+				},
+				item: {
+					className: 'flex-1 mx-[10rpx] !rounded-xl'
+				}
+			}"
+		>
+			<template #prepend>
+				<view class="px-3 mb-3">
+					<cl-text>开通会员享受更多特权和服务，包括无广告体验、专属客服等</cl-text>
+				</view>
+			</template>
+			<template #append>
+				<view class="pb-5 pt-2 px-3 flex flex-row items-center">
+					<cl-checkbox v-model="agree">请阅读并同意</cl-checkbox>
+					<cl-text color="primary">《会员服务协议》</cl-text>
+				</view>
+			</template>
+
+			<template #item="{ item }">
+				<view class="flex flex-col justify-center items-center">
+					<cl-icon :name="item.icon" :size="46"></cl-icon>
+					<cl-text :pt="{ className: 'text-sm mt-1' }">{{ item.label }}</cl-text>
+				</view>
+			</template>
+		</cl-action-sheet>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { ref } from "vue";
+import { useUi, type ClActionSheetOptions } from "@/uni_modules/cool-ui";
+
+const ui = useUi();
+
+const actionSheetRef = ref<ClActionSheetComponentPublicInstance | null>(null);
+
+function openActionSheet() {
+	actionSheetRef.value!.open({
+		list: [
+			{
+				label: t("反馈")
+			}
+		]
+	} as ClActionSheetOptions);
+}
+
+const actionSheetRef2 = ref<ClActionSheetComponentPublicInstance | null>(null);
+
+function openActionSheet2() {
+	actionSheetRef.value!.open({
+		list: [
+			{
+				label: t("反馈"),
+				icon: "error-warning-line"
+			}
+		]
+	} as ClActionSheetOptions);
+}
+
+const actionSheetRef3 = ref<ClActionSheetComponentPublicInstance | null>(null);
+
+function openActionSheet3() {
+	actionSheetRef.value!.open({
+		title: t("提示"),
+		description: t("删除好友会同时删除所有聊天记录"),
+		list: [
+			{
+				label: t("删除好友"),
+				color: "error",
+				callback() {
+					ui.showConfirm({
+						title: t("提示"),
+						message: t("确定要删除好友吗？"),
+						callback(action) {
+							if (action == "confirm") {
+								ui.showToast({
+									message: t("删除成功")
+								});
+							}
+
+							actionSheetRef.value!.close();
+						}
+					});
+				}
+			}
+		]
+	} as ClActionSheetOptions);
+}
+
+const actionSheetRef4 = ref<ClActionSheetComponentPublicInstance | null>(null);
+
+function openActionSheet4() {
+	actionSheetRef.value!.open({
+		maskClosable: false,
+		description: t("无法点击遮罩关闭"),
+		list: []
+	} as ClActionSheetOptions);
+}
+
+const actionSheetRef5 = ref<ClActionSheetComponentPublicInstance | null>(null);
+
+function openActionSheet5() {
+	actionSheetRef.value!.open({
+		showCancel: false,
+		list: [
+			{
+				label: t("点我关闭"),
+				callback() {
+					ui.showConfirm({
+						title: t("提示"),
+						message: t("确定要关闭吗？"),
+						callback(action) {
+							if (action == "confirm") {
+								actionSheetRef.value!.close();
+							}
+						}
+					});
+				}
+			}
+		]
+	} as ClActionSheetOptions);
+}
+
+const agree = ref(false);
+
+const actionSheetRef6 = ref<ClActionSheetComponentPublicInstance | null>(null);
+
+function openActionSheet6() {
+	function done() {
+		if (!agree.value) {
+			ui.showToast({
+				message: "请阅读并同意《会员服务协议》"
+			});
+			return;
+		}
+
+		ui.showToast({
+			message: t("支付成功")
+		});
+
+		agree.value = false;
+
+		actionSheetRef6.value!.close();
+	}
+
+	actionSheetRef6.value!.open({
+		showCancel: false,
+		list: [
+			{
+				label: t("支付宝"),
+				icon: "alipay-line",
+				callback() {
+					done();
+				}
+			},
+			{
+				label: t("微信"),
+				icon: "wechat-line",
+				callback() {
+					done();
+				}
+			}
+		]
+	} as ClActionSheetOptions);
+}
+</script>

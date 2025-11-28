@@ -1,0 +1,28 @@
+<template>
+	<view class="demo-item dark:!bg-surface-800">
+		<cl-text :pt="{ className: 'text-sm text-surface-400 mb-2' }" v-if="label != ''">{{
+			label
+		}}</cl-text>
+
+		<slot></slot>
+	</view>
+</template>
+
+<script lang="ts" setup>
+defineOptions({
+	name: "demo-item"
+});
+
+const props = defineProps({
+	label: {
+		type: String,
+		default: ""
+	}
+});
+</script>
+
+<style lang="scss" scoped>
+.demo-item {
+	@apply p-3 rounded-xl bg-white mb-3;
+}
+</style>

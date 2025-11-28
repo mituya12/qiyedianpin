@@ -1,0 +1,388 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-select v-model="form.selected" :options="options"></cl-select>
+			</demo-item>
+
+			<demo-item :label="t('自定义触发器')">
+				<view class="flex flex-row">
+					<cl-button @tap="openSelect2">{{ t("打开选择器") }}</cl-button>
+				</view>
+
+				<cl-select
+					ref="selectRef2"
+					v-model="form.selected2"
+					:options="options2"
+					:show-trigger="false"
+				></cl-select>
+			</demo-item>
+
+			<demo-item :label="t('多列')">
+				<demo-tips>
+					{{ t("通过 children 配置多级数据，并使用 column-count 参数指定显示的列数") }}
+				</demo-tips>
+
+				<cl-select
+					v-model="form.selected3"
+					:options="options3"
+					:column-count="3"
+				></cl-select>
+			</demo-item>
+
+			<demo-item :label="t('弹窗中使用')">
+				<cl-button @tap="visible3 = true">{{ t("打开") }}</cl-button>
+
+				<cl-popup v-model="visible3" direction="center" size="80%" :title="t('选择地区')">
+					<view class="p-3 pt-0">
+						<demo-tips>
+							H5 和 APP 端通过 teleport 实现弹窗内的选择器使用，小程序端则通过
+							root-portal 实现。
+						</demo-tips>
+
+						<cl-select
+							v-model="form.selected3"
+							:options="options3"
+							:column-count="3"
+						></cl-select>
+					</view>
+				</cl-popup>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<cl-text
+					:pt="{
+						className: 'mb-3 text-sm p-3 bg-surface-100 dark:!bg-surface-700 rounded-lg'
+					}"
+					v-if="form.selected4 != null && isShowValue"
+				>
+					{{ t("绑定值") }}：{{ form.selected4 }}
+				</cl-text>
+
+				<cl-select
+					v-model="form.selected4"
+					:options="options"
+					:disabled="isDisabled"
+					:show-cancel="isShowCancel"
+					:confirm-text="isButtonText ? t('下一步') : t('确定')"
+					:cancel-text="isButtonText ? t('关闭') : t('取消')"
+				></cl-select>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-3'
+					}"
+				>
+					<cl-list-item :label="t('显示取消按钮')">
+						<cl-switch v-model="isShowCancel"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('修改按钮文案')">
+						<cl-switch v-model="isButtonText"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('禁用')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('显示绑定值')">
+						<cl-switch v-model="isShowValue"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+
+			<demo-item :label="t('空数据')">
+				<cl-select v-model="form.selected" :options="options4"></cl-select>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { reactive, ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import DemoTips from "../components/tips.uvue";
+import { useUi, type ClSelectOption } from "@/uni_modules/cool-ui";
+import { t } from "@/locale";
+
+const ui = useUi();
+
+const selectRef2 = ref<ClSelectComponentPublicInstance | null>(null);
+
+const isShowCancel = ref(true);
+const isButtonText = ref(false);
+const isDisabled = ref(false);
+const isShowValue = ref(false);
+
+type Form = {
+	selected: number | null; // 参数 clear 需要指定类型带有 null
+	selected2: string;
+	selected3: number[];
+	selected4: number | null;
+};
+
+const form = reactive<Form>({
+	selected: null,
+	selected2: "2",
+	selected3: [],
+	selected4: 3
+});
+
+const options = ref<ClSelectOption[]>([
+	{
+		label: "HTML",
+		value: 1
+	},
+	{
+		label: "CSS",
+		value: 2
+	},
+	{
+		label: "JavaScript",
+		value: 3
+	},
+	{
+		label: "Node",
+		value: 4
+	},
+	{
+		label: "Vite",
+		value: 5
+	},
+	{
+		label: "Webpack",
+		value: 6
+	}
+]);
+
+const options2 = ref<ClSelectOption[]>([
+	{
+		label: "Vue",
+		value: "1"
+	},
+	{
+		label: "React",
+		value: "2"
+	},
+	{
+		label: "Angular",
+		value: "3"
+	},
+	{
+		label: "Svelte",
+		value: "4"
+	}
+]);
+
+const options3 = ref<ClSelectOption[]>([
+	{
+		label: "福建省",
+		value: 1,
+		children: [
+			{
+				label: "福州市",
+				value: 1,
+				children: [
+					{
+						label: "鼓楼区",
+						value: 1
+					},
+					{
+						label: "台江区",
+						value: 2
+					},
+					{
+						label: "仓山区",
+						value: 3
+					},
+					{
+						label: "马尾区",
+						value: 4
+					}
+				]
+			},
+			{
+				label: "厦门市",
+				value: 2,
+				children: [
+					{
+						label: "思明区",
+						value: 1
+					},
+					{
+						label: "湖里区",
+						value: 2
+					},
+					{
+						label: "集美区",
+						value: 3
+					},
+					{
+						label: "海沧区",
+						value: 4
+					}
+				]
+			},
+			{
+				label: "泉州市",
+				value: 3,
+				children: [
+					{
+						label: "鲤城区",
+						value: 1
+					},
+					{
+						label: "丰泽区",
+						value: 2
+					},
+					{
+						label: "洛江区",
+						value: 3
+					},
+					{
+						label: "泉港区",
+						value: 4
+					}
+				]
+			}
+		]
+	},
+	{
+		label: "浙江省",
+		value: 2,
+		children: [
+			{
+				label: "杭州市",
+				value: 1,
+				children: [
+					{
+						label: "上城区",
+						value: 1
+					},
+					{
+						label: "下城区",
+						value: 2
+					},
+					{
+						label: "江干区",
+						value: 3
+					},
+					{
+						label: "拱墅区",
+						value: 4
+					}
+				]
+			},
+			{
+				label: "宁波市",
+				value: 2,
+				children: [
+					{
+						label: "海曙区",
+						value: 1
+					},
+					{
+						label: "江北区",
+						value: 2
+					},
+					{
+						label: "北仑区",
+						value: 3
+					}
+				]
+			}
+		]
+	},
+	{
+		label: "湖南省",
+		value: 3,
+		children: [
+			{
+				label: "长沙市",
+				value: 1,
+				children: [
+					{
+						label: "芙蓉区",
+						value: 1
+					},
+					{
+						label: "天心区",
+						value: 2
+					},
+					{
+						label: "岳麓区",
+						value: 3
+					}
+				]
+			},
+			{
+				label: "株洲市",
+				value: 2,
+				children: [
+					{
+						label: "荷塘区",
+						value: 1
+					},
+					{
+						label: "芦淞区",
+						value: 2
+					}
+				]
+			}
+		]
+	},
+	{
+		label: "江西省",
+		value: 4,
+		children: [
+			{
+				label: "南昌市",
+				value: 1,
+				children: [
+					{
+						label: "东湖区",
+						value: 1
+					},
+					{
+						label: "西湖区",
+						value: 2
+					},
+					{
+						label: "青云谱区",
+						value: 3
+					}
+				]
+			},
+			{
+				label: "九江市",
+				value: 2,
+				children: [
+					{
+						label: "浔阳区",
+						value: 1
+					},
+					{
+						label: "濂溪区",
+						value: 2
+					}
+				]
+			}
+		]
+	}
+]);
+
+const options4 = ref<ClSelectOption[]>([]);
+
+function openSelect2() {
+	selectRef2.value!.open((value) => {
+		const d = options2.value.find((item) => item.value == value);
+
+		ui.showToast({
+			message: `你选择了 ${value} : ${d?.label}`
+		});
+	});
+}
+
+const visible3 = ref(false);
+</script>

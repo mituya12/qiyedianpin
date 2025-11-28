@@ -1,0 +1,70 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-pagination v-model="page1" :total="24"> </cl-pagination>
+			</demo-item>
+
+			<demo-item :label="t('多页数')">
+				<cl-pagination v-model="page2" :total="500"> </cl-pagination>
+			</demo-item>
+
+			<demo-item :label="t('自定义样式')">
+				<cl-pagination
+					v-model="page3"
+					:total="100"
+					:pt="{
+						item: {
+							className: '!rounded-none !mx-[2rpx]'
+						}
+					}"
+				>
+				</cl-pagination>
+			</demo-item>
+
+			<demo-item :label="t('自定义文本')">
+				<cl-pagination
+					v-model="page4"
+					:total="24"
+					:pt="{
+						prev: {
+							className: '!w-auto px-3'
+						},
+						next: {
+							className: '!w-auto px-3'
+						}
+					}"
+				>
+					<template #prev>
+						<cl-text
+							:pt="{
+								className: 'text-sm'
+							}"
+							>{{ t("上一页") }}</cl-text
+						>
+					</template>
+
+					<template #next>
+						<cl-text
+							:pt="{
+								className: 'text-sm'
+							}"
+							>{{ t("下一页") }}</cl-text
+						>
+					</template>
+				</cl-pagination>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+
+const page1 = ref(1);
+const page2 = ref(13);
+const page3 = ref(1);
+const page4 = ref(1);
+</script>

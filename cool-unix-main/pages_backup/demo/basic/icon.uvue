@@ -1,0 +1,94 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('设置颜色')">
+				<view class="flex flex-row">
+					<cl-icon name="heart-fill" color="primary" class="mr-2"></cl-icon>
+					<cl-icon name="heart-fill" color="success" class="mr-2"></cl-icon>
+					<cl-icon name="heart-fill" color="error" class="mr-2"></cl-icon>
+					<cl-icon name="heart-fill" color="warn" class="mr-2"></cl-icon>
+					<cl-icon name="heart-fill" color="info" class="mr-2"></cl-icon>
+					<cl-icon name="heart-fill" color="#428bca" class="mr-2"></cl-icon>
+					<cl-icon name="heart-fill" color="purple"></cl-icon>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('设置大小')">
+				<view class="flex flex-row">
+					<cl-icon name="heart-fill" class="mr-2" :size="50"></cl-icon>
+					<cl-icon name="heart-fill" class="mr-2" :size="40"></cl-icon>
+					<cl-icon name="heart-fill" class="mr-2" :size="30"></cl-icon>
+					<cl-icon name="heart-fill" class="mr-2" :size="20"></cl-icon>
+				</view>
+			</demo-item>
+
+			<demo-item>
+				<cl-text>{{ t("集成 iconfont 与 remixicon 图标库，展示部分示例") }}</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('iconfont')">
+				<cl-row :gutter="10">
+					<cl-col :span="4" v-for="item in iconfont" :key="item">
+						<view
+							class="flex flex-col items-center justify-center h-[100rpx] rounded-lg"
+							hover-class="opacity-60"
+							:hover-stay-time="250"
+							@tap="copy(item)"
+						>
+							<cl-icon :name="item"></cl-icon>
+						</view>
+					</cl-col>
+				</cl-row>
+			</demo-item>
+
+			<demo-item :label="t('remixicon')">
+				<cl-row :gutter="10">
+					<cl-col :span="4" v-for="item in remixicon" :key="item">
+						<view
+							class="flex flex-col items-center justify-center h-[100rpx]"
+							hover-class="opacity-60"
+							:hover-stay-time="250"
+							@tap="copy(item)"
+						>
+							<cl-icon :name="item"></cl-icon>
+						</view>
+					</cl-col>
+				</cl-row>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { icons } from "@/icons";
+import { forInObject, keys } from "@/cool";
+import { useUi } from "@/uni_modules/cool-ui";
+import { t } from "@/locale";
+
+const ui = useUi();
+
+const remixicon = ref<string[]>([]);
+const iconfont = ref<string[]>([]);
+
+forInObject(icons, (value, key) => {
+	if (key == "iconfont") {
+		iconfont.value = keys(value).slice(0, 100);
+	} else {
+		remixicon.value = keys(value).slice(0, 100);
+	}
+});
+
+function copy(data: string) {
+	uni.setClipboardData({
+		data,
+		showToast: false,
+		success() {
+			ui.showToast({
+				message: t("复制成功")
+			});
+		}
+	});
+}
+</script>

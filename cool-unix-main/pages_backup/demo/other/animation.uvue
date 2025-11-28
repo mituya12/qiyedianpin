@@ -1,0 +1,283 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础动画')">
+				<view class="row">
+					<view class="item" ref="rotateRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">rotate</cl-text>
+					</view>
+					<view class="item" ref="scaleRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">scale</cl-text>
+					</view>
+					<view class="item" ref="moveRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">move</cl-text>
+					</view>
+					<view class="item" ref="opacityRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">opacity</cl-text>
+					</view>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('淡入淡出')">
+				<view class="row">
+					<view class="item" ref="fadeInRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">fadeIn</cl-text>
+					</view>
+					<view class="item" ref="fadeOutRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">fadeOut</cl-text>
+					</view>
+				</view>
+
+				<cl-button text border @tap="onFadeToggle">{{ t("播放动画") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('滑入')">
+				<view class="row">
+					<view class="item" ref="slideLeftRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">slideLeft</cl-text>
+					</view>
+					<view class="item" ref="slideRightRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">slideRight</cl-text>
+					</view>
+					<view class="item" ref="slideUpRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">slideUp</cl-text>
+					</view>
+					<view class="item" ref="slideDownRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">slideDown</cl-text>
+					</view>
+				</view>
+
+				<cl-button text border @tap="onSlideInToggle">{{ t("播放动画") }}</cl-button>
+			</demo-item>
+
+			<demo-item label="缩放">
+				<view class="row">
+					<view class="item" ref="zoomInRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">zoomIn</cl-text>
+					</view>
+					<view class="item" ref="zoomOutRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">zoomOut</cl-text>
+					</view>
+				</view>
+
+				<cl-button text border @tap="onZoomToggle">{{ t("播放动画") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('旋转翻转')">
+				<view class="row">
+					<view class="item" ref="rotateInRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">rotateIn</cl-text>
+					</view>
+					<view class="item" ref="flipXRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">flipX</cl-text>
+					</view>
+					<view class="item" ref="flipYRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">flipY</cl-text>
+					</view>
+				</view>
+
+				<cl-button text border @tap="onRotateFlipToggle">{{ t("播放动画") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('摇摆抖动')">
+				<view class="row">
+					<view class="item" ref="shakeRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">shake</cl-text>
+					</view>
+					<view class="item" ref="swingRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">swing</cl-text>
+					</view>
+					<view class="item" ref="wobbleRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">wobble</cl-text>
+					</view>
+				</view>
+
+				<cl-button text border @tap="onShakeToggle">{{ t("播放动画") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('特殊效果')">
+				<view class="row">
+					<view class="item" ref="rollInRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">rollIn</cl-text>
+					</view>
+					<view class="item" ref="lightSpeedRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">lightSpeed</cl-text>
+					</view>
+					<view class="item" ref="rippleRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">ripple</cl-text>
+					</view>
+				</view>
+
+				<cl-button text border @tap="onSpecialToggle">{{ t("播放动画") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('组合动画')">
+				<view class="row">
+					<view class="item" ref="sequenceRef">
+						<cl-text color="white" :pt="{ className: 'text-sm' }">sequence</cl-text>
+					</view>
+				</view>
+
+				<cl-button text border @tap="onSequenceToggle">{{ t("播放动画") }}</cl-button>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { AnimationEngine, createAnimation } from "@/cool";
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+
+// 基础动画引用
+const rotateRef = ref<UniElement | null>(null);
+const moveRef = ref<UniElement | null>(null);
+const scaleRef = ref<UniElement | null>(null);
+const opacityRef = ref<UniElement | null>(null);
+
+// 淡入淡出动画引用
+const fadeInRef = ref<UniElement | null>(null);
+const fadeOutRef = ref<UniElement | null>(null);
+
+// 滑入动画引用
+const slideLeftRef = ref<UniElement | null>(null);
+const slideRightRef = ref<UniElement | null>(null);
+const slideUpRef = ref<UniElement | null>(null);
+const slideDownRef = ref<UniElement | null>(null);
+
+// 缩放动画引用
+const zoomInRef = ref<UniElement | null>(null);
+const zoomOutRef = ref<UniElement | null>(null);
+
+// 旋转翻转动画引用
+const rotateInRef = ref<UniElement | null>(null);
+const flipXRef = ref<UniElement | null>(null);
+const flipYRef = ref<UniElement | null>(null);
+
+// 摇摆抖动动画引用
+const shakeRef = ref<UniElement | null>(null);
+const swingRef = ref<UniElement | null>(null);
+const wobbleRef = ref<UniElement | null>(null);
+
+// 特殊效果动画引用
+const rollInRef = ref<UniElement | null>(null);
+const lightSpeedRef = ref<UniElement | null>(null);
+const rippleRef = ref<UniElement | null>(null);
+
+// 组合动画引用
+const sequenceRef = ref<UniElement | null>(null);
+
+// 基础动画方法
+function onRotate() {
+	createAnimation(rotateRef.value, {
+		duration: 1000,
+		loop: -1
+	})
+		.rotate("0deg", "360deg")
+		.play();
+}
+
+function onMove() {
+	createAnimation(moveRef.value, {
+		duration: 1000,
+		loop: -1,
+		alternate: true
+	})
+		.translateX("0rpx", "300rpx")
+		.play();
+}
+
+function onScale() {
+	createAnimation(scaleRef.value, {
+		duration: 500,
+		loop: -1,
+		alternate: true
+	})
+		.scale("1", "1.2")
+		.play();
+}
+
+function onOpacity() {
+	createAnimation(opacityRef.value, {
+		duration: 500,
+		loop: -1,
+		alternate: true
+	})
+		.opacity("1", "0.5")
+		.play();
+}
+
+// 淡入淡出动画方法
+function onFadeToggle() {
+	createAnimation(fadeInRef.value).fadeIn(500).play();
+	createAnimation(fadeOutRef.value).fadeOut(500).play();
+}
+
+// 滑入动画方法
+function onSlideInToggle() {
+	createAnimation(slideLeftRef.value).slideInLeft(400).play();
+	createAnimation(slideRightRef.value).slideInRight(400).play();
+	createAnimation(slideUpRef.value).slideInUp(400).play();
+	createAnimation(slideDownRef.value).slideInDown(400).play();
+}
+
+// 缩放动画方法
+function onZoomToggle() {
+	createAnimation(zoomInRef.value).zoomIn(400).play();
+	createAnimation(zoomOutRef.value).zoomOut(400).play();
+}
+
+// 旋转翻转动画方法
+function onRotateFlipToggle() {
+	createAnimation(rotateInRef.value).rotateIn(600).play();
+	createAnimation(flipXRef.value).flipX(600).play();
+	createAnimation(flipYRef.value).flipY(600).play();
+}
+
+// 摇摆抖动动画方法
+function onShakeToggle() {
+	createAnimation(shakeRef.value).shake(200).play();
+	createAnimation(swingRef.value).swing(200).play();
+	createAnimation(wobbleRef.value).wobble(200).play();
+}
+
+// 特殊效果动画方法
+function onSpecialToggle() {
+	createAnimation(rollInRef.value).rollIn(600).play();
+	createAnimation(lightSpeedRef.value).lightSpeed(500).play();
+	createAnimation(rippleRef.value).ripple(600).play();
+}
+
+// 异步序列动画方法
+async function onSequenceToggle() {
+	createAnimation(sequenceRef.value)
+		.sequence([
+			(engine: AnimationEngine) => engine.fadeIn(300),
+			(engine: AnimationEngine) => engine.scale("1", "1.5").setDuration(400),
+			(engine: AnimationEngine) => engine.rotate("0deg", "360deg").setDuration(500),
+			(engine: AnimationEngine) => engine.scale("1.5", "1").setDuration(300),
+			(engine: AnimationEngine) => engine.fadeOut(300)
+		])
+		.play();
+}
+
+onReady(() => {
+	onRotate();
+	onMove();
+	onScale();
+	onOpacity();
+});
+</script>
+
+<style lang="scss" scoped>
+.row {
+	@apply flex flex-row justify-between items-center overflow-visible;
+	margin: 0 -10rpx 20rpx -10rpx;
+
+	.item {
+		@apply flex items-center justify-center h-16 bg-primary-500 rounded-xl flex-1;
+		margin: 0 10rpx;
+	}
+}
+</style>

@@ -1,0 +1,41 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('跳转')">
+				<cl-button @click="toPush">{{ t("跳转") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('带参数')">
+				<cl-button @click="toQuery">{{ t("跳转") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('需登录')">
+				<cl-button @click="toLogin">{{ t("跳转") }}</cl-button>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { router, uuid } from "@/cool";
+import DemoItem from "../../components/item.uvue";
+import { t } from "@/locale";
+
+function toPush() {
+	router.to("/pages/demo/other/router/query");
+}
+
+function toQuery() {
+	router.push({ path: "/pages/demo/other/router/query", query: { id: uuid() } });
+}
+
+function toLogin() {
+	router.push({
+		path: "/pages/demo/other/router/query",
+		query: { id: uuid() },
+		isAuth: true
+	});
+}
+</script>
+
+<style lang="scss" scoped></style>

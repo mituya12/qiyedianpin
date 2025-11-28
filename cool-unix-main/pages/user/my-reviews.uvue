@@ -1,0 +1,275 @@
+<template>
+	<cl-page title="我的点评">
+		<scroll-view scroll-y class="container">
+			<view v-if="reviews.length > 0" class="list">
+				<view
+					v-for="review in reviews"
+					:key="review.id"
+					class="review-item"
+					hover-class="item-hover"
+					@tap="goToReview(review.companyId, review.id)"
+				>
+					<view class="review-header">
+						<view class="company-info">
+							<view class="company-name">
+								<cl-icon name="store-2-line" :size="28" color="#94a3b8"></cl-icon>
+								<text class="company-text">{{ review.companyName }}</text>
+							</view>
+							<text class="review-date">{{ review.date }}</text>
+						</view>
+						<view class="rating-badge">
+							<cl-icon
+								v-for="i in 5"
+								:key="i"
+								:name="i <= review.rating ? 'star-fill' : 'star-line'"
+								:size="24"
+								:color="i <= review.rating ? '#f59e0b' : '#cbd5e1'"
+							></cl-icon>
+							<text class="rating-text">{{ review.rating }}分</text>
+						</view>
+					</view>
+					<text class="review-content">{{ review.content }}</text>
+					<view class="review-footer">
+						<view class="footer-actions">
+							<view class="footer-action">
+								<cl-icon name="thumb-up-line" :size="32" color="#64748b"></cl-icon>
+								<text class="action-text">{{ review.likes }}</text>
+							</view>
+							<view class="footer-action">
+								<cl-icon name="chat-3-line" :size="32" color="#64748b"></cl-icon>
+								<text class="action-text">{{ review.replies || 0 }}</text>
+							</view>
+						</view>
+						<view class="delete-btn" @tap.stop="deleteReview(review.id)">
+							<cl-icon name="delete-bin-line" :size="28" color="#94a3b8"></cl-icon>
+							<text class="delete-text">删除</text>
+						</view>
+					</view>
+				</view>
+			</view>
+			<view v-else class="empty-state">
+				<cl-icon name="chat-3-line" :size="128" color="#cbd5e1"></cl-icon>
+				<text class="empty-text">您还没有发布过点评</text>
+			</view>
+		</scroll-view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref, onMounted } from "vue";
+import { getMyReviews, deleteReview } from "@/common/api";
+
+const reviews = ref<any[]>([]);
+const currentPage = ref(1);
+const pageSize = ref(10);
+
+// 页面加载时获取数据
+onMounted(() => {
+	fetchMyReviews();
+});
+
+// 获取我的评价列表
+const fetchMyReviews = async () => {
+	uni.showLoading({
+		title: "加载中..."
+	});
+	
+	try {
+		const res = await getMyReviews({
+			page: currentPage.value,
+			pageSize: pageSize.value
+		});
+		
+		if (res && res.items) {
+			reviews.value = res.items;
+		}
+	} catch (err: any) {
+		console.error("获取我的评价失败:", err);
+		uni.showToast({
+			title: err.message || "加载失败",
+			icon: "none"
+		});
+	} finally {
+		uni.hideLoading();
+	}
+};
+
+const goToReview = (companyId: number, reviewId: number) => {
+	uni.navigateTo({
+		url: `/pages/review/detail?id=${reviewId}`
+	});
+};
+
+const deleteReview = (reviewId: number) => {
+	uni.showModal({
+		title: "确认删除",
+		content: "确定要删除这条评价吗？",
+		success: async (res) => {
+			if (res.confirm) {
+				uni.showLoading({
+					title: "删除中..."
+				});
+				
+				try {
+					await deleteReview(reviewId);
+					
+					uni.hideLoading();
+					uni.showToast({
+						title: "删除成功",
+						icon: "success"
+					});
+					
+					// 重新加载列表
+					fetchMyReviews();
+				} catch (err: any) {
+					uni.hideLoading();
+					uni.showToast({
+						title: err.message || "删除失败",
+						icon: "none"
+					});
+				}
+			}
+		}
+	});
+};
+</script>
+
+<style lang="scss" scoped>
+.container {
+	min-height: 100vh;
+	background: linear-gradient(135deg,
+		rgba(207, 250, 254, 0.3) 0%,
+		rgba(248, 250, 252, 1) 30%,
+		rgba(248, 250, 252, 1) 60%,
+		rgba(204, 251, 241, 0.25) 100%);
+	padding: 32rpx;
+    box-sizing: border-box;
+}
+
+.list {
+	flex-direction: column;
+}
+
+.review-item {
+	background-color: #ffffff;
+	border-radius: 24rpx;
+	padding: 32rpx;
+	margin-bottom: 32rpx;
+	border: 1px solid #f1f5f9;
+	flex-direction: column;
+}
+
+.item-hover {
+	background-color: #f8fafc;
+}
+
+.review-header {
+	display: flex;
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: space-between;
+	margin-bottom: 16rpx;
+}
+
+.company-info {
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	margin-right: 16rpx;
+}
+
+.company-name {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 8rpx;
+}
+
+.company-text {
+	font-size: 28rpx;
+	font-weight: 500;
+	color: #1e293b;
+	margin-left: 16rpx;
+}
+
+.review-date {
+	font-size: 24rpx;
+	color: #94a3b8;
+}
+
+.rating-badge {
+	flex-direction: row;
+	align-items: center;
+	flex-shrink: 0;
+}
+
+.rating-text {
+	font-size: 24rpx;
+	color: #f59e0b;
+	font-weight: 500;
+	margin-left: 8rpx;
+}
+
+.review-content {
+	font-size: 28rpx;
+	color: #475569;
+	line-height: 1.5;
+	margin-bottom: 24rpx;
+}
+
+.review-footer { 
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	padding-top: 24rpx;
+	border-top: 1px solid #f1f5f9;
+}
+
+.footer-actions {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+}
+
+.footer-action {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	margin-right: 48rpx;
+}
+
+.action-text {
+	font-size: 24rpx;
+	color: #64748b;
+	margin-left: 8rpx;
+}
+
+.delete-btn {
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	padding: 8rpx;
+}
+
+.delete-text {
+	font-size: 24rpx;
+	color: #94a3b8;
+	margin-left: 8rpx;
+}
+
+.empty-state {
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 128rpx 48rpx;
+	background-color: #ffffff;
+	border-radius: 24rpx;
+}
+
+.empty-text {
+	font-size: 28rpx;
+	color: #94a3b8;
+	margin-top: 32rpx;
+}
+</style>

@@ -1,0 +1,86 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-slider v-model="num"></cl-slider>
+			</demo-item>
+
+			<demo-item :label="t('范围选择')">
+				<cl-text
+					:pt="{
+						className: 'mb-3'
+					}"
+					>{{ num2[0] }} ～ {{ num2[1] }}</cl-text
+				>
+				<cl-slider v-model:values="num2" range></cl-slider>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<cl-slider
+					v-model="num3"
+					:disabled="isDisabled"
+					:show-value="isShowValue"
+					:block-size="isSize ? 50 : 40"
+					:track-height="isSize ? 12 : 8"
+					:step="isStep ? 10 : 1"
+					:max="isMax ? 50 : 100"
+					:pt="{
+						thumb: {
+							className: isColor ? '!bg-red-500' : ''
+						},
+						progress: {
+							className: isColor ? '!bg-red-200' : ''
+						}
+					}"
+				></cl-slider>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-3'
+					}"
+				>
+					<cl-list-item :label="t('显示值')">
+						<cl-switch v-model="isShowValue"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('步长10')">
+						<cl-switch v-model="isStep"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('滑块大点')">
+						<cl-switch v-model="isSize"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('换个颜色')">
+						<cl-switch v-model="isColor"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('最大50')">
+						<cl-switch v-model="isMax"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('禁用')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+
+const num = ref(60);
+const num2 = ref<number[]>([10, 20]);
+const num3 = ref(35);
+const isDisabled = ref(false);
+const isShowValue = ref(true);
+const isStep = ref(false);
+const isSize = ref(false);
+const isMax = ref(false);
+const isColor = ref(false);
+</script>

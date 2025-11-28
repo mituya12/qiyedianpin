@@ -1,0 +1,93 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-button @tap="open()">{{ t("打开") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('不同位置')">
+				<view class="flex flex-row overflow-visible">
+					<cl-button type="light" @tap="open('top')">{{ t("顶部") }}</cl-button>
+					<cl-button type="light" @tap="open('center')">{{ t("中间") }}</cl-button>
+					<cl-button type="light" @tap="open('bottom')">{{ t("底部") }}</cl-button>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('不同类型')">
+				<view class="flex flex-row flex-wrap mb-2 overflow-visible">
+					<cl-button type="light" @tap="openType('success')">{{ t("成功") }}</cl-button>
+					<cl-button type="light" @tap="openType('error')">{{ t("失败") }}</cl-button>
+					<cl-button type="light" @tap="openType('warn')">{{ t("警告") }}</cl-button>
+					<cl-button type="light" @tap="openType('question')">{{ t("问题") }}</cl-button>
+					<cl-button type="light" @tap="openType('disabled')">{{ t("禁用") }}</cl-button>
+				</view>
+
+				<view class="flex flex-row flex-wrap overflow-visible">
+					<cl-button type="light" @tap="openType('stop')">{{ t("停止") }}</cl-button>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('自定义图标')">
+				<view class="flex flex-row overflow-visible">
+					<cl-button
+						type="light"
+						icon="star-line"
+						@tap="openIcon('star-line')"
+					></cl-button>
+
+					<cl-button
+						type="light"
+						icon="mail-line"
+						@tap="openIcon('mail-line')"
+					></cl-button>
+
+					<cl-button
+						type="light"
+						icon="file-line"
+						@tap="openIcon('file-line')"
+					></cl-button>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('只存在一个')">
+				<cl-button @tap="openClear()">{{ t("打开") }}</cl-button>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { useUi, type ClToastType } from "@/uni_modules/cool-ui";
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+
+const ui = useUi();
+
+function open(position: "top" | "center" | "bottom" = "center") {
+	ui.showToast({
+		message: t("不同位置提示"),
+		position: position
+	});
+}
+
+function openType(type: ClToastType) {
+	ui.showToast({
+		message: t("不同类型提示"),
+		type
+	});
+}
+
+function openIcon(icon: string) {
+	ui.showToast({
+		message: t("带图标提示"),
+		icon
+	});
+}
+
+function openClear() {
+	ui.showToast({
+		message: t("移除其他已存在的提示"),
+		clear: true
+	});
+}
+</script>

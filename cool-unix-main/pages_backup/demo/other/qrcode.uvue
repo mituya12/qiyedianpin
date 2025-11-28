@@ -1,0 +1,88 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('自定义')">
+				<view class="flex flex-row justify-center py-3">
+					<cl-qrcode
+						ref="qrcodeRef"
+						text="https://cool-js.com/"
+						:logo="isLogo ? 'https://unix.cool-js.com/logo.png' : ''"
+						:pd-radius="isPdRadius ? 50 : 0"
+						:padding="isPadding ? 10 : 5"
+						:foreground="isColor ? '#14b8a6' : '#000000'"
+						:pd-color="isColor ? '#0d9488' : '#000000'"
+						:mode="mode"
+					></cl-qrcode>
+				</view>
+
+				<cl-list border class="mt-3">
+					<cl-list-item :label="t('添加LOGO')">
+						<cl-switch v-model="isLogo"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('圆角定位点')">
+						<cl-switch v-model="isPdRadius"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('内间距')">
+						<cl-switch v-model="isPadding"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('自定义颜色')">
+						<cl-switch v-model="isColor"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('导出图片')">
+						<cl-button @tap="save">{{ t("预览") }}</cl-button>
+					</cl-list-item>
+
+					<view class="p-2">
+						<cl-tabs v-model="mode" :height="66" :list="modeList" show-slider></cl-tabs>
+					</view>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import type { ClQrcodeMode, ClTabsItem } from "@/uni_modules/cool-ui";
+import DemoItem from "../components/item.uvue";
+import { ref } from "vue";
+import { t } from "@/locale";
+
+const isLogo = ref(true);
+const isPdRadius = ref(true);
+const isPadding = ref(false);
+const isColor = ref(false);
+
+const qrcodeRef = ref<ClQrcodeComponentPublicInstance | null>(null);
+
+const mode = ref<ClQrcodeMode>("circular");
+const modeList = [
+	{
+		label: t("矩形"),
+		value: "rect"
+	},
+	{
+		label: t("点"),
+		value: "circular"
+	},
+	{
+		label: t("线性"),
+		value: "line"
+	},
+	{
+		label: t("小方格"),
+		value: "rectSmall"
+	}
+] as ClTabsItem[];
+
+function save() {
+	qrcodeRef.value!.toPng().then((url) => {
+		uni.previewImage({
+			urls: [url]
+		});
+	});
+}
+</script>

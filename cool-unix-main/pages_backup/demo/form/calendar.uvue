@@ -1,0 +1,206 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('选择器')">
+				<cl-calendar-select v-model="date"></cl-calendar-select>
+			</demo-item>
+
+			<demo-item :label="t('多选')">
+				<cl-calendar-select v-model:date="dateArr" mode="multiple"></cl-calendar-select>
+			</demo-item>
+
+			<demo-item :label="t('范围选')">
+				<cl-calendar-select v-model:date="dateRange" mode="range"></cl-calendar-select>
+			</demo-item>
+
+			<demo-item :label="t('开始 / 结束')">
+				<cl-calendar-select
+					v-model:date="dateRange3"
+					mode="range"
+					:start="startDate"
+					:end="endDate"
+				></cl-calendar-select>
+			</demo-item>
+
+			<demo-item :label="t('禁用部分日期')">
+				<cl-calendar-select v-model="date" :date-config="dateConfig"></cl-calendar-select>
+			</demo-item>
+
+			<!-- <demo-item :label="t('日历长列表')">
+				<cl-button>{{ t("打开日历长列表") }}</cl-button>
+			</demo-item> -->
+
+			<demo-item :label="t('日历面板')">
+				<cl-calendar
+					v-model:date="dateRange2"
+					mode="range"
+					:month="10"
+					:show-header="isShowHeader"
+					:show-weeks="isShowWeeks"
+					:show-other-month="isShowOtherMonth"
+					:date-config="dateConfig2"
+					@change="onChange"
+				></cl-calendar>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-5'
+					}"
+				>
+					<cl-list-item :label="t('自定义文案和颜色')">
+						<cl-switch v-model="isCustomDateConfig"></cl-switch>
+					</cl-list-item>
+					<cl-list-item :label="t('显示头')">
+						<cl-switch v-model="isShowHeader"></cl-switch>
+					</cl-list-item>
+					<cl-list-item :label="t('显示星期')">
+						<cl-switch v-model="isShowWeeks"></cl-switch>
+					</cl-list-item>
+					<cl-list-item :label="t('显示其他月份')">
+						<cl-switch v-model="isShowOtherMonth"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { computed, ref } from "vue";
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { dayUts, first, last } from "@/cool";
+import type { ClCalendarDateConfig } from "@/uni_modules/cool-ui";
+
+const date = ref<string | null>(dayUts().format("YYYY-MM-DD"));
+
+const dateArr = ref<string[]>([
+	dayUts().format("YYYY-MM-DD"),
+	dayUts().add(1, "day").format("YYYY-MM-DD")
+]);
+
+const dateRange = ref<string[]>([
+	dayUts().format("YYYY-MM-DD"),
+	dayUts().add(10, "day").format("YYYY-MM-DD")
+]);
+
+const dateConfig = ref<ClCalendarDateConfig[]>([
+	{
+		date: dayUts().add(1, "day").format("YYYY-MM-DD"),
+		disabled: true
+	},
+	{
+		date: dayUts().add(2, "day").format("YYYY-MM-DD"),
+		disabled: true
+	},
+	{
+		date: dayUts().add(3, "day").format("YYYY-MM-DD"),
+		disabled: true
+	}
+]);
+
+const isShowHeader = ref(true);
+const isShowWeeks = ref(true);
+const isShowOtherMonth = ref(true);
+const isCustomDateConfig = ref(true);
+
+const dateRange2 = ref<string[]>([]);
+
+const dateConfig2 = computed(() => {
+	const dates = (
+		isCustomDateConfig.value
+			? [
+					{
+						date: "2025-10-01",
+						topText: "国庆节",
+						bottomText: "¥958",
+						color: "red"
+					},
+					{
+						date: "2025-10-02",
+						topText: "休",
+						bottomText: "¥613",
+						color: "red"
+					},
+					{
+						date: "2025-10-03",
+						topText: "休",
+						bottomText: "¥613",
+						color: "red"
+					},
+					{
+						date: "2025-10-04",
+						topText: "休",
+						bottomText: "¥613",
+						color: "red"
+					},
+					{
+						date: "2025-10-05",
+						topText: "休",
+						bottomText: "¥613",
+						color: "red"
+					},
+					{
+						date: "2025-10-06",
+						topText: "休",
+						bottomText: "¥613",
+						color: "red"
+					},
+					{
+						date: "2025-10-07",
+						topText: "休",
+						bottomText: "¥613",
+						color: "red"
+					},
+					{
+						date: "2025-10-08",
+						topText: "休",
+						bottomText: "¥613",
+						color: "red"
+					}
+				]
+			: []
+	) as ClCalendarDateConfig[];
+
+	const startDate = first(dateRange2.value);
+	const endDate = last(dateRange2.value);
+
+	if (startDate != null) {
+		const item = dates.find((e) => e.date == startDate);
+
+		if (item == null) {
+			dates.push({
+				date: startDate,
+				bottomText: "入住"
+			} as ClCalendarDateConfig);
+		} else {
+			item.bottomText = "入住";
+		}
+	}
+
+	if (endDate != null && dateRange2.value.length > 1) {
+		const item = dates.find((e) => e.date == endDate);
+
+		if (item == null) {
+			dates.push({
+				date: endDate,
+				bottomText: "离店"
+			} as ClCalendarDateConfig);
+		} else {
+			item.bottomText = "离店";
+		}
+	}
+
+	return dates;
+});
+
+const dateRange3 = ref<string[]>([]);
+
+const startDate = dayUts().format("YYYY-MM-DD");
+const endDate = dayUts().add(10, "day").format("YYYY-MM-DD");
+
+function onChange(date: string[]) {
+	console.log("日期变化:", date);
+}
+</script>

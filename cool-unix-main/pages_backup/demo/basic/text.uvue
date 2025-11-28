@@ -1,0 +1,103 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-text>云想衣裳花想容，春风拂槛露华浓。</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('自定义颜色')">
+				<cl-text color="primary">明月松间照，清泉石上流。</cl-text>
+				<cl-text color="error">举头望明月，低头思故乡。</cl-text>
+				<cl-text color="success">春眠不觉晓，处处闻啼鸟。</cl-text>
+				<cl-text color="warn">劝君更尽一杯酒，西出阳关无故人。</cl-text>
+				<cl-text color="info">孤帆远影碧空尽，唯见长江天际流。</cl-text>
+				<cl-text
+					:pt="{
+						className: 'text-sky-500'
+					}"
+					>大漠孤烟直，长河落日圆。</cl-text
+				>
+			</demo-item>
+
+			<demo-item :label="t('省略号')">
+				<cl-text ellipsis
+					>云想衣裳花想容，春风拂槛露华浓。若非群玉山头见，会向瑶台月下逢。</cl-text
+				>
+			</demo-item>
+
+			<demo-item :label="t('多行省略号')">
+				<cl-text ellipsis :lines="2"
+					>云想衣裳花想容，春风拂槛露华浓。若非群玉山头见，会向瑶台月下逢。天阶夜色凉如水，卧看牵牛织女星。人生若只如初见，何事秋风悲画扇。山有木兮木有枝，心悦君兮君不知。</cl-text
+				>
+			</demo-item>
+
+			<demo-item :label="t('字体大小')">
+				<cl-text
+					:pt="{
+						className: 'text-xs'
+					}"
+					>text-xs</cl-text
+				>
+				<cl-text
+					:pt="{
+						className: 'text-sm'
+					}"
+					>text-sm</cl-text
+				>
+				<cl-text
+					:pt="{
+						className: 'text-md'
+					}"
+					>text-md</cl-text
+				>
+				<cl-text
+					:pt="{
+						className: 'text-lg'
+					}"
+					>text-lg</cl-text
+				>
+				<cl-text
+					:pt="{
+						className: 'text-xl'
+					}"
+					>text-xl</cl-text
+				>
+			</demo-item>
+
+			<demo-item :label="t('自定义尺寸')">
+				<cl-text :size="20">20rpx</cl-text>
+				<cl-text size="30rpx">30rpx</cl-text>
+				<cl-text size="15px">15px</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('金额')">
+				<cl-text type="amount" :value="10000000.0"></cl-text>
+			</demo-item>
+
+			<demo-item :label="t('手机号脱敏')">
+				<cl-text type="phone" mask value="13800138000"></cl-text>
+			</demo-item>
+
+			<demo-item :label="t('姓名脱敏')">
+				<cl-text type="name" mask value="张三"></cl-text>
+			</demo-item>
+
+			<demo-item :label="t('邮箱脱敏')">
+				<cl-text type="email" mask value="example@example.com"></cl-text>
+			</demo-item>
+
+			<demo-item :label="t('银行卡脱敏')">
+				<cl-text type="card" mask value="1234 5678 9012 3456"></cl-text>
+			</demo-item>
+
+			<demo-item :label="t('自定义脱敏字符')">
+				<cl-text type="phone" value="13800138000" mask mask-char="~"></cl-text>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+</script>

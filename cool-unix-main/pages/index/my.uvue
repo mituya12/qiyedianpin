@@ -1,0 +1,407 @@
+﻿<template>
+	<cl-page>
+		<!-- 未登录状态 -->
+		<view v-if="!isLoggedIn" class="not-logged-in">
+			<view class="login-icon">
+				<cl-icon name="user-line" :size="160" color="#cbd5e1"></cl-icon>
+			</view>
+			<text class="login-title">您尚未登录</text>
+			<text class="login-desc">登录后即可管理您的评价、查看回复互动，并解锁更多功能。</text>
+			<view class="login-btn" hover-class="login-btn-hover" @tap="goToLogin">
+				<text class="login-btn-text">立即登录</text>
+			</view>
+		</view>
+
+		<!-- 已登录状态 -->
+		<scroll-view v-else class="logged-in" scroll-y>
+			<!-- 顶部背景卡片 -->
+			<view class="header-card">
+				<view class="user-info">
+					<view class="avatar-wrapper">
+						<cl-avatar :src="user.avatar" :size="160"></cl-avatar>
+					</view>
+					<view class="user-details">
+						<view class="user-name-row">
+							<text class="user-name">{{ user.name || '张三' }}</text>
+							<text class="user-badge">正式会员</text>
+						</view>
+						<text class="user-bio">{{ user.bio || '这家伙很懒，什么都没留下' }}</text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 统计卡片 -->
+			<view class="stats">
+				<view class="stat-item">
+					<text class="stat-value">{{ user.reviewCount || 0 }}</text>
+					<text class="stat-label">我的点评</text>
+				</view>
+				<view class="stat-divider"></view>
+				<view class="stat-item">
+					<text class="stat-value">{{ user.replyCount || 0 }}</text>
+					<text class="stat-label">我的回复</text>
+				</view>
+				<view class="stat-divider"></view>
+				<view class="stat-item">
+					<text class="stat-value">{{ user.totalLikes || 0 }}</text>
+					<text class="stat-label">获赞总数</text>
+				</view>
+			</view>
+
+			<!-- 快捷入口 -->
+			<view class="quick-actions">
+				<view class="action-btn" hover-class="action-btn-hover" @tap="goToMyReviews">
+					<cl-icon name="chat-3-line" :size="40" color="#06b6d4"></cl-icon>
+					<text class="action-text">我的点评</text>
+				</view>
+				<view class="action-btn" hover-class="action-btn-hover" @tap="goToMyReplies">
+					<cl-icon name="message-2-line" :size="40" color="#14b8a6"></cl-icon>
+					<text class="action-text">我的回复</text>
+				</view>
+			</view>
+
+			<!-- 菜单卡片 -->
+			<view class="menu-card">
+				<view class="menu-item" hover-class="menu-item-hover" @tap="goToHelp">
+					<view class="menu-icon-wrapper menu-icon-help">
+						<cl-icon name="question-line" :size="32" color="#06b6d4"></cl-icon>
+					</view>
+					<text class="menu-text">帮助与反馈</text>
+					<cl-icon name="arrow-right-s-line" :size="32" color="#cbd5e1"></cl-icon>
+				</view>
+
+				<view class="menu-divider"></view>
+
+				<view class="menu-item" hover-class="menu-item-hover" @tap="handleLogout">
+					<view class="menu-icon-wrapper menu-icon-logout">
+						<cl-icon name="shut-down-line" :size="32" color="#ef4444"></cl-icon>
+					</view>
+					<text class="menu-text menu-text-logout">退出登录</text>
+				</view>
+			</view>
+		</scroll-view>
+
+		<!-- 自定义底部导航栏 -->
+		<custom-tabbar></custom-tabbar>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref, computed, onMounted } from "vue";
+import { onShow } from "@dcloudio/uni-app";
+import CustomTabbar from "@/components/tabbar.uvue";
+import { user as userStore } from "@/cool/store/user";
+import { getUserInfo } from "@/common/api";
+
+const isLoggedIn = ref(false);
+
+const user = ref({
+	name: "张三",
+	avatar: "",
+	bio: "热爱分享的职场人"
+});
+
+const myReviews = ref([]);
+const myReplies = ref([]);
+
+// 页面加载时检查登录状态
+onMounted(() => {
+	console.log('个人中心页面 onMounted 触发');
+	checkLoginStatus();
+});
+
+// 页面显示时检查登录状态（解决切换 tab 后不刷新的问题）
+onShow(() => {
+	console.log('个人中心页面 onShow 触发');
+	checkLoginStatus();
+});
+
+const checkLoginStatus = async () => {
+	console.log('检查登录状态，token:', userStore.token);
+	
+	if (userStore.token) {
+		// 已登录
+		isLoggedIn.value = true;
+		
+		// 获取用户信息
+		try {
+			const userInfo = await getUserInfo();
+			if (userInfo) {
+				user.value = userInfo;
+				console.log('获取用户信息成功:', userInfo);
+			}
+		} catch (err: any) {
+			console.error('获取用户信息失败:', err);
+		}
+	} else {
+		// 未登录
+		isLoggedIn.value = false;
+	}
+};
+
+const goToLogin = () => {
+	uni.navigateTo({
+		url: "/pages/user/login"
+	});
+};
+
+const goToMyReviews = () => {
+	uni.navigateTo({
+		url: "/pages/user/my-reviews"
+	});
+};
+
+const goToMyReplies = () => {
+	uni.navigateTo({
+		url: "/pages/user/my-replies"
+	});
+};
+
+const goToHelp = () => {
+	uni.navigateTo({
+		url: "/pages/set/help"
+	});
+};
+
+const handleLogout = () => {
+	uni.showModal({
+		title: "提示",
+		content: "确定要退出登录吗？",
+		success: (res) => {
+			if (res.confirm) {
+				// 调用userStore的logout方法清除token和用户信息
+				userStore.logout();
+				isLoggedIn.value = false;
+				uni.showToast({
+					title: "已退出登录",
+					icon: "success"
+				});
+			}
+		}
+	});
+};
+
+const totalLikes = computed(() => {
+	return 0;
+});
+</script>
+
+<style lang="scss" scoped>
+.not-logged-in {
+	min-height: 100vh;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 64rpx 32rpx;
+}
+
+.login-icon {
+	margin-bottom: 48rpx;
+}
+
+.login-title {
+	font-size: 36rpx;
+	font-weight: bold;
+	color: #1e293b;
+	margin-bottom: 16rpx;
+}
+
+.login-desc {
+	font-size: 28rpx;
+	color: #94a3b8;
+	margin-bottom: 64rpx;
+	text-align: center;
+}
+
+.login-btn {
+	background: linear-gradient(to right, #06b6d4, #14b8a6);
+	padding: 24rpx 96rpx;
+	border-radius: 48rpx;
+}
+
+.login-btn-hover {
+	opacity: 0.9;
+}
+
+.login-btn-text {
+	font-size: 32rpx;
+	font-weight: 500;
+	color: #ffffff;
+}
+
+.header-card {
+	background: linear-gradient(135deg,
+		rgba(207, 250, 254, 0.3) 0%,
+		rgba(6, 182, 212, 0.5) 30%,
+		rgba(20, 184, 166, 0.5) 60%,
+		rgba(204, 251, 241, 0.25) 100%);
+	padding: 128rpx 48rpx 160rpx;
+	position: relative;
+	overflow: hidden;
+}
+
+.user-info {
+	flex-direction: row;
+	align-items: center;
+	position: relative;
+	z-index: 10;
+}
+
+.avatar-wrapper {
+	margin-right: 32rpx;
+	border-radius: 50%;
+	overflow: hidden;
+	border: 4rpx solid rgba(255, 255, 255, 0.3);
+}
+
+.user-details {
+	flex: 1;
+	flex-direction: column;
+}
+
+.user-name-row {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 8rpx;
+}
+
+.user-name {
+	font-size: 40rpx;
+	font-weight: bold;
+	color: #ffffff;
+	margin-right: 16rpx;
+}
+
+.user-badge {
+	font-size: 20rpx;
+	color: #ffffff;
+	background-color: rgba(255, 255, 255, 0.2);
+	padding: 4rpx 16rpx;
+	border-radius: 9999px;
+	border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-bio {
+	font-size: 24rpx;
+	color: rgba(255, 255, 255, 0.9);
+}
+
+.stats {
+	flex-direction: row;
+	background-color: #ffffff;
+	border-radius: 32rpx;
+	padding: 48rpx;
+	margin: -96rpx 32rpx 32rpx;
+	position: relative;
+	z-index: 20;
+	box-shadow: 0 8rpx 24rpx rgba(0, 0, 0, 0.08);
+	border: 1px solid rgba(6, 182, 212, 0.1);
+}
+
+.stat-item {
+	flex: 1;
+	flex-direction: column;
+	align-items: center;
+}
+
+.stat-value {
+	font-size: 48rpx;
+	font-weight: bold;
+	color: #06b6d4;
+	margin-bottom: 8rpx;
+}
+
+.stat-label {
+	font-size: 24rpx;
+	color: #94a3b8;
+}
+
+.stat-divider {
+	width: 2rpx;
+	height: 64rpx;
+	background-color: #f1f5f9;
+}
+
+.quick-actions {
+	flex-direction: row;
+	margin: 0 32rpx 32rpx;
+	justify-content: space-between;
+}
+
+.action-btn {
+	flex: 1;
+	background-color: #ffffff;
+	border-radius: 24rpx;
+	padding: 32rpx;
+	margin-right: 16rpx;
+	flex-direction: column;
+	align-items: center;
+	border: 1px solid #f1f5f9;
+}
+
+.action-btn:last-child {
+	margin-right: 0;
+}
+
+.action-btn-hover {
+	background-color: #f8fafc;
+}
+
+.action-text {
+	font-size: 28rpx;
+	color: #475569;
+	margin-top: 16rpx;
+	font-weight: 500;
+}
+
+.menu-card {
+	background-color: #ffffff;
+	border-radius: 24rpx;
+	margin: 0 32rpx 192rpx;
+	padding: 0 32rpx;
+	border: 1px solid #f1f5f9;
+}
+
+.menu-item {
+	flex-direction: row;
+	align-items: center;
+	padding: 32rpx 0;
+}
+
+.menu-item-hover {
+	background-color: #f8fafc;
+}
+
+.menu-icon-wrapper {
+	width: 64rpx;
+	height: 64rpx;
+	border-radius: 50%;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-right: 24rpx;
+}
+
+.menu-icon-help {
+	background-color: rgba(6, 182, 212, 0.1);
+}
+
+.menu-icon-logout {
+	background-color: rgba(239, 68, 68, 0.1);
+}
+
+.menu-text {
+	flex: 1;
+	font-size: 30rpx;
+	color: #334155;
+}
+
+.menu-text-logout {
+	color: #ef4444;
+}
+
+.menu-divider {
+	height: 1px;
+	background-color: #f1f5f9;
+}
+</style>

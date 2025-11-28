@@ -1,0 +1,29 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-loadmore loading></cl-loadmore>
+			</demo-item>
+
+			<demo-item :label="t('3秒后加载完成')">
+				<cl-loadmore :loading="loading" :finish="finish"></cl-loadmore>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { onMounted, ref } from "vue";
+
+const loading = ref(true);
+const finish = ref(false);
+
+onMounted(() => {
+	setTimeout(() => {
+		loading.value = false;
+		finish.value = true;
+	}, 3000);
+});
+</script>

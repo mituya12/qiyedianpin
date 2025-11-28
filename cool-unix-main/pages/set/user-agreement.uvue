@@ -1,0 +1,139 @@
+<template>
+	<cl-page title="用户协议">
+		<scroll-view scroll-y class="agreement-container">
+			<view class="card">
+				<text class="title">企业点评用户协议</text>
+				<text class="update-date">更新日期：2024年11月27日</text>
+
+				<view class="content">
+					<text class="section-title">一、协议的接受</text>
+					<text class="section-text">
+						欢迎使用企业点评平台。在使用本平台服务前，请您仔细阅读并充分理解本协议的全部内容。您点击"同意"或实际使用本平台服务，即表示您已充分阅读、理解并接受本协议的全部内容。
+					</text>
+
+					<text class="section-title">二、服务说明</text>
+					<text class="section-text">
+						1. 企业点评平台为用户提供企业评价、查看、分享等服务。
+					</text>
+					<text class="section-text">
+						2. 用户理解并同意，本平台仅提供信息展示和交流平台，不对用户发布的内容承担责任。
+					</text>
+					<text class="section-text">
+						3. 本平台有权根据业务需要调整、变更或终止部分服务内容。
+					</text>
+
+					<text class="section-title">三、用户行为规范</text>
+					<text class="section-text">
+						1. 用户应遵守中华人民共和国相关法律法规，不得利用本平台从事违法违规活动。
+					</text>
+					<text class="section-text">
+						2. 用户发布的评价内容应真实、客观，不得包含虚假信息、诽谤、侮辱等内容。
+					</text>
+					<text class="section-text">
+						3. 用户不得恶意刷评、买卖评价、干扰平台正常运营。
+					</text>
+					<text class="section-text">
+						4. 用户应妥善保管账号信息，因用户自身原因导致的账号安全问题，由用户自行承担。
+					</text>
+
+					<text class="section-title">四、内容审核与处理</text>
+					<text class="section-text">
+						1. 本平台有权对用户发布的内容进行审核，对违规内容有权删除或屏蔽。
+					</text>
+					<text class="section-text">
+						2. 对于严重违规的用户，本平台有权采取限制功能、封禁账号等措施。
+					</text>
+					<text class="section-text">
+						3. 用户对审核结果有异议的，可通过平台提供的申诉渠道进行申诉。
+					</text>
+
+					<text class="section-title">五、知识产权</text>
+					<text class="section-text">
+						1. 本平台的所有内容，包括但不限于文字、图片、软件、程序等，均受知识产权法律保护。
+					</text>
+					<text class="section-text">
+						2. 用户发布的内容，其知识产权归用户所有，但用户授权本平台在全球范围内使用、展示该内容。
+					</text>
+
+					<text class="section-title">六、免责声明</text>
+					<text class="section-text">
+						1. 本平台不对用户发布内容的真实性、准确性、完整性负责。
+					</text>
+					<text class="section-text">
+						2. 因不可抗力、系统故障等原因导致的服务中断，本平台不承担责任。
+					</text>
+					<text class="section-text">
+						3. 用户因使用本平台服务产生的任何纠纷，应由用户自行解决。
+					</text>
+
+					<text class="section-title">七、协议的变更</text>
+					<text class="section-text">
+						本平台有权根据需要修改本协议内容，修改后的协议将在平台公布。用户继续使用本平台服务，视为接受修改后的协议。
+					</text>
+
+					<text class="section-title">八、联系我们</text>
+					<text class="section-text">
+						如您对本协议有任何疑问，请通过平台提供的联系方式与我们联系。
+					</text>
+				</view>
+			</view>
+		</scroll-view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+</script>
+
+<style lang="scss" scoped>
+.agreement-container {
+	height: 100vh;
+	background: linear-gradient(135deg,
+		rgba(207, 250, 254, 0.3) 0%,
+		rgba(248, 250, 252, 1) 30%,
+		rgba(248, 250, 252, 1) 60%,
+		rgba(204, 251, 241, 0.25) 100%);
+	padding: 32rpx;
+}
+
+.card {
+	background-color: #ffffff;
+	border-radius: 32rpx;
+	padding: 48rpx 32rpx;
+	border: 1px solid #f1f5f9;
+	flex-direction: column;
+}
+
+.title {
+	font-size: 48rpx;
+	font-weight: bold;
+	color: #1e293b;
+	text-align: center;
+	margin-bottom: 16rpx;
+}
+
+.update-date {
+	font-size: 24rpx;
+	color: #94a3b8;
+	text-align: center;
+	margin-bottom: 48rpx;
+}
+
+.content {
+	flex-direction: column;
+}
+
+.section-title {
+	font-size: 32rpx;
+	font-weight: bold;
+	color: #334155;
+	margin-top: 32rpx;
+	margin-bottom: 16rpx;
+}
+
+.section-text {
+	font-size: 28rpx;
+	color: #64748b;
+	line-height: 48rpx;
+	margin-bottom: 12rpx;
+}
+</style>

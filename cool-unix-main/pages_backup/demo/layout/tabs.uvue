@@ -1,0 +1,170 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-tabs v-model="form.val1" :list="list"></cl-tabs>
+			</demo-item>
+
+			<demo-item :label="t('显示滑块')">
+				<cl-tabs
+					v-model="form.val2"
+					:list="list"
+					show-slider
+					:pt="{ className: isPad ? '!p-2' : '' }"
+				></cl-tabs>
+
+				<cl-list border :pt="{ className: 'mt-3' }">
+					<cl-list-item :label="t('添加间距')">
+						<cl-switch v-model="isPad"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+
+			<demo-item :label="t('横向填充')">
+				<demo-tips>{{ t("适用于标签数量不多的情况") }}</demo-tips>
+
+				<cl-tabs v-model="form.val3" :list="list2" fill></cl-tabs>
+			</demo-item>
+
+			<demo-item :label="t('居中')">
+				<view class="flex flex-row justify-center">
+					<cl-tabs v-model="form.val4" :list="list2"></cl-tabs>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('单个禁用')">
+				<cl-tabs v-model="form.val5" :list="list3"></cl-tabs>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<cl-tabs
+					v-model="form.val6"
+					:list="list"
+					:show-line="isShowLine"
+					:disabled="isDisabled"
+					:color="isColor ? 'red' : ''"
+					:un-color="isColor ? '#ccc' : ''"
+				></cl-tabs>
+
+				<cl-list border :pt="{ className: 'mt-3' }">
+					<cl-list-item :label="t('显示下划线')">
+						<cl-switch v-model="isShowLine"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('禁用')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('自定义颜色')">
+						<cl-switch v-model="isColor"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import DemoTips from "../components/tips.uvue";
+import { reactive, ref } from "vue";
+import type { ClTabsItem } from "@/uni_modules/cool-ui";
+
+type Form = {
+	val1: string;
+	val2: string;
+	val3: string;
+	val4: string;
+	val5: string;
+	val6: string;
+};
+
+const form = reactive<Form>({
+	val1: "1",
+	val2: "2",
+	val3: "1",
+	val4: "1",
+	val5: "2",
+	val6: "1"
+});
+
+const list = ref<ClTabsItem[]>([
+	{
+		label: "Vue",
+		value: "1"
+	},
+	{
+		label: "React",
+		value: "2"
+	},
+	{
+		label: "Angular",
+		value: "3"
+	},
+	{
+		label: "Svelte",
+		value: "4"
+	},
+	{
+		label: "Jquery",
+		value: "5"
+	},
+	{
+		label: "Vuex",
+		value: "6"
+	},
+	{
+		label: "Vue Router",
+		value: "7"
+	},
+	{
+		label: "Pinia",
+		value: "8"
+	}
+]);
+
+const list2 = ref<ClTabsItem[]>([
+	{
+		label: "Vue",
+		value: "1"
+	},
+	{
+		label: "React",
+		value: "2"
+	},
+	{
+		label: "Angular",
+		value: "3"
+	},
+	{
+		label: "Svelte",
+		value: "4"
+	}
+]);
+
+const list3 = ref<ClTabsItem[]>([
+	{
+		label: "Vue",
+		value: "1"
+	},
+	{
+		label: "React",
+		value: "2"
+	},
+	{
+		label: "Angular",
+		value: "3",
+		disabled: true
+	},
+	{
+		label: "Svelte",
+		value: "4"
+	}
+]);
+
+const isShowLine = ref(true);
+const isDisabled = ref(false);
+const isColor = ref(false);
+const isPad = ref(false);
+</script>

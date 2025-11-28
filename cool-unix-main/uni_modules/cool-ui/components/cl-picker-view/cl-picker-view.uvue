@@ -1,0 +1,208 @@
+<template>
+	<view class="cl-picker-view">
+		<view class="cl-picker-view__header" v-if="headers.length > 0">
+			<cl-text
+				:pt="{
+					className: 'flex-1 text-sm text-center'
+				}"
+				v-for="(label, index) in headers"
+				:key="index"
+				>{{ label }}</cl-text
+			>
+		</view>
+
+		<view
+			class="px-[10rpx]"
+			:style="{
+				height: parseRpx(height)
+			}"
+		>
+			<picker-view
+				class="h-full"
+				:value="value"
+				:mask-style="maskStyle"
+				:mask-top-style="maskStyle"
+				:mask-bottom-style="maskStyle"
+				:indicator-style="indicatorStyle"
+				@change="onChange"
+			>
+				<picker-view-column
+					class="cl-select-popup__column"
+					v-for="(column, columnIndex) in columns"
+					:key="columnIndex"
+				>
+					<view
+						class="cl-picker-view__item"
+						:style="{
+							height: `${itemHeight}px`
+						}"
+						v-for="(item, index) in column"
+						:key="index"
+					>
+						<cl-text
+							:pt="{
+								className: parseClass([
+									[isDark, 'text-surface-500'],
+									[isDark && index == value[columnIndex], 'text-white']
+								])
+							}"
+							>{{ item.label }}</cl-text
+						>
+					</view>
+				</picker-view-column>
+			</picker-view>
+		</view>
+	</view>
+</template>
+
+<script setup lang="ts">
+import { forInObject, isAppIOS, isDark, isEqual, isNull, parseClass, rpx2px } from "@/cool";
+import type { ClSelectOption } from "../../types";
+import { parseRpx } from "@/cool";
+import { computed } from "vue";
+import type { PropType } from "vue";
+
+defineOptions({
+	name: "cl-select-picker-view"
+});
+
+const props = defineProps({
+	// 选择器表头
+	headers: {
+		type: Array as PropType<string[]>,
+		default: () => []
+	},
+	// 选择器值
+	value: {
+		type: Array as PropType<number[]>,
+		default: () => []
+	},
+	// 选择器选项
+	columns: {
+		type: Array as PropType<ClSelectOption[][]>,
+		default: () => []
+	},
+	// 选择器选项高度
+	itemHeight: {
+		type: Number,
+		default: isAppIOS() ? 50 : 42
+	},
+	// 选择器高度
+	height: {
+		type: Number,
+		default: 600
+	}
+});
+
+const emit = defineEmits(["change-value", "change-index"]);
+
+// 获取窗口宽度,用于计算选择器列宽
+const { windowWidth } = uni.getWindowInfo();
+
+// 顶部显示表头
+const headers = computed(() => {
+	return props.headers.slice(0, props.columns.length);
+});
+
+// 遮罩层样式
+const maskStyle = computed(() => {
+	if (isDark.value) {
+		if (isAppIOS()) {
+			return `background-color: rgba(0, 0, 0, 0);`;
+		}
+
+		return `background-image: linear-gradient(
+			180deg,
+			rgba(0, 0, 0, 0),
+			rgba(0, 0, 0, 0)
+		)`;
+	}
+
+	return "";
+});
+
+// 计算选择器列样式
+const indicatorStyle = computed(() => {
+	// 根据窗口宽度和列数计算每列宽度
+	const width = ((windowWidth - rpx2px(20)) / props.columns.length - rpx2px(2) - 8).toFixed(0);
+
+	let str = "";
+
+	// 选择器列样式配置
+	const style = {
+		height: `${props.itemHeight}px`,
+		width: `${width}px`,
+		left: "4px",
+		backgroundColor: "rgba(10, 10, 10, 0.04)",
+		borderRadius: "10px",
+		border: "1rpx solid rgba(10, 10, 10, 0.2)"
+	};
+
+	// 深色模式
+	if (isDark.value) {
+		style.backgroundColor = "rgba(0, 0, 0, 0.1)";
+		style.border = "1rpx solid rgba(255, 255, 255, 0.3)";
+	}
+
+	// 构建样式字符串
+	forInObject(style, (value, key) => {
+		str += `${key}: ${value};`;
+	});
+
+	return str;
+});
+
+// 监听选择器值改变事件
+function onChange(e: UniPickerViewChangeEvent) {
+	// 获取选择器当前选中值数组
+	const indexs = e.detail.value;
+
+	// 处理因快速滑动导致下级数据未及时渲染而产生的索引越界问题
+	indexs.forEach((v, i, arr) => {
+		if (i < props.columns.length) {
+			const n = props.columns[i].length;
+
+			if (v >= n) {
+				arr[i] = n - 1;
+			}
+		}
+	});
+
+	// 相同值不触发事件
+	if (isEqual(indexs, props.value)) {
+		return;
+	}
+
+	// 获取所有列的值
+	const values = props.columns.map((c, i) => {
+		return isNull(c[indexs[i]]) ? 0 : c[indexs[i]].value;
+	});
+
+	// 返回所有列的值或下标
+	emit("change-value", values);
+	emit("change-index", indexs);
+}
+</script>
+
+<style lang="scss" scoped>
+.cl-picker-view {
+	@apply w-full h-full;
+
+	&__header {
+		@apply flex flex-row items-center py-4;
+	}
+
+	&__item {
+		@apply flex flex-row items-center justify-center;
+	}
+
+	.uni-picker-view-indicator {
+		// #ifdef H5
+		&::after,
+		&::before {
+			display: none;
+		}
+		// #endif
+	}
+}
+</style>

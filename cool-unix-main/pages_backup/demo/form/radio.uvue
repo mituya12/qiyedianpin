@@ -1,0 +1,146 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<view class="flex flex-row flex-wrap">
+					<cl-radio
+						v-model="checked2"
+						v-for="(item, index) in options"
+						:key="index"
+						:value="item.value"
+						:pt="{
+							className: 'mr-5'
+						}"
+					>
+						{{ item.label }}
+					</cl-radio>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('纵向排列')">
+				<cl-radio
+					v-model="checked"
+					v-for="(item, index) in options"
+					:key="index"
+					:value="item.value"
+					:pt="{
+						className: parseClass([
+							'my-2',
+							[
+								isVerticalCustom,
+								'justify-between border border-solid border-surface-200 rounded-lg p-2 !my-1'
+							]
+						])
+					}"
+				>
+					{{ item.label }}
+				</cl-radio>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-2'
+					}"
+				>
+					<cl-list-item :label="t('换个样式')">
+						<cl-switch v-model="isVerticalCustom"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<view class="mb-3 flex flex-row flex-wrap">
+					<cl-radio
+						v-model="checked3"
+						v-for="(item, index) in options"
+						:key="index"
+						:value="item.value"
+						:disabled="isDisabled"
+						:show-icon="!isHideIcon"
+						:active-icon="isIcon ? 'heart-fill' : 'checkbox-circle-line'"
+						:inactive-icon="isIcon ? 'heart-line' : 'checkbox-blank-circle-line'"
+						:pt="{
+							className: parseClass([
+								'mr-5',
+								[isCustom, 'bg-surface-100 py-2 px-3 rounded-lg !mr-2 !mb-2'],
+								{
+									'!bg-surface-700': isDark && isCustom
+								}
+							]),
+							icon: {
+								className: parseClass([
+									[isCustom && item.value == checked3, 'text-red-500']
+								])
+							},
+							label: {
+								className: parseClass([
+									[isCustom && item.value == checked3, 'text-red-500']
+								])
+							}
+						}"
+					>
+						{{ item.label }}
+					</cl-radio>
+				</view>
+
+				<cl-list border>
+					<cl-list-item :label="t('换个图标')">
+						<cl-switch v-model="isIcon"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('不显示图标')">
+						<cl-switch v-model="isHideIcon"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('禁用')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('其他样式')">
+						<cl-switch v-model="isCustom"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { parseClass } from "@/cool";
+import { useUi, type ClRadioOption } from "@/uni_modules/cool-ui";
+import { isDark } from "@/cool";
+import { t } from "@/locale";
+
+const ui = useUi();
+
+const isIcon = ref(false);
+const isCustom = ref(false);
+const isDisabled = ref(false);
+const isHideIcon = ref(false);
+const isVerticalCustom = ref(false);
+
+const checked = ref("1");
+const checked2 = ref("2");
+const checked3 = ref("3");
+
+const options = ref<ClRadioOption[]>([
+	{
+		label: "Vue",
+		value: "1"
+	},
+	{
+		label: "React",
+		value: "2"
+	},
+	{
+		label: "Angular",
+		value: "3"
+	},
+	{
+		label: "Svelte",
+		value: "4"
+	}
+]);
+</script>

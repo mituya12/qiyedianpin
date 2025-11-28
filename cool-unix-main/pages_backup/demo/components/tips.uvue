@@ -1,0 +1,17 @@
+<template>
+	<view class="bg-surface-100 dark:!bg-surface-700 rounded-lg p-3 mb-3">
+		<cl-text
+			:pt="{
+				className: 'text-sm'
+			}"
+		>
+			<slot></slot>
+		</cl-text>
+	</view>
+</template>
+
+<script setup lang="ts">
+defineOptions({
+	name: "demo-tips"
+});
+</script>

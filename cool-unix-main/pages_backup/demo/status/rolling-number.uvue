@@ -1,0 +1,77 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-rolling-number :value="value"></cl-rolling-number>
+
+				<view class="flex flex-row mt-2">
+					<cl-button icon="add-line" size="small" @tap="add"></cl-button>
+					<cl-button
+						icon="subtract-line"
+						type="light"
+						size="small"
+						@tap="sub"
+					></cl-button>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<view class="flex flex-col items-center">
+					<cl-rolling-number
+						:value="value"
+						:pt="{
+							className: parseClass([[isCustom, '!text-3xl']]),
+							color: isCustom ? 'primary' : ''
+						}"
+						:duration="isSpeed ? 300 : 1000"
+						:decimals="isDecimals ? 2 : 0"
+					></cl-rolling-number>
+
+					<view class="flex flex-row mt-2">
+						<cl-button icon="add-line" size="small" @tap="add"></cl-button>
+						<cl-button
+							icon="subtract-line"
+							type="light"
+							size="small"
+							@tap="sub"
+						></cl-button>
+					</view>
+				</view>
+
+				<cl-list border class="mt-3">
+					<cl-list-item :label="t('加快滚动速度')">
+						<cl-switch v-model="isSpeed"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('显示小数位数')">
+						<cl-switch v-model="isDecimals"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('自定义样式')">
+						<cl-switch v-model="isCustom"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { ref } from "vue";
+import { parseClass } from "@/cool";
+
+const value = ref(100);
+const isSpeed = ref(false);
+const isDecimals = ref(false);
+const isCustom = ref(false);
+
+function add() {
+	value.value += 100;
+}
+
+function sub() {
+	value.value -= 100;
+}
+</script>

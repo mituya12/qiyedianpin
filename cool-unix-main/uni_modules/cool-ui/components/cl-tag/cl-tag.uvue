@@ -1,0 +1,188 @@
+<template>
+	<view
+		class="cl-tag"
+		:class="[
+			`cl-tag--${type}`,
+			{
+				'cl-tag--rounded': rounded,
+				'cl-tag--plain': plain,
+				'is-dark': isDark
+			},
+			pt.className
+		]"
+		v-if="!isHide"
+	>
+		<cl-icon
+			:name="icon"
+			:size="28"
+			color="white"
+			:pt="{ className: 'mr-1 ml-[-4rpx]' }"
+			v-if="icon != ''"
+		></cl-icon>
+
+		<cl-text
+			:color="color"
+			:pt="{
+				className: parseClass(['cl-tag__text text-sm', pt.text?.className])
+			}"
+		>
+			<slot></slot>
+		</cl-text>
+
+		<cl-icon
+			name="close-circle-line"
+			:size="28"
+			color="white"
+			:pt="{ className: 'ml-1 mr-[-4rpx]' }"
+			@tap="close"
+			v-if="closable"
+		></cl-icon>
+	</view>
+</template>
+
+<script setup lang="ts">
+import { computed, ref, type PropType } from "vue";
+import type { Type } from "../../types";
+import type { ClTextPassThrough } from "../cl-text/props";
+import { isDark, parseClass, parsePt } from "@/cool";
+
+defineOptions({
+	name: "cl-tag"
+});
+
+const props = defineProps({
+	// 透传样式
+	pt: {
+		type: Object,
+		default: () => ({})
+	},
+	// 类型
+	type: {
+		type: String as PropType<Type>,
+		default: "primary"
+	},
+	// 图标
+	icon: {
+		type: String,
+		default: ""
+	},
+	// 圆角
+	rounded: {
+		type: Boolean,
+		default: false
+	},
+	// 可关闭
+	closable: {
+		type: Boolean,
+		default: false
+	},
+	// 镂空
+	plain: {
+		type: Boolean,
+		default: false
+	}
+});
+
+const emits = defineEmits(["close"]);
+
+type PassThrough = {
+	className?: string;
+	text?: ClTextPassThrough;
+};
+
+const pt = computed(() => parsePt<PassThrough>(props.pt));
+
+// 是否隐藏
+const isHide = ref(false);
+
+// 关闭
+function close() {
+	isHide.value = true;
+	emits("close");
+}
+
+// 颜色
+const color = computed(() => {
+	if (isDark.value && props.type == "info") {
+		return "white";
+	}
+
+	if (props.plain) {
+		return props.type;
+	} else {
+		return "white";
+	}
+});
+</script>
+
+<style lang="scss" scoped>
+.cl-tag {
+	@apply flex flex-row items-center justify-center;
+	@apply px-3 py-1 rounded-md;
+	transition-duration: 0.2s;
+	transition-property: background-color, border-color;
+
+	&__text {
+		@apply text-sm;
+	}
+
+	&--rounded {
+		@apply rounded-full;
+	}
+
+	&--primary {
+		@apply bg-primary-500;
+	}
+
+	&--success {
+		@apply bg-green-500;
+	}
+
+	&--warn {
+		@apply bg-yellow-500;
+	}
+
+	&--error {
+		@apply bg-red-500;
+	}
+
+	&--info {
+		@apply bg-surface-500;
+	}
+
+	&--plain {
+		@apply bg-transparent;
+		@apply border border-solid border-primary-500;
+
+		&.cl-tag--primary {
+			@apply border-primary-500;
+		}
+
+		&.cl-tag--success {
+			@apply border-green-500;
+		}
+
+		&.cl-tag--warn {
+			@apply border-yellow-500;
+		}
+
+		&.cl-tag--error {
+			@apply border-red-500;
+		}
+
+		&.cl-tag--info {
+			@apply border-surface-500;
+
+			&.is-dark {
+				@apply border-surface-300;
+			}
+		}
+	}
+}
+
+.cl-tag {
+	& + .cl-tag {
+		@apply ml-2;
+	}
+}
+</style>

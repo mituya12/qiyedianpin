@@ -1,0 +1,205 @@
+<template>
+	<view
+		class="cl-switch"
+		:class="[
+			{
+				'cl-switch--disabled': isDisabled,
+				'cl-switch--checked': isChecked
+			},
+
+			pt.className
+		]"
+		@tap="onTap"
+	>
+		<view
+			class="cl-switch__track"
+			:class="[
+				{
+					'is-checked': isChecked,
+					'is-dark': isDark
+				},
+				pt.track?.className
+			]"
+			:style="{
+				height: rect.height,
+				width: rect.width
+			}"
+		>
+			<view
+				class="cl-switch__thumb"
+				:class="[pt.thumb?.className]"
+				:style="{
+					height: rect.size,
+					width: rect.size,
+					left: rect.left,
+					transform: `translateX(${isChecked ? rect.translateX : 0})`
+				}"
+			>
+				<cl-loading
+					v-if="loading"
+					:size="24"
+					color="primary"
+					:pt="{
+						className: parseClass([pt.loading?.className])
+					}"
+				></cl-loading>
+			</view>
+		</view>
+	</view>
+</template>
+
+<script lang="ts" setup>
+import { computed, ref, watch } from "vue";
+import { isAppIOS, isDark, parseClass, parsePt, rpx2px } from "@/cool";
+import type { PassThroughProps } from "../../types";
+import { vibrate } from "@/uni_modules/cool-vibrate";
+import { useForm } from "../../hooks";
+
+defineOptions({
+	name: "cl-switch"
+});
+
+// 定义组件属性
+const props = defineProps({
+	// 透传样式配置
+	pt: {
+		type: Object,
+		default: () => ({})
+	},
+	// 绑定值 - 开关状态
+	modelValue: {
+		type: Boolean,
+		default: false
+	},
+	// 是否禁用
+	disabled: {
+		type: Boolean,
+		default: false
+	},
+	// 加载状态
+	loading: {
+		type: Boolean,
+		default: false
+	},
+	// 高度
+	height: {
+		type: Number,
+		default: 48
+	},
+	// 宽度
+	width: {
+		type: Number,
+		default: 80
+	}
+});
+
+// 定义组件事件
+const emit = defineEmits(["update:modelValue", "change"]);
+
+// 透传样式类型定义
+type PassThrough = {
+	className?: string;
+	track?: PassThroughProps;
+	thumb?: PassThroughProps;
+	label?: PassThroughProps;
+	loading?: PassThroughProps;
+};
+
+// 解析透传样式配置
+const pt = computed(() => parsePt<PassThrough>(props.pt));
+
+// cl-form 上下文
+const { disabled } = useForm();
+
+// 是否禁用
+const isDisabled = computed(() => props.disabled || disabled.value);
+
+// 绑定值
+const value = ref(props.modelValue);
+
+// 是否为选中状态
+const isChecked = computed(() => value.value);
+
+// 计算开关组件的尺寸样式
+type Rect = {
+	height: string;
+	width: string;
+	size: string;
+	left: string;
+	translateX: string;
+};
+const rect = computed<Rect>(() => {
+	// 获取开关轨道高度
+	const height = props.height;
+	// 获取开关轨道宽度
+	const width = props.width;
+	// 计算圆形按钮尺寸,比轨道高度小8rpx
+	const size = height - 8;
+	// 设置圆形按钮初始位置,距离左侧px
+	const left = 4;
+	// 计算圆形按钮移动距离,为轨道宽度减去轨道高度
+	const translateX = width - height;
+
+	return {
+		height: height + "rpx",
+		width: width + "rpx",
+		size: size + "rpx",
+		left: left + "rpx",
+		translateX: isAppIOS() ? rpx2px(translateX) + "px" : `${translateX}rpx`
+	};
+});
+
+/**
+ * 点击事件处理函数
+ * 在非禁用且非加载状态下切换开关状态
+ */
+function onTap() {
+	if (!isDisabled.value && !props.loading) {
+		// 切换开关状态
+		const val = !value.value;
+		value.value = val;
+
+		// 触发更新事件
+		emit("update:modelValue", val);
+		emit("change", val);
+
+		// 震动
+		vibrate(1);
+	}
+}
+
+watch(
+	computed(() => props.modelValue),
+	(val: boolean) => {
+		value.value = val;
+	}
+);
+</script>
+
+<style lang="scss" scoped>
+.cl-switch {
+	@apply flex flex-row items-center duration-200 opacity-100;
+
+	&__track {
+		@apply flex flex-row items-center relative rounded-full duration-200;
+		@apply bg-surface-200;
+
+		&.is-dark {
+			@apply bg-surface-500;
+		}
+
+		&.is-checked {
+			@apply bg-primary-500;
+		}
+	}
+
+	&__thumb {
+		@apply flex items-center justify-center absolute;
+		@apply bg-white rounded-full duration-300;
+	}
+
+	&.cl-switch--disabled {
+		@apply opacity-50;
+	}
+}
+</style>

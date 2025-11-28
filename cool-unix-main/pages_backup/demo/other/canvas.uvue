@@ -1,0 +1,233 @@
+<template>
+	<cl-page>
+		<cl-canvas
+			v-if="width > 0"
+			ref="canvasRef"
+			canvas-id="test"
+			:height="height"
+			:width="width"
+			@load="onCanvasLoad"
+		></cl-canvas>
+
+		<cl-footer>
+			<!-- #ifdef H5 -->
+			<cl-button type="primary" @click="previewImage">{{ t("预览图片") }}</cl-button>
+			<!-- #endif -->
+
+			<!-- #ifndef H5 -->
+			<cl-button type="primary" @click="saveImage">{{ t("保存图片") }}</cl-button>
+			<!-- #endif -->
+		</cl-footer>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import { Canvas } from "@/uni_modules/cool-canvas";
+import { useUi } from "@/uni_modules/cool-ui";
+import { ref } from "vue";
+
+const ui = useUi();
+
+const canvasRef = ref<ClCanvasComponentPublicInstance | null>(null);
+
+// 初始化为 0，避免页面未完全渲染时 getWindowInfo 获取到的高度或宽度不准确（如已知固定高宽可直接赋值）
+const height = ref(0);
+const width = ref(0);
+
+function onCanvasLoad(canvas: Canvas) {
+	canvas
+		.image({
+			x: 0,
+			y: 0,
+			width: width.value,
+			height: height.value,
+			url: "/static/demo/canvas/bg.png"
+		})
+		.image({
+			x: 0,
+			y: 0,
+			width: width.value,
+			height: height.value,
+			url: "/static/demo/canvas/light.png"
+		})
+		.image({
+			x: (width.value - 226) / 2,
+			y: 60,
+			width: 226,
+			height: 77,
+			url: "/static/demo/canvas/text-yqhy.png"
+		})
+		.image({
+			x: (width.value - 325) / 2,
+			y: 125,
+			width: 325,
+			height: 77,
+			url: "/static/demo/canvas/text-dezk.png"
+		})
+		.image({
+			x: (width.value - 196) / 2,
+			y: 190,
+			width: 196,
+			height: 62,
+			url: "/static/demo/canvas/text-xrfl.png"
+		})
+		.image({
+			x: (width.value - 374) / 2 - 1,
+			y: 500,
+			width: 374,
+			height: 220,
+			url: "/static/demo/canvas/rp-t.png"
+		})
+		.image({
+			x: (width.value - 327) / 2,
+			y: 280,
+			width: 327,
+			height: 430,
+			url: "/static/demo/canvas/bg-content.png"
+		})
+		.image({
+			x: 30,
+			y: 240,
+			width: 114,
+			height: 120,
+			url: "/static/demo/canvas/gold-l.png"
+		})
+		.image({
+			x: width.value - 106 - 50,
+			y: 240,
+			width: 106,
+			height: 107,
+			url: "/static/demo/canvas/gold-r.png"
+		})
+		.image({
+			x: (width.value - 350) / 2,
+			y: 595,
+			width: 350,
+			height: 122,
+			url: "/static/demo/canvas/rp-b.png"
+		})
+		.image({
+			x: (width.value - 208) / 2,
+			y: 631,
+			width: 208,
+			height: 89,
+			url: "/static/demo/canvas/invite-btn.png"
+		})
+		.div({
+			x: (width.value - 276) / 2,
+			y: 335,
+			width: 276,
+			height: 210,
+			backgroundColor: "#fff",
+			radius: 10
+		})
+		.text({
+			x: 0,
+			y: 350,
+			width: width.value,
+			content: "新人专享",
+			color: "#F73035",
+			textAlign: "center",
+			fontSize: 28,
+			fontWeight: "bold"
+		})
+		.text({
+			x: 0,
+			y: 390,
+			width: width.value,
+			content: "限时领券30元",
+			color: "#F73035",
+			textAlign: "center",
+			fontSize: 16
+		})
+		.image({
+			x: (width.value - 246) / 2,
+			y: 432,
+			width: 246,
+			height: 98,
+			url: "/static/demo/canvas/coupon.png"
+		})
+		.text({
+			x: (width.value - 246) / 2,
+			y: 435,
+			content: "领券",
+			width: 34,
+			color: "#fff",
+			fontSize: 11,
+			textAlign: "center"
+		})
+		.text({
+			x: (width.value - 246) / 2,
+			y: 454,
+			width: 86,
+			content: "80",
+			color: "#604E44",
+			fontSize: 46,
+			textAlign: "center",
+			fontWeight: "bold"
+		})
+		.text({
+			x: (width.value - 246) / 2 + 86,
+			y: 459,
+			width: 246 - 86,
+			content: "新人专享优惠券",
+			color: "#604E44",
+			fontSize: 18,
+			textAlign: "center"
+		})
+		.text({
+			x: (width.value - 246) / 2 + 86,
+			y: 489,
+			width: 246 - 86,
+			content: "2021.04.30-2021.06.30",
+			color: "#604E44",
+			fontSize: 12,
+			textAlign: "center"
+		})
+		.text({
+			x: 0,
+			y: 560,
+			width: width.value,
+			content: "邀请好友，双方均可获得20元优惠券",
+			color: "#756056",
+			fontSize: 15,
+			textAlign: "center"
+		})
+		.text({
+			x: 0,
+			y: 300,
+			width: width.value,
+			content: "～ 专属新人福利 ～",
+			color: "#956056",
+			textAlign: "center",
+			opacity: 0.7
+		})
+		.draw();
+}
+
+function previewImage() {
+	canvasRef.value!.previewImage();
+}
+
+function saveImage() {
+	canvasRef.value!.saveImage();
+}
+
+onReady(() => {
+	// 同上
+	height.value = uni.getWindowInfo().windowHeight;
+	width.value = uni.getWindowInfo().windowWidth;
+
+	ui.showConfirm({
+		title: t("提示"),
+		message: t("本页面内容由 canvas 渲染生成，是否立即预览图片效果？"),
+		confirmText: t("预览"),
+		callback(action) {
+			if (action == "confirm") {
+				canvasRef.value!.previewImage();
+			}
+		}
+	});
+});
+</script>

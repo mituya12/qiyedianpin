@@ -1,0 +1,696 @@
+<template>
+	<cl-page :title="company.name">
+		<view class="content">
+			<!-- 企业信息卡片 -->
+			<view class="company-card">
+				<view class="card-bg-gradient card-bg-gradient-1"></view>
+				<view class="card-bg-gradient card-bg-gradient-2"></view>
+				
+				<view class="company-info">
+					<!-- 基本信息 -->
+					<view class="company-details">
+						<view class="company-name-section">
+							<text class="company-name">{{ company.name }}</text>
+							<text v-if="company.alias" class="company-alias">别名: {{ company.alias }}</text>
+						</view>
+
+						<!-- 评分 -->
+						<view class="rating-section">
+							<text class="rating-score">{{ Number(company.totalRating || 0).toFixed(1) }}</text>
+							<view class="rating-stars">
+								<view class="stars">
+									<cl-icon 
+										v-for="i in 5" 
+										:key="i" 
+										:name="i <= Math.round(Number(company.totalRating || 0)) ? 'star-fill' : 'star-line'" 
+										:size="32" 
+										:color="i <= Math.round(Number(company.totalRating || 0)) ? '#f59e0b' : '#cbd5e1'"
+									></cl-icon>
+								</view>
+								<text class="review-count">{{ company.reviewCount || reviews.length }} 条真实评价</text>
+							</view>
+						</view>
+					</view>
+
+					<!-- 写点评按钮 -->
+					<view class="write-btn" hover-class="write-btn-hover" @tap="goToWriteReview">
+						<cl-icon name="edit-line" :size="40" color="#ffffff"></cl-icon>
+						<text class="write-btn-text">写点评</text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 相似公司 -->
+			<view v-if="similarCompanies.length > 0" class="similar-section">
+				<text class="section-title">相似公司</text>
+				<scroll-view class="similar-list" scroll-x>
+					<view
+						v-for="item in similarCompanies"
+						:key="item.id"
+						class="similar-item"
+						hover-class="similar-item-hover"
+						@tap="switchCompany(item.id)"
+					>
+						<text class="similar-name">{{ item.name }}</text>
+						<view class="similar-rating">
+							<text class="similar-score">{{ Number(item.totalRating || 0).toFixed(1) }}</text>
+							<cl-icon 
+								v-for="i in 5" 
+								:key="i" 
+								:name="i <= Math.round(item.totalRating || 0) ? 'star-fill' : 'star-line'" 
+								:size="24" 
+								:color="i <= Math.round(item.totalRating || 0) ? '#f59e0b' : '#cbd5e1'"
+							></cl-icon>
+						</view>
+						<text class="similar-count">{{ item.reviewCount || 0 }} 条评价</text>
+					</view>
+				</scroll-view>
+			</view>
+
+			<!-- 评价列表 -->
+			<view class="reviews-section">
+				<cl-sticky :offset-top="0">
+					<view class="reviews-header">
+						<view class="reviews-title-wrap">
+							<text class="reviews-title">评价列表</text>
+							<text class="reviews-count">({{ reviews.length }})</text>
+						</view>
+						<view class="sort-selector" @tap="showSortPicker">
+							<cl-icon name="filter-line" :size="32" color="#94a3b8"></cl-icon>
+							<text class="sort-text">{{ sortOptions[sortBy] }}</text>
+						</view>
+					</view>
+				</cl-sticky>
+
+				<!-- 评价卡片列表 -->
+				<view class="reviews-list">
+					<view v-if="sortedReviews.length === 0" class="empty-state">
+						<view class="empty-icon">
+							<cl-icon name="chat-3-line" :size="96" color="#cbd5e1"></cl-icon>
+						</view>
+						<text class="empty-text">暂无评价，快来抢占沙发！</text>
+					</view>
+					<view
+						v-else
+						v-for="review in sortedReviews"
+						:key="review.id"
+						class="review-card"
+						@tap="goToReviewDetail(review.id)"
+					>
+						<!-- 评价卡片内容 -->
+						<view class="review-header">
+							<view class="review-author">
+								<cl-avatar :src="review.authorAvatar" :size="80"></cl-avatar>
+								<view class="author-info">
+									<text class="author-name">{{ review.authorName }}</text>
+									<text class="review-date">{{ review.date }}</text>
+								</view>
+							</view>
+							<view class="review-rating">
+								<cl-icon 
+									v-for="i in 5" 
+									:key="i" 
+									:name="i <= review.rating ? 'star-fill' : 'star-line'" 
+									:size="28" 
+									:color="i <= review.rating ? '#f59e0b' : '#cbd5e1'"
+								></cl-icon>
+							</view>
+						</view>
+
+						<view class="review-tags">
+							<text class="review-tag">{{ review.status }}</text>
+							<text class="review-tag">{{ review.department }}</text>
+							<text v-if="review.isBranch === 1" class="review-tag">分公司</text>
+						</view>
+
+						<text class="review-content">{{ review.content }}</text>
+
+						<view v-if="review.salary" class="review-salary">
+							<text class="salary-label">薪资：</text>
+							<text class="salary-value">{{ review.salary }}</text>
+						</view>
+
+						<view v-if="review.benefits" class="review-benefits">
+							<text class="benefits-label">福利：</text>
+							<text class="benefits-value">{{ review.benefits }}</text>
+						</view>
+
+						<view class="review-footer">
+							<view class="footer-action">
+								<cl-icon name="thumb-up-line" :size="32" color="#64748b"></cl-icon>
+								<text class="action-text">{{ review.likes }}</text>
+							</view>
+							<view class="footer-action">
+								<cl-icon name="chat-3-line" :size="32" color="#64748b"></cl-icon>
+								<text class="action-text">{{ review.replyCount || 0 }}</text>
+							</view>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref, computed } from "vue";
+import { onLoad, onShow } from "@dcloudio/uni-app";
+import { getCompanyDetail, getSimilarCompanies, getReviewList } from "@/common/api";
+
+// 企业数据
+const companyId = ref("");
+const company = ref({
+	id: 0,
+	name: "",
+	alias: "",
+	totalRating: 0,
+	reviewCount: 0,
+	reviews: [] as any[]
+});
+
+// 评价列表数据
+const reviews = ref<any[]>([]);
+
+// 相似企业
+const similarCompanies = ref<any[]>([]);
+
+// 页面加载
+onLoad(async (options: any) => {
+	if (options && options.id) {
+		companyId.value = options.id;
+		await fetchCompanyDetail();
+		fetchSimilarCompanies();
+		fetchReviews();
+	}
+});
+
+// 页面显示时刷新评价列表
+onShow(() => {
+	if (companyId.value && company.value.name) {
+		fetchReviews();
+	}
+});
+
+// 获取企业详情
+const fetchCompanyDetail = async () => {
+	try {
+		const res = await getCompanyDetail(companyId.value);
+		
+		if (res) {
+			company.value = {
+				...res,
+				reviews: []
+			};
+		}
+	} catch (err: any) {
+		// 静默失败
+	}
+};
+
+// 获取相似企业
+const fetchSimilarCompanies = async () => {
+	try {
+		const res = await getSimilarCompanies(companyId.value);
+		
+		if (res && Array.isArray(res)) {
+			similarCompanies.value = res;
+		}
+	} catch (err: any) {
+		// 静默失败
+	}
+};
+
+// 获取评价列表
+const fetchReviews = async () => {
+	if (!company.value.name) {
+		return;
+	}
+	
+	try {
+		const res = await getReviewList({
+			companyName: company.value.name,
+			page: 1,
+			pageSize: 100
+		});
+		
+		if (res && res.items) {
+			reviews.value = res.items;
+			company.value.reviews = res.items;
+		}
+	} catch (err: any) {
+		// 静默失败
+	}
+};
+
+const sortBy = ref("newest");
+const sortOptions = {
+	newest: "最新发布",
+	highest: "评分从高到低",
+	lowest: "评分从低到高"
+};
+
+const sortedReviews = computed(() => {
+	const reviewList = [...reviews.value];
+	if (sortBy.value === "highest") {
+		return reviewList.sort((a, b) => b.rating - a.rating);
+	} else if (sortBy.value === "lowest") {
+		return reviewList.sort((a, b) => a.rating - b.rating);
+	}
+	return reviewList.sort((a, b) => new Date(b.createdAt || b.date).getTime() - new Date(a.createdAt || a.date).getTime());
+});
+
+const goToWriteReview = () => {
+	uni.navigateTo({
+		url: "/pages/review/create?companyName=" + encodeURIComponent(company.value.name) + "&companyAlias=" + encodeURIComponent(company.value.alias || "")
+	});
+};
+
+const switchCompany = (id: number) => {
+	companyId.value = id.toString();
+	reviews.value = [];  // 清空评价列表
+	fetchCompanyDetail();
+	fetchSimilarCompanies();
+	fetchReviews();
+	uni.pageScrollTo({
+		scrollTop: 0,
+		duration: 300
+	});
+};
+
+const goToReviewDetail = (reviewId: number) => {
+	uni.navigateTo({
+		url: "/pages/review/detail?id=" + reviewId
+	});
+};
+
+const showSortPicker = () => {
+	uni.showActionSheet({
+		itemList: ["最新发布", "评分从高到低", "评分从低到高"],
+		success: (res) => {
+			const options = ["newest", "highest", "lowest"];
+			sortBy.value = options[res.tapIndex] as string;
+			
+			// 根据排序方式调用接口
+			const sortMap = {
+				newest: "createdAt",
+				highest: "rating",
+				lowest: "rating"
+			};
+			
+			const orderMap = {
+				newest: "desc",
+				highest: "desc",
+				lowest: "asc"
+			};
+			
+			// 重新获取评价列表（带排序参数）
+			fetchReviewsWithSort(sortMap[sortBy.value], orderMap[sortBy.value]);
+		}
+	});
+};
+
+// 带排序参数获取评价列表
+const fetchReviewsWithSort = async (sortField: string, order: string) => {
+	if (!company.value.name) {
+		return;
+	}
+	
+	try {
+		const res = await getReviewList({
+			companyName: company.value.name,
+			page: 1,
+			pageSize: 100,
+			sortField,
+			order
+		});
+		
+		if (res && res.items) {
+			reviews.value = res.items;
+			company.value.reviews = res.items;
+		}
+	} catch (err: any) {
+		console.error("获取评价列表失败:", err);
+	}
+};
+</script>
+
+<style lang="scss" scoped>
+.content {
+	background-color: #f8fafc;
+	min-height: 100vh;
+}
+
+.company-card {
+	margin: 48rpx 32rpx;
+	background: linear-gradient(135deg, 
+		rgba(207, 250, 254, 0.3) 0%, 
+		rgba(248, 250, 252, 1) 30%, 
+		rgba(248, 250, 252, 1) 60%, 
+		rgba(204, 251, 241, 0.25) 100%);
+	border-radius: 48rpx;
+	padding: 48rpx;
+	border: 1px solid #f1f5f9;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+	position: relative;
+	overflow: hidden;
+}
+
+.card-bg-gradient {
+	display: none;
+}
+
+.card-bg-gradient-1 {
+	display: none;
+}
+
+.card-bg-gradient-2 {
+	display: none;
+}
+
+.company-info {
+	position: relative;
+	z-index: 1;
+	flex-direction: column;
+}
+
+.company-details {
+	flex: 1;
+	flex-direction: column;
+}
+
+.company-name-section {
+	flex-direction: column;
+	margin-bottom: 24rpx;
+}
+
+.company-name {
+	font-size: 56rpx;
+	font-weight: bold;
+	color: #1e293b;
+}
+
+.company-alias {
+	font-size: 28rpx;
+	color: #94a3b8;
+	margin-top: 8rpx;
+}
+
+.rating-section {
+	flex-direction: row;
+	align-items: center;
+	padding-top: 8rpx;
+}
+
+.rating-score {
+	font-size: 72rpx;
+	font-weight: bold;
+	color: #1e293b;
+	margin-right: 32rpx;
+}
+
+.rating-stars {
+	flex-direction: column;
+	justify-content: center;
+}
+
+.stars {
+	flex-direction: row;
+}
+
+.review-count {
+	font-size: 24rpx;
+	color: #94a3b8;
+	margin-top: 8rpx;
+}
+
+.write-btn {
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	background: linear-gradient(to right, #06b6d4, #14b8a6);
+	border-radius: 32rpx;
+	padding: 32rpx 48rpx;
+	margin-top: 48rpx;
+	box-shadow: 0 10px 15px rgba(6, 182, 212, 0.2);
+}
+
+.write-btn-hover {
+	opacity: 0.9;
+	transform: scale(0.98);
+}
+
+.write-btn-text {
+	font-size: 32rpx;
+	font-weight: 500;
+	color: #ffffff;
+	margin-left: 16rpx;
+}
+
+.similar-section {
+	margin: 0 32rpx 48rpx;
+	flex-direction: column;
+}
+
+.section-title {
+	font-size: 36rpx;
+	font-weight: bold;
+	color: #1e293b;
+	margin-bottom: 32rpx;
+	padding: 0 8rpx;
+}
+
+.similar-list {
+	flex-direction: row;
+	white-space: nowrap;
+}
+
+.similar-item {
+	width: 280rpx;
+	min-width: 280rpx;
+	background-color: #ffffff;
+	padding: 24rpx;
+	border-radius: 24rpx;
+	border: 1px solid #f1f5f9;
+	margin-right: 24rpx;
+	flex-direction: column;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.similar-item-hover {
+	border-color: #a5f3fc;
+	box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.similar-name {
+	font-size: 28rpx;
+	font-weight: bold;
+	color: #1e293b;
+	margin-bottom: 16rpx;
+}
+
+.similar-rating {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 16rpx;
+}
+
+.similar-score {
+	font-size: 24rpx;
+	font-weight: bold;
+	color: #f59e0b;
+	margin-right: 8rpx;
+}
+
+.similar-count {
+	font-size: 20rpx;
+	color: #94a3b8;
+	padding: 4rpx 16rpx;
+	border-radius: 9999px;
+}
+
+.reviews-section {
+	margin: 0 32rpx 48rpx;
+	flex-direction: column;
+}
+
+.reviews-header {
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	background-color: #f8fafc;
+	padding: 24rpx 0;
+	margin-bottom: 16rpx;
+}
+
+.reviews-title-wrap {
+	flex-direction: row;
+	align-items: center;
+}
+
+.reviews-title {
+	font-size: 36rpx;
+	font-weight: bold;
+	color: #1e293b;
+}
+
+.reviews-count {
+	font-size: 28rpx;
+	color: #94a3b8;
+	margin-left: 16rpx;
+}
+
+.sort-selector {
+	flex-direction: row;
+	align-items: center;
+	background-color: #ffffff;
+	padding: 12rpx 24rpx;
+	border-radius: 24rpx;
+	border: 1px solid #f1f5f9;
+}
+
+.sort-text {
+	font-size: 28rpx;
+	font-weight: 500;
+	color: #475569;
+	margin-left: 16rpx;
+}
+
+.reviews-list {
+	flex-direction: column;
+}
+
+.empty-state {
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 160rpx 48rpx;
+}
+
+.empty-icon {
+	margin-bottom: 32rpx;
+}
+
+.empty-text {
+	font-size: 28rpx;
+	color: #94a3b8;
+}
+
+.review-card {
+	background-color: #ffffff;
+	border-radius: 32rpx;
+	padding: 40rpx;
+	margin-bottom: 32rpx;
+	border: 1px solid #f1f5f9;
+	flex-direction: column;
+}
+
+.review-header {
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: space-between;
+	margin-bottom: 24rpx;
+}
+
+.review-author {
+	flex-direction: row;
+	align-items: center;
+	flex: 1;
+}
+
+.author-info {
+	flex-direction: column;
+	margin-left: 24rpx;
+	flex: 1;
+}
+
+.author-name {
+	font-size: 28rpx;
+	font-weight: 500;
+	color: #1e293b;
+}
+
+.review-date {
+	font-size: 24rpx;
+	color: #94a3b8;
+	margin-top: 8rpx;
+}
+
+.review-rating {
+	flex-direction: row;
+}
+
+.review-tags {
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin-bottom: 24rpx;
+}
+
+.review-tag {
+	font-size: 24rpx;
+	color: #06b6d4;
+	background-color: #cffafe;
+	padding: 8rpx 24rpx;
+	border-radius: 9999px;
+	margin-right: 16rpx;
+}
+
+.review-content {
+	font-size: 28rpx;
+	color: #475569;
+	line-height: 44rpx;
+	margin-bottom: 24rpx;
+}
+
+.review-salary {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 16rpx;
+}
+
+.salary-label {
+	font-size: 28rpx;
+	color: #64748b;
+}
+
+.salary-value {
+	font-size: 28rpx;
+	font-weight: 500;
+	color: #1e293b;
+}
+
+.review-benefits {
+	flex-direction: row;
+	align-items: flex-start;
+	margin-bottom: 24rpx;
+}
+
+.benefits-label {
+	font-size: 28rpx;
+	color: #64748b;
+}
+
+.benefits-value {
+	font-size: 28rpx;
+	color: #475569;
+	flex: 1;
+}
+
+.review-footer {
+	flex-direction: row;
+	align-items: center;
+	padding-top: 24rpx;
+	border-top: 1px solid #f1f5f9;
+}
+
+.footer-action {
+	flex-direction: row;
+	align-items: center;
+	margin-right: 48rpx;
+}
+
+.action-text {
+	font-size: 28rpx;
+	color: #64748b;
+	margin-left: 16rpx;
+}
+</style>

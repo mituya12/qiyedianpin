@@ -1,0 +1,30 @@
+{
+	"tabWidth": 4,
+	"useTabs": true,
+	"semi": true,
+	"jsxBracketSameLine": true,
+	"singleQuote": false,
+	"printWidth": 100,
+	"trailingComma": "none",
+	"plugins": [
+		{
+			"name": "uts",
+			"parsers": ["typescript"],
+			"vscodeLanguageIds": ["uts"]
+		}
+	],
+	"overrides": [
+		{
+			"files": "*.uvue",
+			"options": {
+				"parser": "vue"
+			}
+		},
+		{
+			"files": "*.uts",
+			"options": {
+				"parser": "typescript"
+			}
+		}
+	]
+}

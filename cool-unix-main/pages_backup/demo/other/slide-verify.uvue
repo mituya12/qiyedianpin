@@ -1,0 +1,47 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-slide-verify
+					v-model="status"
+					@success="onSuccess"
+					@fail="onFail"
+				></cl-slide-verify>
+			</demo-item>
+
+			<demo-item :label="t('没有错误提示')">
+				<cl-slide-verify :show-fail="false"></cl-slide-verify>
+			</demo-item>
+
+			<demo-item :label="t('转动图片')">
+				<cl-slide-verify
+					mode="image"
+					image-url="https://unix.cool-js.com/images/demo/avatar.jpg"
+				></cl-slide-verify>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+import { useUi } from "@/uni_modules/cool-ui";
+
+const ui = useUi();
+
+const status = ref(false);
+
+function onSuccess() {
+	ui.showToast({
+		message: t("验证通过")
+	});
+}
+
+function onFail() {
+	ui.showToast({
+		message: t("验证失败")
+	});
+}
+</script>

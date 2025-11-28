@@ -1,0 +1,73 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-input-otp @done="toDone"></cl-input-otp>
+			</demo-item>
+
+			<demo-item :label="t('自动聚焦')">
+				<cl-input-otp autofocus @done="toDone"></cl-input-otp>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<cl-input-otp
+					:length="isLength ? 6 : 4"
+					:disabled="isDisabled"
+					:pt="{
+						item: {
+							className: parseClass({
+								'!bg-sky-100': isCustom,
+								'!border-white': isCustom
+							})
+						},
+						value: {
+							className: parseClass({
+								'!text-sky-700': isCustom
+							})
+						},
+						cursor: {
+							className: parseClass({
+								'!bg-sky-700': isCustom
+							})
+						}
+					}"
+					@done="toDone"
+				></cl-input-otp>
+
+				<cl-list border :pt="{ className: 'mt-5' }">
+					<cl-list-item :label="t('长度为6')">
+						<cl-switch v-model="isLength"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('禁用')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('其他样式')">
+						<cl-switch v-model="isCustom"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { useUi } from "@/uni_modules/cool-ui";
+import { parseClass } from "@/cool";
+import { t } from "@/locale";
+
+const ui = useUi();
+
+const isLength = ref(true);
+const isDisabled = ref(false);
+const isCustom = ref(false);
+
+function toDone() {
+	ui.showToast({
+		message: "Done"
+	});
+}
+</script>

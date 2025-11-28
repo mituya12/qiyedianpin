@@ -1,0 +1,78 @@
+# 文档（只忽略docs文件夹下的.md文件）
+docs/**/*.md
+**/docs/**/*.md
+
+# 依赖
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+yarn.lock
+
+# 构建输出
+dist/
+build/
+out/
+.next/
+
+# 开发环境
+.env
+.env.local
+.env.*.local
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.c9/
+*.launch
+.settings/
+*.sublime-workspace
+
+# 日志
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# 运行时数据
+pids/
+*.pid
+*.seed
+*.pid.lock
+
+# 临时文件
+tmp/
+temp/
+
+# 操作系统
+Thumbs.db
+.DS_Store
+
+# 编辑器备份
+*.bak
+*.swp
+*.swo
+
+# 测试覆盖率
+coverage/
+.nyc_output/
+
+# 缓存
+.cache/
+.eslintcache
+
+# 打包
+dist/
+*.tgz
+
+# 其他
+.turbo/
+.env.production.local
+.env.development.local

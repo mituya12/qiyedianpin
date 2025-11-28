@@ -1,0 +1,120 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-list-item :label="t('用户名')">
+					<cl-text>神仙都没用</cl-text>
+				</cl-list-item>
+			</demo-item>
+
+			<demo-item :label="t('内容靠左')">
+				<cl-list-item
+					:label="t('QQ')"
+					justify="start"
+					:pt="{
+						label: {
+							className: '!w-10'
+						}
+					}"
+				>
+					<cl-text>615206459</cl-text>
+				</cl-list-item>
+			</demo-item>
+
+			<demo-item :label="t('带箭头')">
+				<cl-list-item label="年龄" arrow>
+					<cl-text>18</cl-text>
+				</cl-list-item>
+			</demo-item>
+
+			<demo-item :label="t('带图标')">
+				<cl-list-item :label="t('余额')" icon="wallet-line">
+					<cl-text>10,9000</cl-text>
+				</cl-list-item>
+			</demo-item>
+
+			<demo-item :label="t('带图片')">
+				<cl-list-item
+					arrow
+					:pt="{
+						image: {
+							width: 48,
+							height: 48
+						}
+					}"
+					:label="t('神仙都没用')"
+					image="https://unix.cool-js.com/images/demo/avatar.jpg"
+				>
+				</cl-list-item>
+			</demo-item>
+
+			<demo-item :label="t('折叠')">
+				<cl-list-item :label="t('点击展开')" collapse arrow>
+					<template #collapse>
+						<view class="bg-surface-100 dark:bg-surface-700 p-3 rounded-xl">
+							<cl-text
+								>云想衣裳花想容，春风拂槛露华浓。若非群玉山头见，会向瑶台月下逢。</cl-text
+							>
+						</view>
+					</template>
+				</cl-list-item>
+			</demo-item>
+
+			<demo-item :label="t('可滑动')">
+				<cl-list-item :label="t('左滑编辑')" swipeable>
+					<template #swipe-right>
+						<view
+							class="bg-green-500 w-20 h-full flex flex-row items-center justify-center"
+						>
+							<text class="text-white text-md">{{ t("编辑") }}</text>
+						</view>
+					</template>
+				</cl-list-item>
+
+				<cl-list-item ref="listItemRef" :label="t('右滑删除')" swipeable>
+					<template #swipe-left>
+						<view
+							class="bg-red-500 w-20 h-full flex flex-row items-center justify-center"
+							@tap="onDelete"
+						>
+							<text class="text-white text-md">{{ t("删除") }}</text>
+						</view>
+					</template>
+				</cl-list-item>
+			</demo-item>
+
+			<demo-item :label="t('禁用')">
+				<cl-list-item :label="t('账号')" disabled>
+					<cl-text>1234567890</cl-text>
+				</cl-list-item>
+			</demo-item>
+
+			<demo-item :label="t('列表')">
+				<cl-list border>
+					<cl-list-item :label="t('我的订单')" hoverable> </cl-list-item>
+					<cl-list-item :label="t('我的收藏')" hoverable> </cl-list-item>
+					<cl-list-item :label="t('我的钱包')" hoverable> </cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { useUi } from "@/uni_modules/cool-ui";
+import { ref } from "vue";
+
+const ui = useUi();
+
+const listItemRef = ref<ClListItemComponentPublicInstance | null>(null);
+
+function onDelete() {
+	ui.showToast({
+		message: "删除成功"
+	});
+
+	listItemRef.value!.resetSwipe();
+}
+</script>

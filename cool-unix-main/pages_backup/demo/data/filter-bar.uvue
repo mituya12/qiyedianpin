@@ -1,0 +1,467 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-filter-bar>
+					<!-- 下拉框 -->
+					<cl-filter-item
+						label="综合排序"
+						type="select"
+						:value="1"
+						:options="coreOptions"
+						:pt="{
+							className: 'w-[220rpx] !flex-none'
+						}"
+						@change="onOptionsChange"
+					></cl-filter-item>
+
+					<!-- 排序 -->
+					<cl-filter-item
+						label="销量"
+						type="sort"
+						value="desc"
+						@change="onSortChange"
+					></cl-filter-item>
+
+					<!-- 开关 -->
+					<cl-filter-item
+						label="国补"
+						type="switch"
+						:value="false"
+						@change="onSwitchChange"
+					></cl-filter-item>
+
+					<!-- 自定义 -->
+					<view
+						class="flex flex-row items-center justify-center flex-1"
+						@tap="openFilter"
+					>
+						<cl-text>筛选</cl-text>
+						<cl-icon name="filter-line"></cl-icon>
+					</view>
+				</cl-filter-bar>
+			</demo-item>
+
+			<demo-item>
+				<cl-text pre-wrap :pt="{ className: 'text-sm p-2' }">{{
+					JSON.stringify(filterForm, null, 4)
+				}}</cl-text>
+			</demo-item>
+
+			<demo-item>
+				<cl-text pre-wrap :pt="{ className: 'text-sm p-2' }">{{
+					JSON.stringify(searchForm, null, 4)
+				}}</cl-text>
+			</demo-item>
+		</view>
+
+		<!-- 自定义筛选 -->
+		<cl-popup
+			v-model="filterVisible"
+			:title="t('筛选')"
+			direction="right"
+			size="80%"
+			:show-header="false"
+		>
+			<view class="flex flex-col h-full">
+				<scroll-view class="flex-1">
+					<cl-form :pt="{ className: 'p-3' }">
+						<cl-form-item label="服务/折扣">
+							<cl-row :gutter="20">
+								<cl-col :span="8" v-for="(item, index) in disOptions" :key="index">
+									<cl-checkbox
+										v-model="searchForm.dis"
+										:label="item.label"
+										:value="item.value"
+										:show-icon="false"
+										:pt="{
+											className: parseClass([
+												'mb-3 p-2 rounded-lg justify-center border border-solid border-transparent',
+												[isDark, 'bg-surface-800', 'bg-surface-100'],
+												[
+													searchForm.dis.includes(item.value),
+													`${isDark ? '!bg-surface-700' : '!bg-white'} !border-primary-500`
+												]
+											]),
+											label: {
+												className: 'text-sm'
+											}
+										}"
+									></cl-checkbox>
+								</cl-col>
+							</cl-row>
+						</cl-form-item>
+
+						<cl-form-item label="价格区间">
+							<view class="flex flex-row items-center">
+								<cl-input
+									v-model="searchForm.minPrice"
+									type="digit"
+									placeholder="最低价"
+									:pt="{
+										className: 'flex-1',
+										inner: {
+											className: 'text-center'
+										}
+									}"
+								></cl-input>
+								<cl-text
+									:pt="{
+										className: 'px-2'
+									}"
+									>~</cl-text
+								>
+								<cl-input
+									v-model="searchForm.maxPrice"
+									type="digit"
+									placeholder="最高价"
+									:pt="{
+										className: 'flex-1',
+										inner: {
+											className: 'text-center'
+										}
+									}"
+								></cl-input>
+							</view>
+						</cl-form-item>
+
+						<cl-form-item label="品牌">
+							<cl-row :gutter="20">
+								<cl-col
+									:span="8"
+									v-for="(item, index) in brandOptions"
+									:key="index"
+								>
+									<cl-checkbox
+										v-model="searchForm.brand"
+										:label="item.label"
+										:value="item.value"
+										:show-icon="false"
+										:pt="{
+											className: parseClass([
+												'mb-3 p-2 rounded-lg justify-center border border-solid border-transparent',
+												[isDark, 'bg-surface-800', 'bg-surface-100'],
+												[
+													searchForm.brand.includes(item.value),
+													`${isDark ? '!bg-surface-700' : '!bg-white'} !border-primary-500`
+												]
+											]),
+											label: {
+												className: 'text-sm'
+											}
+										}"
+									></cl-checkbox>
+								</cl-col>
+							</cl-row>
+						</cl-form-item>
+
+						<cl-form-item label="内存">
+							<cl-row :gutter="20">
+								<cl-col
+									:span="8"
+									v-for="(item, index) in memoryOptions"
+									:key="index"
+								>
+									<cl-radio
+										v-model="searchForm.memory"
+										:label="item.label"
+										:value="item.value"
+										:show-icon="false"
+										:pt="{
+											className: parseClass([
+												'mb-3 p-2 rounded-lg justify-center border border-solid border-transparent',
+												[isDark, 'bg-surface-800', 'bg-surface-100'],
+												[
+													searchForm.memory == item.value,
+													`${isDark ? '!bg-surface-700' : '!bg-white'} !border-primary-500`
+												]
+											]),
+											label: {
+												className: 'text-sm'
+											}
+										}"
+									></cl-radio>
+								</cl-col>
+							</cl-row>
+						</cl-form-item>
+
+						<cl-form-item label="颜色">
+							<cl-row :gutter="20">
+								<cl-col
+									:span="8"
+									v-for="(item, index) in colorOptions"
+									:key="index"
+								>
+									<cl-radio
+										v-model="searchForm.color"
+										:label="item.label"
+										:value="item.value"
+										:show-icon="false"
+										:pt="{
+											className: parseClass([
+												'mb-3 p-2 rounded-lg justify-center border border-solid border-transparent',
+												[isDark, 'bg-surface-800', 'bg-surface-100'],
+												[
+													searchForm.color == item.value,
+													`${isDark ? '!bg-surface-700' : '!bg-white'} !border-primary-500`
+												]
+											]),
+											label: {
+												className: 'text-sm'
+											}
+										}"
+									></cl-radio>
+								</cl-col>
+							</cl-row>
+						</cl-form-item>
+					</cl-form>
+				</scroll-view>
+
+				<view class="flex flex-row p-3">
+					<cl-button
+						type="info"
+						text
+						border
+						:pt="{
+							className: 'flex-1'
+						}"
+						@tap="closeFilter"
+						>{{ t("取消") }}</cl-button
+					>
+					<cl-button
+						:pt="{
+							className: 'flex-1'
+						}"
+						@tap="submit"
+						>{{ t("确定") }}</cl-button
+					>
+				</view>
+
+				<cl-safe-area type="bottom"></cl-safe-area>
+			</view>
+		</cl-popup>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { reactive, ref } from "vue";
+import { useUi, type ClSelectOption } from "@/uni_modules/cool-ui";
+import { isDark, parseClass } from "@/cool";
+
+const ui = useUi();
+
+const filterVisible = ref(false);
+
+function openFilter() {
+	filterVisible.value = true;
+}
+
+function closeFilter() {
+	filterVisible.value = false;
+}
+
+function submit() {
+	closeFilter();
+
+	ui.showLoading();
+
+	setTimeout(() => {
+		ui.hideLoading();
+	}, 1000);
+}
+
+const coreOptions = ref<ClSelectOption[]>([
+	{
+		label: "综合排序",
+		value: 1
+	},
+	{
+		label: "价格从高到底",
+		value: 2
+	},
+	{
+		label: "价格从低到高",
+		value: 3
+	}
+]);
+
+type Option = {
+	label: string;
+	value: string;
+};
+
+const disOptions = ref<Option[]>([
+	{
+		label: "百亿补贴",
+		value: "billion_subsidy"
+	},
+	{
+		label: "以旧换新",
+		value: "trade_in"
+	},
+	{
+		label: "分期免息",
+		value: "installment"
+	},
+	{
+		label: "包邮",
+		value: "free_shipping"
+	},
+	{
+		label: "促销",
+		value: "promotion"
+	},
+	{
+		label: "价保",
+		value: "price_protection"
+	},
+	{
+		label: "仅看有货",
+		value: "in_stock"
+	},
+	{
+		label: "货到付款",
+		value: "cod"
+	}
+]);
+
+const brandOptions = ref<Option[]>([
+	{
+		label: "华为",
+		value: "huawei"
+	},
+	{
+		label: "苹果",
+		value: "apple"
+	},
+	{
+		label: "小米",
+		value: "xiaomi"
+	},
+	{
+		label: "三星",
+		value: "samsung"
+	},
+	{
+		label: "OPPO",
+		value: "oppo"
+	},
+	{
+		label: "vivo",
+		value: "vivo"
+	},
+	{
+		label: "荣耀",
+		value: "honor"
+	}
+]);
+
+const colorOptions = ref<Option[]>([
+	{
+		label: "红色",
+		value: "red"
+	},
+	{
+		label: "蓝色",
+		value: "blue"
+	},
+	{
+		label: "黑色",
+		value: "black"
+	},
+	{
+		label: "白色",
+		value: "white"
+	},
+	{
+		label: "金色",
+		value: "gold"
+	},
+	{
+		label: "银色",
+		value: "silver"
+	},
+	{
+		label: "绿色",
+		value: "green"
+	},
+	{
+		label: "紫色",
+		value: "purple"
+	},
+	{
+		label: "灰色",
+		value: "gray"
+	},
+	{
+		label: "粉色",
+		value: "pink"
+	}
+]);
+
+const memoryOptions = ref<Option[]>([
+	{
+		label: "128GB",
+		value: "128"
+	},
+	{
+		label: "256GB",
+		value: "256"
+	},
+	{
+		label: "512GB",
+		value: "512"
+	},
+	{
+		label: "1TB",
+		value: "1024"
+	}
+]);
+
+type SearchForm = {
+	dis: string[];
+	minPrice: string;
+	maxPrice: string;
+	brand: string[];
+	memory: string;
+	color: string;
+};
+
+const searchForm = ref<SearchForm>({
+	dis: [],
+	minPrice: "50",
+	maxPrice: "300",
+	brand: [],
+	memory: "",
+	color: ""
+});
+
+type FilterForm = {
+	core: number;
+	sort: string;
+	switch: boolean;
+};
+
+const filterForm = reactive<FilterForm>({
+	core: 0,
+	sort: "none",
+	switch: false
+});
+
+function onOptionsChange(val: number) {
+	console.log(val);
+	filterForm.core = val;
+}
+
+function onSortChange(val: string) {
+	console.log(val);
+	filterForm.sort = val;
+}
+
+function onSwitchChange(val: boolean) {
+	console.log(val);
+	filterForm.switch = val;
+}
+</script>

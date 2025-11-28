@@ -1,0 +1,71 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-timeline>
+					<cl-timeline-item
+						icon="account-box-line"
+						:title="t('开通账号')"
+						date="2025-01-01"
+						:content="t('赠送500元')"
+					>
+					</cl-timeline-item>
+
+					<cl-timeline-item
+						icon="id-card-line"
+						:title="t('完成实名认证')"
+						date="2025-01-02"
+						:content="t('通过身份证认证')"
+					>
+					</cl-timeline-item>
+
+					<cl-timeline-item
+						icon="bank-card-line"
+						:title="t('绑定银行卡')"
+						date="2025-01-03"
+						:content="t('绑定招商银行储蓄卡')"
+					>
+					</cl-timeline-item>
+
+					<cl-timeline-item
+						icon="money-cny-box-line"
+						:title="t('首次充值')"
+						date="2025-01-04"
+						:content="t('充值1000元')"
+					>
+					</cl-timeline-item>
+
+					<cl-timeline-item
+						icon="checkbox-line"
+						:title="t('完成首笔交易')"
+						date="2025-01-05"
+						:hide-line="true"
+					>
+						<view class="flex flex-row mb-3 mt-1">
+							<cl-image
+								src="https://unix.cool-js.com/images/demo/bg1.png"
+							></cl-image>
+
+							<view class="flex-1 px-3">
+								<cl-text>{{ t("优选灵活配置混合A") }}</cl-text>
+
+								<cl-text class="mr-5 mt-1 text-sm">{{ t("1000元起") }}</cl-text>
+
+								<view class="flex flex-row mt-2 items-center">
+									<cl-button size="small" type="light">{{
+										t("立即购买")
+									}}</cl-button>
+								</view>
+							</view>
+						</view>
+					</cl-timeline-item>
+				</cl-timeline>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+</script>

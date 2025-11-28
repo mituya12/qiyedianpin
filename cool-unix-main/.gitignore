@@ -1,0 +1,17 @@
+.DS_Store
+node_modules/
+unpackage/
+/dist/
+
+# Log files
+npm-debug.log*
+
+# Editor directories and files
+.project
+.idea
+.hbuilderx
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw*

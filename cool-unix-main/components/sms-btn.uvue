@@ -1,0 +1,234 @@
+<template>
+	<slot :disabled="isDisabled" :countdown="countdown" :btnText="btnText">
+		<cl-button text :disabled="isDisabled" @tap="open">
+			{{ btnText }}
+		</cl-button>
+	</slot>
+
+	<cl-popup
+		v-model="captcha.visible"
+		ref="popupRef"
+		direction="center"
+		:title="t('获取短信验证码')"
+		:size="500"
+	>
+		<view class="p-3 pt-2 pb-4 w-full" v-if="captcha.visible">
+			<view class="flex flex-row items-center">
+				<cl-input
+					v-model="code"
+					:placeholder="t('验证码')"
+					:maxlength="4"
+					autofocus
+					:clearable="false"
+					:pt="{
+						className: 'flex-1 mr-2 !h-[70rpx]'
+					}"
+					@confirm="send"
+				></cl-input>
+
+				<view
+					class="dark:!bg-surface-800 bg-surface-100 rounded-lg h-[70rpx] w-[200rpx] flex flex-row justify-center items-center"
+					@tap="getCaptcha"
+				>
+					<cl-loading v-if="captcha.loading" :size="28"></cl-loading>
+					<cl-svg
+						v-else
+						class="h-full w-full pointer-events-none"
+						color="none"
+						:src="captcha.img"
+					></cl-svg>
+				</view>
+			</view>
+
+			<cl-button
+				type="primary"
+				:disabled="code == ''"
+				:loading="captcha.sending"
+				:pt="{
+					className: '!h-[70rpx] mt-3'
+				}"
+				@tap="send"
+			>
+				{{ t("发送短信") }}
+			</cl-button>
+		</view>
+	</cl-popup>
+</template>
+
+<script lang="ts" setup>
+import { computed, reactive, ref } from "vue";
+import { useUi } from "@/uni_modules/cool-ui";
+import { $t, t } from "@/locale";
+import { isDark, parse, request, type Response } from "@/cool";
+
+const props = defineProps({
+	phone: String
+});
+
+const emit = defineEmits(["success"]);
+
+const popupRef = ref<ClPopupComponentPublicInstance | null>(null);
+
+const ui = useUi();
+
+type Captcha = {
+	visible: boolean;
+	loading: boolean;
+	sending: boolean;
+	img: string;
+};
+
+// 验证码
+const captcha = reactive<Captcha>({
+	visible: false,
+	loading: false,
+	sending: false,
+	img: ""
+});
+
+// 倒计时
+const countdown = ref(0);
+
+// 是否禁用
+const isDisabled = computed(() => countdown.value > 0 || props.phone == "");
+
+// 按钮文案
+const btnText = computed(() =>
+	countdown.value > 0 ? $t("{n}s后重新获取", { n: countdown.value }) : t("获取验证码")
+);
+
+const code = ref("");
+const captchaId = ref("");
+
+// 清空
+function clear() {
+	code.value = "";
+	captchaId.value = "";
+}
+
+// 关闭
+function close() {
+	captcha.visible = false;
+	captcha.img = "";
+	clear();
+}
+
+// 开始倒计时
+function startCountdown() {
+	countdown.value = 60;
+
+	let timer: number = 0;
+
+	function fn() {
+		countdown.value--;
+
+		if (countdown.value < 1) {
+			clearInterval(timer);
+		}
+	}
+
+	// @ts-ignore
+	timer = setInterval(() => {
+		fn();
+	}, 1000);
+	fn();
+}
+
+// 获取图片验证码
+async function getCaptcha() {
+	clear();
+	captcha.loading = true;
+
+	type Res = {
+		captchaId: string;
+		data: string;
+	};
+
+	await request({
+		url: "/app/user/login/captcha",
+		data: {
+			color: isDark.value ? "#ffffff" : "#2c3142",
+			phone: props.phone,
+			width: 200,
+			height: 70
+		}
+	})
+		.then((res) => {
+			if (res != null) {
+				const data = parse<Res>(res)!;
+
+				captchaId.value = data.captchaId;
+				captcha.img = data.data;
+			}
+		})
+		.catch((err) => {
+			ui.showToast({
+				message: (err as Response).message!
+			});
+		});
+
+	setTimeout(() => {
+		captcha.loading = false;
+	}, 200);
+}
+
+// 发送短信
+async function send() {
+	if (code.value != "") {
+		captcha.sending = true;
+
+		await request({
+			url: "/app/user/login/smsCode",
+			method: "POST",
+			data: {
+				phone: props.phone,
+				code: code.value,
+				captchaId: captchaId.value
+			}
+		})
+			.then(() => {
+				ui.showToast({
+					message: t("短信已发送，请查收")
+				});
+				startCountdown();
+				close();
+				emit("success");
+			})
+
+			.catch((err) => {
+				ui.showToast({
+					message: (err as Response).message!
+				});
+
+				getCaptcha();
+			});
+
+		captcha.sending = false;
+	} else {
+		ui.showToast({
+			message: t("请填写验证码")
+		});
+	}
+}
+
+// 打开
+function open() {
+	if (props.phone != "") {
+		if (/^(?:(?:\+|00)86)?1[3-9]\d{9}$/.test(props.phone!)) {
+			captcha.visible = true;
+			getCaptcha();
+		} else {
+			ui.showToast({
+				message: t("请填写正确的手机号格式")
+			});
+		}
+	}
+}
+
+defineExpose({
+	open,
+	send,
+	getCaptcha,
+	startCountdown
+});
+</script>

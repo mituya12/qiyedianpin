@@ -1,0 +1,121 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<cl-list
+				v-for="(item, index) in list"
+				:key="index"
+				:title="item.label"
+				:pt="{
+					className: 'mb-5'
+				}"
+			>
+				<cl-list-item
+					v-for="child in item.children"
+					:key="child.label"
+					:label="child.label"
+					:arrow="child.path != null"
+					@tap="toPath(child)"
+				>
+				</cl-list-item>
+			</cl-list>
+		</view>
+
+		<!-- 自定义底部导航栏 -->
+		<custom-tabbar></custom-tabbar>
+	</cl-page>
+</template>
+
+<script setup lang="ts">
+import CustomTabbar from "@/components/tabbar.uvue";
+import { router } from "@/cool";
+import { t } from "@/locale";
+import { useUi } from "@/uni_modules/cool-ui";
+import { computed } from "vue";
+
+const ui = useUi();
+
+type Item = {
+	label: string;
+	path?: string;
+	children?: Item[];
+};
+
+const list = computed<Item[]>(() => [
+	{
+		label: t("社交"),
+		children: [
+			{
+				label: t("帖子详情"),
+				path: "/pages/template/post/detail"
+			}
+		]
+	},
+	{
+		label: t("商城"),
+		children: [
+			{
+				label: t("商品分类"),
+				path: "/pages/template/shop/goods-category"
+			},
+			{
+				label: t("商品详情"),
+				path: "/pages/template/shop/goods-detail/index"
+			},
+			{
+				label: t("商品列表、筛选")
+			},
+			{
+				label: t("购物车"),
+				path: "/pages/template/shop/shopping-cart"
+			},
+			{
+				label: t("订单列表、详情")
+			},
+			{
+				label: t("收货地址"),
+				path: "/pages/template/shop/address"
+			}
+		]
+	},
+	{
+		label: t("聊天"),
+		children: [
+			{
+				label: t("对话列表、历史记录")
+			}
+		]
+	},
+	{
+		label: "AI",
+		children: [
+			{
+				label: t("流式回复")
+			},
+			{
+				label: t("语言合成")
+			},
+			{
+				label: t("语音识别")
+			}
+		]
+	},
+	{
+		label: t("其他"),
+		children: [
+			{
+				label: t("文件管理")
+			}
+		]
+	}
+]);
+
+function toPath(item: Item) {
+	if (item.path == null) {
+		return ui.showToast({
+			message: t("该模板正在开发中")
+		});
+	}
+
+	router.to(item.path!);
+}
+</script>

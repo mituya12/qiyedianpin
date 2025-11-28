@@ -1,0 +1,207 @@
+<template>
+	<cl-page title="隐私政策">
+		<scroll-view scroll-y class="privacy-container">
+			<view class="card">
+				<text class="title">企业点评隐私政策</text>
+				<text class="update-date">更新日期：2024年11月27日</text>
+
+				<view class="content">
+				<view class="section">
+					<text class="section-title">引言</text>
+					<text class="section-text">
+						企业点评平台（以下简称"我们"）非常重视用户的隐私保护。本隐私政策旨在向您说明我们如何收集、使用、存储和保护您的个人信息。请您仔细阅读本政策，以便更好地了解我们的隐私保护措施。
+					</text>
+				</view>
+
+				<view class="section">
+					<text class="section-title">一、我们收集的信息</text>
+					<text class="section-text">
+						1. 账号信息：包括您的微信昵称、头像等基本信息。
+					</text>
+					<text class="section-text">
+						2. 使用信息：包括您在平台上的浏览记录、评价内容、点赞、收藏等行为数据。
+					</text>
+					<text class="section-text">
+						3. 设备信息：包括设备型号、操作系统版本、设备标识符等。
+					</text>
+					<text class="section-text">
+						4. 位置信息：在您授权的情况下，我们可能收集您的地理位置信息，用于提供附近企业推荐等服务。
+					</text>
+				</view>
+
+				<view class="section">
+					<text class="section-title">二、信息的使用目的</text>
+					<text class="section-text">
+						1. 为您提供、维护和改进我们的服务。
+					</text>
+					<text class="section-text">
+						2. 向您推荐您可能感兴趣的内容和服务。
+					</text>
+					<text class="section-text">
+						3. 分析用户行为，优化产品功能和用户体验。
+					</text>
+					<text class="section-text">
+						4. 保护平台安全，防止欺诈和滥用行为。
+					</text>
+					<text class="section-text">
+						5. 遵守法律法规要求，履行法定义务。
+					</text>
+				</view>
+
+				<view class="section">
+					<text class="section-title">三、信息的共享与披露</text>
+					<text class="section-text">
+						1. 我们不会向第三方出售您的个人信息。
+					</text>
+					<text class="section-text">
+						2. 在以下情况下，我们可能会共享您的信息：
+					</text>
+					<text class="section-text">
+						   - 获得您的明确同意
+					</text>
+					<text class="section-text">
+						   - 根据法律法规或政府要求
+					</text>
+					<text class="section-text">
+						   - 为提供服务所必需的合作伙伴
+					</text>
+					<text class="section-text">
+						3. 我们会要求第三方合作伙伴遵守严格的保密义务。
+					</text>
+				</view>
+
+				<view class="section">
+					<text class="section-title">四、信息的存储与保护</text>
+					<text class="section-text">
+						1. 我们采用行业标准的安全措施保护您的个人信息，包括数据加密、访问控制等。
+					</text>
+					<text class="section-text">
+						2. 您的个人信息将存储在中华人民共和国境内的服务器上。
+					</text>
+					<text class="section-text">
+						3. 我们会在实现信息收集目的所需的最短时间内保留您的个人信息。
+					</text>
+					<text class="section-text">
+						4. 当发生个人信息安全事件时，我们会及时通知您并采取补救措施。
+					</text>
+				</view>
+
+				<view class="section">
+					<text class="section-title">五、您的权利</text>
+					<text class="section-text">
+						1. 访问权：您有权访问您的个人信息。
+					</text>
+					<text class="section-text">
+						2. 更正权：您有权更正不准确的个人信息。
+					</text>
+					<text class="section-text">
+						3. 删除权：在特定情况下，您有权要求删除您的个人信息。
+					</text>
+					<text class="section-text">
+						4. 撤回同意：您可以随时撤回对个人信息处理的同意。
+					</text>
+					<text class="section-text">
+						5. 注销账号：您可以通过平台设置注销您的账号。
+					</text>
+				</view>
+
+				<view class="section">
+					<text class="section-title">六、未成年人保护</text>
+					<text class="section-text">
+						我们非常重视未成年人的个人信息保护。如果您是未成年人，请在监护人的陪同下阅读本政策，并在监护人同意的情况下使用我们的服务。
+					</text>
+				</view>
+
+				<view class="section">
+					<text class="section-title">七、Cookie和类似技术</text>
+					<text class="section-text">
+						我们可能使用Cookie和类似技术来提供更好的用户体验。您可以通过浏览器设置管理Cookie，但这可能影响某些功能的使用。
+					</text>
+				</view>
+
+				<view class="section">
+					<text class="section-title">八、隐私政策的更新</text>
+					<text class="section-text">
+						我们可能会不时更新本隐私政策。更新后的政策将在平台上公布，重大变更我们会通过显著方式通知您。
+					</text>
+				</view>
+
+				<view class="section">
+					<text class="section-title">九、联系我们</text>
+					<text class="section-text">
+						如您对本隐私政策有任何疑问、意见或建议，或需要行使您的权利，请通过以下方式联系我们：
+					</text>
+					<text class="section-text">
+						邮箱：privacy@example.com
+					</text>
+					<text class="section-text">
+						我们将在15个工作日内回复您的请求。
+					</text>
+				</view>
+				</view>
+			</view>
+		</scroll-view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+</script>
+
+<style lang="scss" scoped>
+.privacy-container {
+	height: 100vh;
+	background: linear-gradient(135deg,
+		rgba(207, 250, 254, 0.3) 0%,
+		rgba(248, 250, 252, 1) 30%,
+		rgba(248, 250, 252, 1) 60%,
+		rgba(204, 251, 241, 0.25) 100%);
+	padding: 32rpx;
+}
+
+.card {
+	background-color: #ffffff;
+	border-radius: 32rpx;
+	padding: 48rpx 32rpx;
+	border: 1px solid #f1f5f9;
+	flex-direction: column;
+}
+
+.title {
+	font-size: 48rpx;
+	font-weight: bold;
+	color: #1e293b;
+	text-align: center;
+	margin-bottom: 16rpx;
+}
+
+.update-date {
+	font-size: 24rpx;
+	color: #94a3b8;
+	text-align: center;
+	margin-bottom: 48rpx;
+}
+
+.content {
+	flex-direction: column;
+}
+
+.section {
+	flex-direction: column;
+	margin-bottom: 24rpx;
+}
+
+.section-title {
+	font-size: 32rpx;
+	font-weight: bold;
+	color: #334155;
+	margin-top: 16rpx;
+	margin-bottom: 16rpx;
+}
+
+.section-text {
+	font-size: 28rpx;
+	color: #64748b;
+	line-height: 48rpx;
+	margin-bottom: 12rpx;
+}
+</style>

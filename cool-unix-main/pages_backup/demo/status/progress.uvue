@@ -1,0 +1,26 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-progress :value="50"></cl-progress>
+			</demo-item>
+
+			<demo-item :label="t('自定义颜色')">
+				<cl-progress :value="30" color="red" un-color="#f7bfbf"></cl-progress>
+			</demo-item>
+
+			<demo-item :label="t('自定义宽度')">
+				<cl-progress :value="30" :stroke-width="20"></cl-progress>
+			</demo-item>
+
+			<demo-item :label="t('不显示文本')">
+				<cl-progress :value="75" :show-text="false"></cl-progress>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+</script>

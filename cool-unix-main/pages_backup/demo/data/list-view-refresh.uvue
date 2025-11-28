@@ -1,0 +1,121 @@
+<template>
+	<cl-page>
+		<cl-list-view
+			ref="listViewRef"
+			:data="listView"
+			:virtual="false"
+			:pt="{
+				refresher: {
+					className: 'pt-3'
+				}
+			}"
+			:refresher-enabled="true"
+			@pull="onPull"
+			@bottom="loadMore"
+		>
+			<template #item="{ value }">
+				<goods-item :value="value"></goods-item>
+			</template>
+
+			<template #bottom>
+				<view class="py-3">
+					<cl-loadmore
+						v-if="list.length > 0"
+						:loading="loading"
+						safe-area-bottom
+					></cl-loadmore>
+				</view>
+			</template>
+		</cl-list-view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { useUi } from "@/uni_modules/cool-ui";
+import { ref } from "vue";
+import { usePager } from "@/cool";
+import GoodsItem from "../components/goods-item.uvue";
+import { t } from "@/locale";
+
+const ui = useUi();
+
+const listViewRef = ref<ClListViewComponentPublicInstance | null>(null);
+
+let id = 0;
+
+const { refresh, list, listView, loading, loadMore } = usePager((params, { render }) => {
+	// 模拟请求
+	setTimeout(() => {
+		render({
+			list: [
+				{
+					id: id++,
+					title: "春日樱花盛开时节，粉色花瓣如诗如画般飘洒",
+					image: "https://unix.cool-js.com/images/demo/1.jpg"
+				},
+				{
+					id: id++,
+					title: "夕阳西下的海滩边，金色阳光温柔地洒在波光粼粼的海面上，构成令人心旷神怡的日落美景",
+					image: "https://unix.cool-js.com/images/demo/2.jpg"
+				},
+				{
+					id: id++,
+					title: "寒冬腊月时分，洁白雪花纷纷扬扬地覆盖着整个世界，感受冬日的宁静与美好",
+					image: "https://unix.cool-js.com/images/demo/3.jpg"
+				},
+				{
+					id: id++,
+					title: "都市夜景霓虹闪烁，五彩斑斓光芒照亮城市营造梦幻般景象",
+					image: "https://unix.cool-js.com/images/demo/5.jpg"
+				},
+				{
+					id: id++,
+					title: "云雾缭绕的山间风光如诗如画让人心旷神怡，微风轻抚树梢带来阵阵清香，鸟儿在林间自由歌唱",
+					image: "https://unix.cool-js.com/images/demo/6.jpg"
+				},
+				{
+					id: id++,
+					title: "古老建筑与现代摩天大楼交相辉映，传统与现代完美融合创造独特城市景观",
+					image: "https://unix.cool-js.com/images/demo/7.jpg"
+				},
+				{
+					id: id++,
+					title: "广袤田野绿意盎然风光无限，金黄麦浪在微风中轻柔摇曳，农家炊烟袅袅升起",
+					image: "https://unix.cool-js.com/images/demo/8.jpg"
+				},
+				{
+					id: id++,
+					title: "璀璨星空下银河横跨天际，繁星闪烁神秘光芒营造浪漫夜空美景",
+					image: "https://unix.cool-js.com/images/demo/9.jpg"
+				},
+				{
+					id: id++,
+					title: "雄伟瀑布从高耸悬崖飞流直下激起千层浪花，彩虹在水雾中若隐若现如梦如幻",
+					image: "https://unix.cool-js.com/images/demo/10.jpg"
+				}
+			],
+			pagination: {
+				page: params["page"],
+				size: params["size"],
+				total: 100
+			}
+		});
+
+		ui.hideLoading();
+	}, 1000);
+});
+
+async function onPull() {
+	await refresh({ page: 1 });
+
+	setTimeout(() => {
+		listViewRef.value!.stopRefresh();
+	}, 300);
+}
+
+onReady(() => {
+	ui.showLoading(t("加载中"));
+	// 默认请求
+	refresh({});
+});
+</script>

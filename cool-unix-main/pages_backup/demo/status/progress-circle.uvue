@@ -1,0 +1,69 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('自定义')">
+				<cl-progress-circle
+					:value="value"
+					:color="isColor ? 'red' : null"
+					:un-color="isColor ? '#f7bfbf' : null"
+					:size="isSize ? 80 : 120"
+					:show-text="isText"
+					:duration="isDuration ? 200 : 500"
+				></cl-progress-circle>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-5'
+					}"
+				>
+					<cl-list-item :label="t('改个颜色')">
+						<cl-switch v-model="isColor"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('显示文本')">
+						<cl-switch v-model="isText"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('快一些')">
+						<cl-switch v-model="isDuration"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('显示文本')">
+						<cl-button type="light" size="small" icon="add-line" @tap="add"></cl-button>
+						<cl-button
+							type="light"
+							size="small"
+							icon="subtract-line"
+							@tap="sub"
+						></cl-button>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+
+const isSize = ref(false);
+const isText = ref(true);
+const isColor = ref(false);
+const isDuration = ref(false);
+const value = ref(70);
+
+function add() {
+	if (value.value < 100) {
+		value.value += 10;
+	}
+}
+
+function sub() {
+	if (value.value > 0) {
+		value.value -= 10;
+	}
+}
+</script>

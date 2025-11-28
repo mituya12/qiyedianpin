@@ -1,0 +1,63 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item>
+				<cl-text>解决底部按钮隐藏时页面底部仍有空白间距</cl-text>
+				<cl-text>解决固定定位时内容占位缺失</cl-text>
+			</demo-item>
+
+			<cl-list>
+				<cl-list-item :label="`${i}`" v-for="i in 50" :key="i"> </cl-list-item>
+			</cl-list>
+		</view>
+
+		<cl-footer :vt="cache.key">
+			<template v-if="status == 0">
+				<view class="flex flex-row">
+					<cl-button :pt="{ className: 'flex-1' }" text border size="large" @tap="cancel">
+						{{ t("取消订单") }}
+					</cl-button>
+
+					<cl-button :pt="{ className: 'flex-1' }" type="primary" size="large" @tap="buy">
+						{{ t("立即购买") }}
+					</cl-button>
+				</view>
+			</template>
+
+			<cl-button type="error" size="large" @tap="confirm" v-if="status == 1">
+				{{ t("确认收货") }}
+			</cl-button>
+
+			<cl-button type="success" size="large" @tap="comment" v-if="status == 2">
+				{{ t("评价") }}
+			</cl-button>
+		</cl-footer>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { useCache } from "@/cool";
+import { t } from "@/locale";
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+
+const status = ref(0);
+
+const { cache } = useCache(() => [status.value]);
+
+function cancel() {
+	status.value = 3;
+}
+
+function buy() {
+	status.value = 1;
+}
+
+function confirm() {
+	status.value = 2;
+}
+
+function comment() {
+	status.value = 3;
+}
+</script>

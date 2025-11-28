@@ -1,0 +1,152 @@
+<template>
+	<view class="cl-timeline-item" :class="[pt.className]">
+		<view class="cl-timeline-item__left">
+			<cl-icon
+				v-if="icon != ''"
+				:name="icon"
+				:size="34"
+				:pt="{
+					className: `${pt.icon?.className}`
+				}"
+			></cl-icon>
+
+			<view v-else class="cl-timeline-item__dot"></view>
+
+			<view class="cl-timeline-item__line" v-if="!hideLine"></view>
+		</view>
+
+		<view
+			class="cl-timeline-item__right"
+			:class="[
+				{
+					'is-icon': icon != '',
+					'is-title': title != ''
+				}
+			]"
+		>
+			<cl-text
+				v-if="title != ''"
+				:pt="{
+					className: parseClass([
+						`mb-1 !font-bold ${pt.title?.className}`,
+						[isDark, 'text-white', 'text-surface-900']
+					])
+				}"
+				>{{ title }}</cl-text
+			>
+
+			<cl-text
+				v-if="content != ''"
+				:pt="{
+					className: `mb-2 text-sm ${pt.content?.className}`
+				}"
+				>{{ content }}</cl-text
+			>
+
+			<slot></slot>
+
+			<cl-text
+				v-if="date != ''"
+				:pt="{
+					className: `text-xs ${pt.date?.className}`
+				}"
+				color="info"
+				>{{ date }}</cl-text
+			>
+		</view>
+	</view>
+</template>
+
+<script setup lang="ts">
+import { computed } from "vue";
+import { isDark, parseClass, parsePt } from "@/cool";
+import type { PassThroughProps } from "../../types";
+
+defineOptions({
+	name: "cl-timeline-item"
+});
+
+const props = defineProps({
+	pt: {
+		type: Object,
+		default: () => ({})
+	},
+	// 标题
+	title: {
+		type: String,
+		default: ""
+	},
+	// 图标
+	icon: {
+		type: String,
+		default: ""
+	},
+	// 内容
+	content: {
+		type: String,
+		default: ""
+	},
+	// 日期
+	date: {
+		type: String,
+		default: ""
+	},
+	// 是否隐藏线
+	hideLine: {
+		type: Boolean,
+		default: false
+	}
+});
+
+type PassThrough = {
+	className?: string;
+	icon?: PassThroughProps;
+	title?: PassThroughProps;
+	content?: PassThroughProps;
+	date?: PassThroughProps;
+};
+
+const pt = computed(() => parsePt<PassThrough>(props.pt));
+</script>
+
+<style lang="scss" scoped>
+.cl-timeline-item {
+	@apply flex flex-row w-full;
+	overflow: visible;
+	margin-bottom: 10rpx;
+
+	&__left {
+		@apply flex flex-col items-center overflow-visible;
+		width: 50rpx;
+		margin-right: 10rpx;
+	}
+
+	&__dot {
+		@apply rounded-full bg-surface-300;
+		height: 16rpx;
+		width: 16rpx;
+	}
+
+	&__line {
+		@apply bg-surface-300;
+		width: 1rpx;
+		flex: 1;
+		margin-top: 10rpx;
+	}
+
+	&__right {
+		@apply relative;
+		top: -12rpx;
+		flex: 1;
+		margin-bottom: 40rpx;
+
+		&.is-title {
+			top: -12rpx;
+		}
+
+		&.is-icon {
+			top: -4rpx;
+		}
+	}
+}
+</style>

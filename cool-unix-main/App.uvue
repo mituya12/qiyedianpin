@@ -1,0 +1,54 @@
+<script lang="ts">
+import { useStore } from "@/cool";
+
+// #ifdef H5
+import TouchEmulator from "hammer-touchemulator";
+// 模拟移动端调试的触摸事件
+TouchEmulator();
+// #endif
+
+export default { 
+	onLaunch: function () {
+		console.log("App Launch");  
+	}, 
+	onShow: function () { 
+		console.log("App Show");  
+
+		// 根据业务情况判断是否要预先调用 
+		const { user } = useStore();
+ 
+		// 获取用户信息，未登录不执行
+		user.get();
+	},
+	onHide: function () {
+		console.log("App Hide");
+	},
+	onExit: function () {
+		console.log("App Exit"); 
+	}
+};
+</script>
+
+<style lang="scss">
+@import url("static/index.scss");
+@import url("icons/index.scss");
+
+.safe-area-top {
+	margin-top: env(safe-area-inset-top);
+}
+
+.uni-tabbar {
+	// #ifdef H5
+	display: none;
+	// #endif
+
+	.uni-tabbar__icon {
+		margin-top: 0;
+	}
+}
+
+.uni-toast {
+	border-radius: 32rpx;
+	background-color: rgba(0, 0, 0, 0.8) !important;
+}
+</style>

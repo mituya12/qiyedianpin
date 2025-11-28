@@ -1,0 +1,615 @@
+<template>
+	<cl-page title="评价详情">
+		<scroll-view class="content" scroll-y>
+			<!-- 评价卡片 -->
+			<view class="review-card">
+				<view class="review-header">
+				<view class="review-author">
+					<cl-avatar :src="review.authorAvatar" :size="96"></cl-avatar>
+					<view class="author-info">
+						<view class="author-name-row">
+							<text class="author-name">{{ review.authorName }}</text>
+						</view>
+						<view class="author-meta">
+							<text class="meta-text">{{ review.department }}</text>
+							<text v-if="review.isBranch" class="meta-dot">·</text>
+							<text v-if="review.isBranch" class="meta-branch">分公司</text>
+							<text v-if="review.status" class="meta-dot">·</text>
+							<text v-if="review.status" class="author-status">{{ review.status }}</text>
+						</view>
+					</view>
+				</view>
+				<view class="review-rating-section">
+					<view class="rating-stars">
+						<cl-icon
+							v-for="i in 5"
+							:key="i"
+							:name="i <= review.rating ? 'star-fill' : 'star-line'"
+							:size="28"
+							:color="i <= review.rating ? '#f59e0b' : '#cbd5e1'"
+						></cl-icon>
+					</view>
+				</view>
+			</view>
+
+				<text class="review-content">{{ review.content }}</text>
+
+			<view v-if="review.salary || review.benefits" class="review-info">
+				<text v-if="review.salary" class="info-text">待遇: {{ review.salary }}</text>
+				<text v-if="review.benefits" class="info-text">福利: {{ review.benefits }}</text>
+			</view>
+
+			<view class="review-meta-row" style="display: flex; justify-content: flex-end;">
+				<text class="review-date">{{ review.date }}</text>
+			</view>
+
+				<view class="review-footer">
+					<view class="footer-left">
+						<view class="footer-action" @tap="handleLike">
+							<cl-icon :name="isLiked ? 'thumb-up-fill' : 'thumb-up-line'" :size="36" :color="isLiked ? '#06b6d4' : '#64748b'"></cl-icon>
+							<text class="action-text">{{ review.likes }}</text>
+						</view>
+						<view class="footer-action">
+							<cl-icon name="chat-3-line" :size="36" color="#64748b"></cl-icon>
+							<text class="action-text">{{ review.replies.length }}</text>
+						</view>
+					</view>
+					<view class="footer-action report-action" @tap="handleReport">
+						<cl-icon name="flag-line" :size="36" color="#94a3b8"></cl-icon>
+					</view>
+				</view>
+			</view>
+
+			<!-- 回复列表 -->
+			<view v-if="review.replies.length > 0" class="replies-section">
+				<text class="replies-title">全部回复 ({{ review.replies.length }})</text>
+				<view v-for="reply in review.replies" :key="reply.id" class="reply-item">
+					<cl-avatar :src="reply.authorAvatar" :size="64"></cl-avatar>
+					<view class="reply-content">
+						<text class="reply-author">{{ reply.authorName }}</text>
+						<text class="reply-text">{{ reply.content }}</text>
+						<text class="reply-date">{{ reply.date }}</text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 空状态 -->
+			<view v-else class="empty-state">
+				<text class="empty-text">还没有人回复，快来发表你的看法吧~</text>
+			</view>
+		</scroll-view>
+
+		<!-- 底部回复栏 -->
+		<view class="reply-bar">
+			<view v-if="isLoggedIn" class="reply-input-wrapper">
+				<textarea
+					class="reply-input"
+					:placeholder="'回复 ' + review.authorName + '...'"
+					v-model="replyContent"
+					:maxlength="200"
+					:auto-height="true"
+				/>
+				<view
+					v-if="replyContent.trim()"
+					class="send-btn"
+					hover-class="send-btn-hover"
+					@tap="handleSubmit"
+				>
+					<cl-icon name="send-plane-fill" :size="40" color="#ffffff"></cl-icon>
+				</view>
+				<view v-else class="send-btn send-btn-disabled">
+					<cl-icon name="send-plane-fill" :size="40" color="#ffffff"></cl-icon>
+				</view>
+			</view>
+			<view v-else class="login-prompt">
+				<view class="login-icon">
+					<cl-icon name="chat-3-line" :size="32" color="#94a3b8"></cl-icon>
+				</view>
+				<text class="login-text">登录后参与讨论</text>
+				<view class="login-btn" hover-class="login-btn-hover" @tap="goToLogin">
+					<text class="login-btn-text">去登录</text>
+				</view>
+			</view>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref, computed } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
+import { getReviewDetail, likeReview, reportReview } from "@/common/api/review";
+import { createReply } from "@/common/api/reply";
+import { user } from "@/cool/store/user";
+
+const reviewId = ref("");
+const companyName = ref("");
+const isLoggedIn = computed(() => !!user.token);
+const replyContent = ref("");
+const isLiked = ref(false);
+const isSubmitting = ref(false);
+
+const review = ref({
+	id: 0,
+	authorName: "",
+	authorAvatar: "",
+	status: "",
+	department: "",
+	isBranch: false,
+	rating: 0,
+	content: "",
+	salary: "",
+	benefits: "",
+	date: "",
+	likes: 0,
+	replies: [] as any[]
+});
+
+// 页面加载
+onLoad((options: any) => {
+	if (options && options.id) {
+		reviewId.value = options.id;
+		fetchReviewDetail();
+	}
+});
+
+// 获取评价详情
+const fetchReviewDetail = async () => {
+	uni.showLoading({
+		title: "加载中..."
+	});
+	
+	try {
+		const res = await getReviewDetail(reviewId.value);
+		
+		if (res) {
+			review.value = {
+				...res,
+				replies: res.replies || []
+			};
+			companyName.value = res.companyName || "";
+		}
+	} catch (err: any) {
+		console.error("获取评价详情失败:", err);
+		uni.showToast({
+			title: err.message || "加载失败",
+			icon: "none"
+		});
+	} finally {
+		uni.hideLoading();
+	}
+};
+
+// 点赞评价
+const handleLike = async () => {
+	if (!isLoggedIn.value) {
+		uni.showToast({
+			title: "请先登录",
+			icon: "none"
+		});
+		return;
+	}
+	
+	if (isLiked.value) {
+		uni.showToast({
+			title: "已经点赞过了",
+			icon: "none"
+		});
+		return;
+	}
+	
+	try {
+		await likeReview(reviewId.value);
+		
+		isLiked.value = true;
+		review.value.likes += 1;
+		
+		uni.showToast({
+			title: "点赞成功",
+			icon: "success"
+		});
+	} catch (err: any) {
+		uni.showToast({
+			title: err.message || "点赞失败",
+			icon: "none"
+		});
+	}
+};
+
+// 发布回复
+const handleSubmit = async () => {
+	if (!replyContent.value.trim()) {
+		return;
+	}
+	
+	// 防止重复提交
+	if (isSubmitting.value) {
+		return;
+	}
+	
+	isSubmitting.value = true;
+	
+	uni.showLoading({
+		title: "发布中..."
+	});
+	
+	try {
+		await createReply({
+			reviewId: parseInt(reviewId.value),
+			content: replyContent.value
+		});
+		
+		uni.hideLoading();
+		uni.showToast({
+			title: "回复成功",
+			icon: "success"
+		});
+		
+		replyContent.value = "";
+		
+		// 重新加载评价详情
+		fetchReviewDetail();
+	} catch (err: any) {
+		uni.hideLoading();
+		uni.showToast({
+			title: err.message || "回复失败",
+			icon: "none"
+		});
+	} finally {
+		isSubmitting.value = false;
+	}
+};
+
+// 举报评价
+const handleReport = async () => {
+	if (!isLoggedIn.value) {
+		uni.showToast({
+			title: "请先登录",
+			icon: "none"
+		});
+		return;
+	}
+	
+	uni.showActionSheet({
+		itemList: ["虚假信息", "骚扰谩骂", "广告推广", "其他"],
+		success: async (res) => {
+			const reasons = ["虚假信息", "骚扰谩骂", "广告推广", "其他"];
+			const reason = reasons[res.tapIndex];
+			
+			try {
+				await reportReview(reviewId.value, {
+					reason,
+					description: ""
+				});
+				
+				uni.showToast({
+					title: "举报成功，我们会尽快处理",
+					icon: "success"
+				});
+			} catch (err: any) {
+				uni.showToast({
+					title: err.message || "举报失败",
+					icon: "none"
+				});
+			}
+		}
+	});
+};
+
+const goToLogin = () => {
+	uni.navigateTo({
+		url: "/pages/user/login"
+	});
+};
+</script>
+
+<style lang="scss" scoped>
+.content {
+	flex: 1;
+	background-color: #f8fafc;
+	padding: 32rpx;
+	padding-bottom: 160rpx;
+}
+
+.review-card {
+	background-color: #ffffff;
+	border-radius: 32rpx;
+	padding: 48rpx;
+	border: 1px solid #f1f5f9;
+	flex-direction: column;
+	margin-bottom: 32rpx;
+}
+
+.review-header {
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: space-between;
+	margin-bottom: 32rpx;
+}
+
+.review-author {
+	flex-direction: row;
+	align-items: center;
+	flex: 1;
+}
+
+.author-info {
+	flex-direction: column;
+	margin-left: 24rpx;
+	flex: 1;
+}
+
+.author-name-row {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 8rpx;
+}
+
+.author-name {
+	font-size: 32rpx;
+	font-weight: bold;
+	color: #1e293b;
+	margin-right: 16rpx;
+}
+
+.author-status {
+	font-size: 24rpx;
+	color: #06b6d4;
+	background-color: #cffafe;
+	padding: 4rpx 16rpx;
+	border-radius: 9999px;
+}
+
+.author-meta {
+	flex-direction: row;
+	align-items: center;
+}
+
+.meta-text {
+	font-size: 24rpx;
+	color: #94a3b8;
+}
+
+.meta-dot {
+	font-size: 24rpx;
+	color: #94a3b8;
+	margin: 0 8rpx;
+}
+
+.meta-branch {
+	font-size: 24rpx;
+	color: #94a3b8;
+}
+
+.review-rating-section {
+	flex-direction: column;
+	align-items: flex-end;
+}
+
+.rating-stars {
+	flex-direction: row;
+	margin-bottom: 8rpx;
+}
+
+.review-date {
+	font-size: 24rpx;
+	color: #94a3b8;
+}
+
+.report-btn {
+	width: 40rpx;
+	height: 40rpx;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	border-radius: 8rpx;
+	margin-left: 16rpx;
+}
+
+.report-btn:active {
+	background-color: #f1f5f9;
+}
+
+.review-meta-row {
+	flex-direction: row;
+	align-items: center;
+	justify-content: flex-end;
+	margin-bottom: 24rpx;
+}
+
+.review-content {
+	font-size: 30rpx;
+	color: #475569;
+	line-height: 48rpx;
+	margin-bottom: 32rpx;
+}
+
+.review-info {
+	flex-direction: column;
+	margin-bottom: 32rpx;
+}
+
+.info-text {
+	font-size: 28rpx;
+	color: #64748b;
+	line-height: 1.6;
+	margin-bottom: 8rpx;
+}
+
+.review-footer {
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	padding-top: 32rpx;
+	border-top: 1px solid #f1f5f9;
+}
+
+.footer-left {
+	flex-direction: row;
+	align-items: center;
+}
+
+.footer-action {
+	flex-direction: row;
+	align-items: center;
+	margin-right: 64rpx;
+}
+
+.report-action {
+	margin-right: 0;
+}
+
+.action-text {
+	font-size: 28rpx;
+	color: #64748b;
+	margin-left: 16rpx;
+}
+
+.replies-section {
+	background-color: #ffffff;
+	border-radius: 32rpx;
+	padding: 40rpx;
+	border: 1px solid #f1f5f9;
+	flex-direction: column;
+}
+
+.replies-title {
+	font-size: 32rpx;
+	font-weight: bold;
+	color: #1e293b;
+	margin-bottom: 32rpx;
+}
+
+.reply-item {
+	flex-direction: row;
+	padding: 32rpx 0;
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.reply-item:last-child {
+	border-bottom: none;
+}
+
+.reply-content {
+	flex: 1;
+	flex-direction: column;
+	margin-left: 24rpx;
+}
+
+.reply-author {
+	font-size: 28rpx;
+	font-weight: 500;
+	color: #1e293b;
+	margin-bottom: 16rpx;
+}
+
+.reply-text {
+	font-size: 28rpx;
+	color: #475569;
+	line-height: 44rpx;
+	margin-bottom: 16rpx;
+}
+
+.reply-date {
+	font-size: 24rpx;
+	color: #94a3b8;
+}
+
+.empty-state {
+	text-align: center;
+	padding: 80rpx 48rpx;
+}
+
+.empty-text {
+	font-size: 28rpx;
+	color: #94a3b8;
+}
+
+.reply-bar {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background-color: #ffffff;
+	border-top: 1px solid #f1f5f9;
+	padding: 24rpx 32rpx;
+	z-index: 20;
+}
+
+.reply-input-wrapper {
+	flex-direction: row;
+	align-items: flex-end;
+}
+
+.reply-input {
+	flex: 1;
+	background-color: #f8fafc;
+	border-radius: 32rpx;
+	padding: 24rpx 32rpx;
+	border: 1px solid #e2e8f0;
+	font-size: 28rpx;
+	color: #1e293b;
+	min-height: 80rpx;
+	max-height: 200rpx;
+}
+
+.send-btn {
+	width: 92rpx;
+	height: 92rpx;
+	background: linear-gradient(to right, #06b6d4, #14b8a6);
+	border-radius: 24rpx;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-left: 24rpx;
+	display: flex;
+	flex-shrink: 0;
+}
+
+.send-btn-hover {
+	opacity: 0.9;
+}
+
+.send-btn-disabled {
+	opacity: 0.5;
+	pointer-events: none;
+}
+
+.login-prompt {
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+}
+
+.login-icon {
+	width: 64rpx;
+	height: 64rpx;
+	border-radius: 50%;
+	background-color: #f1f5f9;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-right: 24rpx;
+}
+
+.login-text {
+	flex: 1;
+	font-size: 28rpx;
+	color: #64748b;
+}
+
+.login-btn {
+	background: linear-gradient(to right, #06b6d4, #14b8a6);
+	border-radius: 24rpx;
+	padding: 20rpx 48rpx;
+}
+
+.login-btn-hover {
+	opacity: 0.9;
+}
+
+.login-btn-text {
+	font-size: 28rpx;
+	font-weight: 500;
+	color: #ffffff;
+}
+</style>

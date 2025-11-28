@@ -1,0 +1,50 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('格式化')">
+				<cl-text>format("YYYY-MM-DD HH:mm:ss")</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('添加')">
+				<cl-text>add(1, "day")</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('减去')">
+				<cl-text>subtract(1, "day")</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('获取某个单位的开始时间')">
+				<cl-text>startOf("day")</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('获取某个单位的结束时间')">
+				<cl-text>endOf("month")</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('是否同一天')">
+				<cl-text>isSame(Date)</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('是否早于')">
+				<cl-text>isBefore(Date)</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('是否晚于')">
+				<cl-text>isAfter(Date)</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('差值')">
+				<cl-text>diff(Date)</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('差值（单位）')">
+				<cl-text>diffUnit(Date, "day")</cl-text>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+</script>

@@ -1,0 +1,123 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-select-time v-model="form.time1"></cl-select-time>
+			</demo-item>
+
+			<demo-item :label="t('自定义触发器')">
+				<view class="flex flex-row">
+					<cl-button @tap="openSelect2">{{ t("打开选择器") }} </cl-button>
+				</view>
+
+				<cl-select-time
+					ref="selectRef2"
+					v-model="form.time2"
+					:show-trigger="false"
+				></cl-select-time>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<cl-select-time
+					v-model="form.time3"
+					:disabled="isDisabled"
+					:label-format="labelFormat"
+					:type="type"
+				></cl-select-time>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-3'
+					}"
+				>
+					<cl-list-item :label="t('时')">
+						<cl-switch v-model="isHour"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('时:分')">
+						<cl-switch v-model="isMinute"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('时:分:秒')">
+						<cl-switch v-model="isSecond"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('标签格式化')">
+						<cl-switch v-model="isFormat"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('禁用')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { computed, reactive, ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { useUi } from "@/uni_modules/cool-ui";
+import { t } from "@/locale";
+
+const ui = useUi();
+
+type Form = {
+	time1: string;
+	time2: string;
+	time3: string;
+};
+
+const form = reactive<Form>({
+	time1: "",
+	time2: "",
+	time3: ""
+});
+
+const isDisabled = ref(false);
+const isFormat = ref(false);
+const isHour = ref(false);
+const isMinute = ref(false);
+const isSecond = ref(true);
+
+const selectRef2 = ref<ClSelectTimeComponentPublicInstance | null>(null);
+
+function openSelect2() {
+	selectRef2.value!.open((value) => {
+		ui.showToast({
+			message: `你选择了：${value}`
+		});
+	});
+}
+
+const type = computed(() => {
+	if (isHour.value) {
+		return "hour";
+	}
+
+	if (isMinute.value) {
+		return "minute";
+	}
+
+	return "second";
+});
+
+const labelFormat = computed(() => {
+	if (isFormat.value) {
+		switch (type.value) {
+			case "hour":
+				return "{H}时";
+			case "minute":
+				return "{H}时{m}分";
+			case "second":
+				return "{H}时{m}分{s}秒";
+			default:
+				return null;
+		}
+	} else {
+		return null;
+	}
+});
+</script>

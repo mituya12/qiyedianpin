@@ -1,0 +1,94 @@
+{
+	"name": "cool-unix",
+	"appid": "__UNI__651711F",
+	"description": "完全开源、永久免费、上手容易、效率极高的开发脚手架",
+	"versionName": "1.0.0",
+	"versionCode": "100",
+	"uni-app-x": {},
+	"quickapp": {},
+	"mp-weixin": {
+		"darkmode": false,
+		"appid": "wxe1962211cfbd5f44",
+		"setting": {
+			"urlCheck": false,
+			"es6": true
+		},
+		"usingComponents": true
+	},
+	"mp-alipay": {
+		"usingComponents": true
+	},
+	"mp-baidu": {
+		"usingComponents": true
+	},
+	"mp-toutiao": {
+		"usingComponents": true
+	},
+	"uniStatistics": {
+		"enable": false
+	},
+	"vueVersion": "3",
+	"app": {
+		"distribute": {
+			"icons": {
+				"android": {
+					"hdpi": "",
+					"xhdpi": "",
+					"xxhdpi": "",
+					"xxxhdpi": ""
+				}
+			}
+		}
+	},
+	"web": {
+		"darkmode": false,
+		"router": {
+			"mode": "",
+			"base": "./"
+		},
+		"title": "cool-unix"
+	},
+	"app-harmony": {
+		"distribute": {
+			"bundleName": "com.cool.unix",
+			"signingConfigs": {
+				"default": {
+					"certpath": "/Users/icssoa/Library/Application Support/HBuilder X/extensions/launcher/agc-certs/1749115146522.cer",
+					"keyAlias": "debugKey",
+					"keyPassword": "0000001B0CD2170B509D76F6435F878B7ED2FE2E3EA6E7454E26523487B093238D4F7C8B7033D30DE80163",
+					"profile": "/Users/icssoa/Library/Application Support/HBuilder X/extensions/launcher/agc-certs/1749115146522.p7b",
+					"signAlg": "SHA256withECDSA",
+					"storeFile": "/Users/icssoa/Library/Application Support/HBuilder X/extensions/launcher/agc-certs/1749115146522.p12",
+					"storePassword": "0000001B0CD2170B509D76F6435F878B7ED2FE2E3EA6E7454E26523487B093238D4F7C8B7033D30DE80163"
+				}
+			},
+			"icons": {
+				"foreground": "static/logo2.png",
+				"background": "static/logo2.png"
+			}
+		}
+	},
+	"app-android": {
+		"distribute": {
+			"modules": {},
+			"icons": {
+				"hdpi": "docs/logo.png",
+				"xhdpi": "docs/logo.png",
+				"xxhdpi": "docs/logo.png",
+				"xxxhdpi": "docs/logo.png"
+			},
+			"splashScreens": {
+				"default": {}
+			}
+		}
+	},
+	"app-ios": {
+		"distribute": {
+			"modules": {},
+			"icons": {
+				"appstore": "docs/logo.png"
+			},
+			"splashScreens": {}
+		}
+	}
+}

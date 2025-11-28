@@ -1,0 +1,416 @@
+<template>
+	<cl-page>
+		<cl-sticky>
+			<cl-topbar fixed safe-area-top :title="`${$t('购物车 ({num})', { num: list.length })}`">
+				<template #prepend>
+					<!-- #ifdef MP -->
+					<cl-text
+						:pt="{
+							className: 'ml-1'
+						}"
+						@tap="isDel = !isDel"
+					>
+						{{ isDel ? t("完成") : t("管理") }}
+					</cl-text>
+					<!-- #endif -->
+				</template>
+
+				<template #append>
+					<!-- #ifndef MP -->
+					<cl-text
+						:pt="{
+							className: 'mr-3'
+						}"
+						@tap="isDel = !isDel"
+					>
+						{{ isDel ? t("完成") : t("管理") }}
+					</cl-text>
+					<!-- #endif -->
+				</template>
+			</cl-topbar>
+		</cl-sticky>
+
+		<view class="p-3">
+			<view class="p-3 rounded-xl bg-white dark:!bg-surface-800 mb-3">
+				<cl-text
+					:pt="{
+						className: 'text-sm'
+					}"
+					>🔥 最新降价商品，限时优惠，抓紧抢购！</cl-text
+				>
+			</view>
+
+			<cl-list-item
+				v-for="(item, index) in list"
+				:key="item.id"
+				:pt="{
+					className: parseClass([
+						'rounded-2xl ',
+						[index == list.length - 1, 'mb-0', 'mb-3']
+					]),
+					inner: {
+						className: '!p-4'
+					}
+				}"
+				swipeable
+			>
+				<view class="flex flex-row flex-1">
+					<view class="flex flex-col mr-4 pt-[55rpx]" @tap="selectItem(item)">
+						<cl-icon
+							name="checkbox-circle-line"
+							color="primary"
+							:size="40"
+							v-if="item.checked"
+						></cl-icon>
+						<cl-icon name="checkbox-blank-circle-line" :size="40" v-else></cl-icon>
+					</view>
+
+					<cl-image :width="150" :height="150" :src="item.cover"></cl-image>
+
+					<view class="flex flex-col ml-3 flex-1">
+						<cl-text
+							:pt="{
+								className: 'mb-2 font-bold'
+							}"
+							>{{ item.name }}</cl-text
+						>
+
+						<view class="flex flex-row mb-2">
+							<view
+								class="bg-surface-100 dark:!bg-surface-700 rounded-md py-1 px-2 flex flex-row items-center"
+							>
+								<cl-text
+									:pt="{
+										className: 'text-xs'
+									}"
+									>{{ item.skuName }}</cl-text
+								>
+								<cl-icon name="arrow-down-s-line"></cl-icon>
+							</view>
+						</view>
+
+						<view class="flex flex-row items-center mb-2">
+							<cl-text
+								:pt="{
+									className: 'text-[22rpx] text-red-500 mr-[1rpx]'
+								}"
+								>¥</cl-text
+							>
+							<cl-text
+								:pt="{
+									className: 'text-red-500 text-[32rpx] mr-auto'
+								}"
+								>{{ item.price }}</cl-text
+							>
+
+							<view
+								v-if="isDel"
+								class="p-[8rpx] bg-red-500 rounded-lg"
+								@tap="delItem(index)"
+							>
+								<cl-icon name="delete-bin-line" color="white" :size="24"></cl-icon>
+							</view>
+
+							<view class="flex" v-else>
+								<cl-input-number
+									v-model="item.count"
+									:size="40"
+									:min="1"
+									:pt="{
+										op: {
+											plus: {
+												className: '!rounded-full'
+											},
+											minus: {
+												className: '!rounded-full'
+											},
+											icon: {
+												size: 28
+											}
+										},
+										value: {
+											className: '!w-[60rpx] rounded-full !px-0',
+											input: {
+												className: 'text-[24rpx]'
+											}
+										}
+									}"
+								></cl-input-number>
+							</view>
+						</view>
+
+						<cl-text :size="22" color="error">比加入时降¥100</cl-text>
+
+						<cl-text :size="22">满1件可换购0.5元商品</cl-text>
+					</view>
+				</view>
+
+				<template #swipe-right>
+					<cl-button
+						type="error"
+						:pt="{
+							className: '!rounded-none h-full w-[160rpx]'
+						}"
+						@tap="delItem(index)"
+						>{{ t("删除") }}</cl-button
+					>
+				</template>
+			</cl-list-item>
+
+			<cl-empty v-if="list.length == 0"></cl-empty>
+		</view>
+
+		<cl-footer>
+			<view class="flex flex-row items-center h-[70rpx]">
+				<cl-checkbox
+					active-icon="checkbox-circle-line"
+					inactive-icon="checkbox-blank-circle-line"
+					:pt="{
+						className: 'mr-auto'
+					}"
+					:size="28"
+					v-model="selectAll"
+					@change="onSelectAllChange"
+					>{{ t("全选") }}</cl-checkbox
+				>
+
+				<template v-if="isDel">
+					<cl-button
+						type="error"
+						:pt="{
+							className: '!px-5'
+						}"
+						@tap="delAll"
+					>
+						{{ t("删除") }}
+					</cl-button>
+				</template>
+
+				<template v-else>
+					<view class="flex flex-col mr-3 items-end pt-1">
+						<cl-text
+							color="info"
+							:pt="{
+								className: 'text-xs'
+							}"
+							>{{ t("合计") }}</cl-text
+						>
+						<cl-text color="error" :value="totalPrice" type="amount"></cl-text>
+					</view>
+
+					<cl-button
+						type="error"
+						:pt="{
+							className: '!px-8'
+						}"
+						@tap="toSettle"
+					>
+						{{ t("去结算") }}
+					</cl-button>
+				</template>
+			</view>
+		</cl-footer>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { parseClass, isEmpty } from "@/cool";
+import { $t, t } from "@/locale";
+import { useUi } from "@/uni_modules/cool-ui";
+import { computed, ref } from "vue";
+
+const ui = useUi();
+
+// 商品类型
+type Goods = {
+	id: number;
+	name: string;
+	count: number;
+	price: number;
+	cover: string;
+	skuName: string;
+	checked: boolean;
+};
+
+// 商品列表
+const list = ref<Goods[]>([
+	{
+		id: 1,
+		name: "Apple iPad",
+		count: 1,
+		price: 450,
+		cover: "https://img.yzcdn.cn/vant/ipad.png",
+		skuName: "深空灰色 128GB WLAN版",
+		checked: true
+	},
+	{
+		id: 2,
+		name: "Samsung Galaxy S24",
+		count: 2,
+		price: 699,
+		cover: "https://img.yzcdn.cn/vant/samsung.png",
+		skuName: "曜石黑 12GB+256GB 官方标配",
+		checked: false
+	},
+	{
+		id: 3,
+		name: "Sony WH-1000XM5",
+		count: 1,
+		price: 299,
+		cover: "https://img.yzcdn.cn/vant/sony.png",
+		skuName: "黑色 无线蓝牙 官方标配",
+		checked: false
+	},
+	{
+		id: 4,
+		name: "小米手环8",
+		count: 3,
+		price: 49,
+		cover: "https://img.yzcdn.cn/vant/xiaomi.png",
+		skuName: "曜石黑 标准版 硅胶表带",
+		checked: false
+	},
+	{
+		id: 5,
+		name: "Kindle Paperwhite",
+		count: 1,
+		price: 120,
+		cover: "https://img.yzcdn.cn/vant/kindle.png",
+		skuName: "黑色 8GB 官方标配",
+		checked: false
+	}
+]);
+
+// 是否全选
+const selectAll = ref(false);
+
+/**
+ * 选择/取消选择单个商品
+ * @param item 需要操作的商品
+ */
+function selectItem(item: Goods) {
+	// 切换选中状态
+	item.checked = !item.checked;
+	// 判断是否所有商品都被选中，更新全选状态
+	selectAll.value = list.value.every((item) => item.checked);
+}
+
+/**
+ * 全选/取消全选
+ * @param val 是否全选
+ */
+function onSelectAllChange(val: boolean) {
+	list.value.forEach((item, index, arr) => {
+		// item.checked = val; // 这样写，在 android 上无效
+		arr[index].checked = val;
+	});
+}
+
+// 是否处于删除模式
+const isDel = ref(false);
+
+/**
+ * 删除单个商品
+ * @param index 商品索引
+ */
+function delItem(index: number) {
+	ui.showConfirm({
+		title: t("温馨提示"),
+		message: t("确定删除该商品吗？"),
+		callback(action) {
+			if (action === "confirm") {
+				// 删除指定索引的商品
+				list.value.splice(index, 1);
+
+				ui.showToast({
+					message: t("删除成功")
+				});
+			}
+		}
+	});
+}
+
+/**
+ * 删除所有已选中的商品
+ */
+function delAll() {
+	const checked = list.value.filter((item) => item.checked);
+
+	// 如果没有选中商品，提示用户
+	if (isEmpty(checked)) {
+		return ui.showToast({
+			message: t("请先选择商品")
+		});
+	}
+
+	ui.showConfirm({
+		title: t("温馨提示"),
+		message: t("确定删除选中的商品吗？"),
+		callback(action) {
+			if (action == "confirm") {
+				// 只保留未选中的商品
+				list.value = list.value.filter((item) => !item.checked);
+
+				// 如果之前是全选，删除后取消全选状态
+				if (selectAll.value) {
+					selectAll.value = false;
+				}
+
+				ui.showToast({
+					message: t("删除成功")
+				});
+			}
+		}
+	});
+}
+
+/**
+ * 清空购物车
+ */
+function clear() {
+	list.value = [];
+	selectAll.value = false;
+	isDel.value = false;
+}
+
+/**
+ * 计算已选中商品的总价
+ */
+const totalPrice = computed(() => {
+	return list.value
+		.filter((item) => item.checked)
+		.reduce((acc, item) => acc + item.price * item.count, 0);
+});
+
+/**
+ * 结算操作
+ */
+function toSettle() {
+	// 如果没有选中商品，提示用户
+	if (totalPrice.value <= 0) {
+		return ui.showToast({
+			message: t("请先选择商品")
+		});
+	}
+
+	ui.showConfirm({
+		title: t("温馨提示"),
+		message: $t("您需支付 {price} 元，请确认支付", { price: totalPrice.value }),
+		beforeClose(action, { showLoading, close }) {
+			if (action == "confirm") {
+				showLoading();
+
+				setTimeout(() => {
+					ui.showToast({
+						message: t("支付成功")
+					});
+
+					close();
+				}, 1000);
+			} else {
+				close();
+			}
+		}
+	});
+}
+</script>

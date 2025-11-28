@@ -1,0 +1,183 @@
+<template>
+	<cl-page>
+		<view
+			class="p-3"
+			:class="{
+				'is-dark': isDark
+			}"
+		>
+			<demo-item :label="t('基础用法')">
+				<cl-row :gutter="12">
+					<cl-col :span="8">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">1</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="8">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">2</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="8">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">3</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+
+				<cl-row :gutter="12" :pt="{ className: 'mt-3' }">
+					<cl-col :span="12">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">1</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="12">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">2</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+
+				<cl-row :gutter="12" :pt="{ className: 'mt-3' }">
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">1</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">2</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">3</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">4</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+			</demo-item>
+
+			<demo-item :label="t('左间隔')">
+				<cl-row :gutter="12">
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">1</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6" :offset="6">
+						<view class="item active">
+							<cl-text :pt="{ className: 'text' }">2</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">3</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+			</demo-item>
+
+			<demo-item :label="t('右移动')">
+				<cl-row :gutter="12">
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">1</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">2</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6" :push="6">
+						<view class="item active">
+							<cl-text :pt="{ className: 'text' }">3</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+			</demo-item>
+
+			<demo-item :label="t('左移动')">
+				<cl-row :gutter="12">
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">1</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">2</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6">
+						<view class="item">
+							<cl-text :pt="{ className: 'text' }">3</cl-text>
+						</view>
+					</cl-col>
+					<cl-col :span="6" :pull="6">
+						<view class="item active">
+							<cl-text :pt="{ className: 'text' }">4</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+			</demo-item>
+
+			<demo-item :label="t('多个数据')">
+				<cl-row :gutter="12">
+					<cl-col :span="4" v-for="item in 20" :key="item">
+						<view class="item mb-2">
+							<cl-text :pt="{ className: 'text' }">{{ item }}</cl-text>
+						</view>
+					</cl-col>
+				</cl-row>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { isDark } from "@/cool";
+</script>
+
+<style lang="scss" scoped>
+.item {
+	@apply h-8 bg-surface-100 rounded-md flex flex-row items-center justify-center;
+
+	.text {
+		@apply text-sm text-surface-700;
+	}
+
+	&.active {
+		@apply bg-primary-500;
+
+		.text {
+			@apply text-white;
+		}
+	}
+}
+
+.is-dark {
+	.item {
+		@apply bg-surface-700;
+
+		.text {
+			@apply text-surface-100;
+		}
+
+		&.active {
+			@apply bg-primary-500;
+
+			.text {
+				@apply text-white;
+			}
+		}
+	}
+}
+</style>

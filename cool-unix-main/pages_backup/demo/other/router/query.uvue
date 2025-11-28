@@ -1,0 +1,34 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('ID')">
+				<cl-text>{{ id ?? "-" }}</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('用户信息')" v-if="!user.isNull()">
+				<cl-text>{{ userInfo?.nickName ?? "-" }}</cl-text>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../../components/item.uvue";
+import { router, userInfo, useStore } from "@/cool";
+
+const { user } = useStore();
+
+const props = defineProps({
+	id: {
+		type: String
+	}
+});
+
+onReady(() => {
+	const query = router.query();
+	console.log(query);
+});
+</script>
+
+<style lang="scss" scoped></style>

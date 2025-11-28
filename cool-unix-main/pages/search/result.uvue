@@ -1,0 +1,407 @@
+<template>
+	<cl-page>
+		<view class="content">
+			
+			<!-- 搜索结果 -->
+			<view v-if="searchResults.length > 0" class="results-section">
+				<text class="section-title">搜索结果</text>
+				<view class="results-list">
+					<view
+						v-for="company in searchResults"
+						:key="company.id"
+						class="company-card"
+						hover-class="card-hover"
+						@tap="goToCompany(company.id)"
+					>
+						<text class="company-name">{{ company.name }}</text>
+						<text class="company-industry">{{ company.alias || '' }}</text>
+						<view class="company-rating">
+							<text class="rating-score">{{ Number(company.totalRating || 0).toFixed(1) }}</text>
+							<cl-icon 
+								v-for="i in 5" 
+								:key="i" 
+								:name="i <= Math.round(Number(company.totalRating || 0)) ? 'star-fill' : 'star-line'" 
+								:size="24" 
+								:color="i <= Math.round(Number(company.totalRating || 0)) ? '#f59e0b' : '#cbd5e1'"
+							></cl-icon>
+						</view>
+						<text class="company-count">{{ company.reviewCount }} 条评价</text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 没有搜索结果 -->
+			<view v-if="searchResults.length === 0" class="no-results-section">
+				<view class="no-results-card">
+					<view class="no-results-icon">
+						<cl-icon name="search-line" :size="128" color="#cbd5e1"></cl-icon>
+					</view>
+					<text class="no-results-title">没有搜索到相关企业</text>
+					<text class="no-results-desc">试试其他关键词，或查看下方推荐</text>
+				</view>
+
+				<!-- 发起企业点评按钮 -->
+				<view class="action-section">
+					<view class="create-review-btn" hover-class="btn-hover" @tap="goToCreateReview">
+						<cl-icon name="add-circle-line" :size="40" color="#ffffff"></cl-icon>
+						<text class="btn-text">没有你想要的企业？发起企业点评</text>
+					</view>
+				</view>
+			</view>
+
+			<!-- 猜你想搜（始终显示） -->
+			<view v-if="guessCompanies.length > 0" class="guess-section">
+				<text class="section-title">猜你想搜</text>
+				<scroll-view class="guess-list" scroll-x show-scrollbar="false">
+					<view
+						v-for="company in guessCompanies"
+						:key="company.id"
+						class="guess-item"
+						hover-class="guess-item-hover"
+						@tap="goToCompany(company.id)"
+					>
+						<text class="guess-name">{{ company.name }}</text>
+						<view class="guess-rating">
+							<text class="guess-score">{{ Number(company.totalRating || 0).toFixed(1) }}</text>
+							<cl-icon 
+								v-for="i in 5" 
+								:key="i" 
+								:name="i <= Math.round(Number(company.totalRating || 0)) ? 'star-fill' : 'star-line'" 
+								:size="24" 
+								:color="i <= Math.round(Number(company.totalRating || 0)) ? '#f59e0b' : '#cbd5e1'"
+							></cl-icon>
+						</view>
+						<text class="guess-count">{{ company.reviewCount || 0 }} 条评价</text>
+					</view>
+				</scroll-view>
+			</view>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import { onLoad } from "@dcloudio/uni-app";
+import { searchCompany, getCompanySuggestions } from "@/common/api";
+
+const keyword = ref("");
+const searchResults = ref<any[]>([]);
+const guessCompanies = ref<any[]>([]);
+const currentPage = ref(1);
+const pageSize = ref(10);
+const total = ref(0);
+
+// 使用 onLoad 获取页面参数
+onLoad((options: any) => {
+	if (options && options.keyword) {
+		keyword.value = decodeURIComponent(options.keyword);
+		performSearch();
+	}
+});
+
+// 搜索企业
+const performSearch = async () => {
+	if (!keyword.value.trim()) {
+		return;
+	}
+	
+	uni.showLoading({
+		title: "搜索中..."
+	});
+	
+	try {
+		const res = await searchCompany({
+			keyword: keyword.value,
+			page: currentPage.value,
+			pageSize: pageSize.value
+		});
+		
+		console.log("搜索结果:", res);
+		
+		if (res && res.items) {
+			searchResults.value = res.items;
+			if (res.pagination) {
+				total.value = res.pagination.total;
+			}
+		} else {
+			// 如果没有items字段，清空搜索结果
+			searchResults.value = [];
+		}
+		
+		// 始终获取推荐企业
+		fetchGuessCompanies();
+	} catch (err: any) {
+		uni.showToast({
+			title: err.message || "搜索失败",
+			icon: "none"
+		});
+	} finally {
+		uni.hideLoading();
+	}
+};
+
+// 获取推荐企业（基于搜索关键词的智能推荐）
+const fetchGuessCompanies = async () => {
+	if (!keyword.value.trim()) {
+		return;
+	}
+	
+	try {
+		const res = await getCompanySuggestions(keyword.value, 10);
+		console.log("推荐企业结果:", res);
+		if (res && Array.isArray(res)) {
+			guessCompanies.value = res;
+			console.log("设置推荐企业:", guessCompanies.value);
+		} else {
+			console.log("推荐企业返回值不是数组:", res);
+		}
+	} catch (err: any) {
+		console.error("获取推荐企业失败:", err);
+	}
+};
+
+const handleSearch = () => {
+	performSearch();
+};
+
+const goToCompany = (id: number) => {
+	uni.navigateTo({
+		url: `/pages/company/detail?id=${id}`
+	});
+};
+
+const goToCreateReview = () => {
+	uni.navigateTo({
+		url: "/pages/review/create"
+	});
+};
+</script>
+
+<style lang="scss" scoped>
+.content {
+	background-color: #f8fafc;
+	min-height: 100vh;
+	padding-top:16rpx;
+}
+
+.search-card {
+	margin: 48rpx 32rpx;
+	background: linear-gradient(135deg, 
+		rgba(207, 250, 254, 0.3) 0%, 
+		rgba(248, 250, 252, 1) 30%, 
+		rgba(248, 250, 252, 1) 60%, 
+		rgba(204, 251, 241, 0.25) 100%);
+	border-radius: 48rpx;
+	padding: 48rpx;
+	border: 1px solid #f1f5f9;
+	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.05);
+}
+
+.search-box {
+	background-color: #ffffff;
+	border-radius: 48rpx;
+	padding: 24rpx 32rpx;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.search-input {
+	flex: 1;
+	font-size: 28rpx;
+	color: #1e293b;
+	margin-left: 16rpx;
+	line-height: 40rpx;
+}
+
+.section-title {
+	font-size: 36rpx;
+	font-weight: bold;
+	color: #1e293b;
+	margin-bottom: 32rpx;
+	padding: 0 8rpx;
+}
+
+.results-section {
+	margin: 0 32rpx 48rpx;
+	flex-direction: column;
+}
+
+.results-list {
+	flex-direction: column;
+}
+
+.company-card {
+	background-color: #ffffff;
+	border-radius: 24rpx;
+	padding: 24rpx;
+	margin-bottom: 24rpx;
+	flex-direction: column;
+	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+	border: 1px solid #f1f5f9;
+}
+
+.card-hover {
+	border-color: #a5f3fc;
+	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.company-name {
+	font-size: 28rpx;
+	font-weight: bold;
+	color: #1e293b;
+	margin-bottom: 16rpx;
+}
+
+.company-industry {
+	font-size: 24rpx;
+	color: #64748b;
+	margin-bottom: 16rpx;
+}
+
+.company-rating {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 16rpx;
+}
+
+.rating-score {
+	font-size: 24rpx;
+	font-weight: bold;
+	color: #f59e0b;
+	margin-right: 8rpx;
+}
+
+.company-count {
+	font-size: 20rpx;
+	color: #94a3b8;
+	padding: 4rpx 16rpx;
+	border-radius: 9999px;
+}
+
+.no-results-section {
+	flex-direction: column;
+}
+
+.no-results-card {
+	margin: 0 32rpx 48rpx;
+	background-color: #ffffff;
+	border-radius: 24rpx;
+	padding: 64rpx 48rpx;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+	border: 1px solid #f1f5f9;
+}
+
+.no-results-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: 32rpx;
+}
+
+.no-results-title {
+	font-size: 32rpx;
+	font-weight: 600;
+	color: #1e293b;
+	margin-bottom: 16rpx;
+	text-align: center;
+}
+
+.no-results-desc {
+	font-size: 26rpx;
+	color: #64748b;
+	text-align: center;
+}
+
+.guess-section {
+	margin: 0 32rpx 48rpx;
+	display: flex;
+	flex-direction: column;
+}
+
+.guess-list {
+	display: flex;
+	flex-direction: row;
+	white-space: nowrap;
+	height: 240rpx;
+	padding: 24rpx 0;
+}
+
+.guess-item {
+	width: 280rpx;
+	min-width: 280rpx;
+	background-color: #ffffff;
+	padding: 24rpx;
+	border-radius: 24rpx;
+	border: 1px solid #f1f5f9;
+	margin-right: 24rpx;
+	display: flex;
+	flex-direction: column;
+	box-shadow: 0 2rpx 8rpx rgba(0, 0, 0, 0.04);
+}
+
+.guess-item-hover {
+	border-color: #a5f3fc;
+	box-shadow: 0 4rpx 12rpx rgba(0, 0, 0, 0.08);
+}
+
+.guess-name {
+	font-size: 28rpx;
+	font-weight: bold;
+	color: #1e293b;
+	margin-bottom: 16rpx;
+}
+
+.guess-rating {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 16rpx;
+}
+
+.guess-score {
+	font-size: 24rpx;
+	font-weight: bold;
+	color: #f59e0b;
+	margin-right: 8rpx;
+}
+
+.guess-count {
+	font-size: 20rpx;
+	color: #94a3b8;
+	padding: 4rpx 16rpx;
+	border-radius: 9999px;
+}
+
+.action-section {
+	margin: 0 32rpx 48rpx;
+}
+
+.create-review-btn {
+	width: 100%;
+	background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+	border-radius: 48rpx;
+	padding: 32rpx 48rpx;
+	box-sizing: border-box;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 8rpx 24rpx rgba(8, 145, 178, 0.25);
+}
+
+.btn-hover {
+	opacity: 0.9;
+	transform: scale(0.98);
+}
+
+.btn-text {
+	font-size: 28rpx;
+	font-weight: 600;
+	color: #ffffff;
+	margin-left: 16rpx;
+}
+</style>

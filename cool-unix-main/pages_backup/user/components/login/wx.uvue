@@ -1,0 +1,242 @@
+<template>
+	<cl-popup
+		v-model="editVisible"
+		direction="center"
+		:title="t('提示')"
+		size="80%"
+		@close="onEditClose"
+	>
+		<view class="p-4 pt-0">
+			<cl-text color="info" :pt="{ className: 'text-sm' }">
+				{{ t("为提供更好的服务，我们邀请您填写昵称、头像等公开信息") }}
+			</cl-text>
+
+			<view
+				class="flex flex-row justify-between items-center bg-surface-100 rounded-xl p-2 px-3 mt-3 h-[95rpx]"
+			>
+				<cl-text>{{ t("头像") }}</cl-text>
+
+				<view class="relative">
+					<cl-avatar :size="60" :src="editForm.avatarUrl"></cl-avatar>
+
+					<button
+						class="absolute top-0 right-0 h-10 w-10 z-10 opacity-0 p-0 m-0"
+						open-type="chooseAvatar"
+						@chooseavatar="onEditChooseAvatar"
+					></button>
+				</view>
+			</view>
+
+			<view
+				class="flex flex-row justify-between items-center bg-surface-100 rounded-xl p-2 px-3 mt-3 h-[95rpx]"
+			>
+				<cl-text>{{ t("昵称") }}</cl-text>
+
+				<cl-input
+					v-model="editForm.nickName"
+					type="nickname"
+					:border="false"
+					:placeholder="t('点击输入昵称')"
+					:maxlength="16"
+					:pt="{
+						className: '!bg-transparent !px-0 flex-1',
+						inner: {
+							className: 'text-right'
+						}
+					}"
+				></cl-input>
+			</view>
+
+			<view class="flex flex-row mt-4">
+				<cl-button
+					size="large"
+					text
+					border
+					type="light"
+					:pt="{
+						className: 'flex-1 !rounded-xl h-[80rpx]'
+					}"
+					@tap="editClose"
+					>{{ t("取消") }}</cl-button
+				>
+				<cl-button
+					size="large"
+					:pt="{
+						className: 'flex-1 !rounded-xl h-[80rpx]'
+					}"
+					:loading="editLoading"
+					@tap="editSave"
+					>{{ t("确认") }}</cl-button
+				>
+			</view>
+		</view>
+	</cl-popup>
+</template>
+
+<script setup lang="ts">
+import {
+	parse,
+	request,
+	router,
+	upload,
+	userInfo,
+	useStore,
+	useWx,
+	type Response,
+	type Token
+} from "@/cool";
+import { t } from "@/locale";
+import { useUi } from "@/uni_modules/cool-ui";
+import { reactive, ref } from "vue";
+
+const emit = defineEmits(["success"]);
+
+const { user } = useStore();
+const ui = useUi();
+const wx = useWx();
+
+// 是否显示编辑
+const editVisible = ref(false);
+
+// 是否保存中
+const editLoading = ref(false);
+
+// 编辑表单
+type EditForm = {
+	avatarUrl: string;
+	nickName: string;
+};
+const editForm = reactive<EditForm>({
+	avatarUrl: "",
+	nickName: ""
+});
+
+// 编辑打开
+function editOpen() {
+	editVisible.value = true;
+}
+
+// 编辑关闭
+function editClose() {
+	editVisible.value = false;
+}
+
+// 编辑保存
+async function editSave() {
+	// 校验头像是否已上传
+	if (editForm.avatarUrl == "") {
+		ui.showToast({
+			message: t("请上传头像")
+		});
+		return;
+	}
+
+	// 校验昵称是否已填写
+	if (editForm.nickName == "") {
+		ui.showToast({
+			message: t("请输入昵称")
+		});
+		return;
+	}
+
+	// 设置保存状态为加载中
+	editLoading.value = true;
+
+	// 上传头像并更新用户信息
+	await upload(editForm.avatarUrl)
+		.then((url) => {
+			// 上传成功后，更新用户昵称和头像
+			user.update({
+				nickName: editForm.nickName,
+				avatarUrl: url
+			});
+
+			// 关闭弹窗
+			editClose();
+
+			// 跳转首页
+			router.nextLogin();
+		})
+		.catch((err) => {
+			// 上传失败，提示错误信息
+			ui.showToast({
+				message: (err as Response).message!
+			});
+		});
+
+	// 恢复保存状态
+	editLoading.value = false;
+}
+
+// 编辑选择头像
+function onEditChooseAvatar(e: UniEvent) {
+	// #ifdef MP-WEIXIN
+	editForm.avatarUrl = e.detail.avatarUrl;
+	// #endif
+}
+
+// 编辑关闭
+function onEditClose() {
+	editVisible.value = false;
+}
+
+// 微信小程序登录
+async function miniLogin() {
+	// #ifdef MP
+	ui.showLoading(t("登录中"));
+
+	await wx.miniLogin().then(async (data) => {
+		await request({
+			url: "/app/user/login/mini",
+			method: "POST",
+			data
+		})
+			.then(async (res) => {
+				// 设置token
+				user.setToken(parse<Token>(res)!);
+
+				// 获取用户信息
+				await user.get();
+
+				// 是否首次注册，根据业务情况调整判断逻辑
+				if (userInfo.value?.nickName == "微信用户") {
+					// 打开编辑弹窗
+					editOpen();
+				} else {
+					// 跳转首页
+					router.nextLogin();
+				}
+			})
+			.catch((err) => {
+				ui.showToast({
+					message: (err as Response).message!
+				});
+			});
+	});
+
+	ui.hideLoading();
+	// #endif
+}
+
+// 微信APP登录
+function appLogin() {
+	// 开发中
+}
+
+// 微信登录
+async function login() {
+	// #ifdef MP
+	miniLogin();
+	// #endif
+
+	// #ifdef APP
+	appLogin();
+	// #endif
+}
+
+defineExpose({
+	login,
+	editOpen,
+	editClose
+});
+</script>

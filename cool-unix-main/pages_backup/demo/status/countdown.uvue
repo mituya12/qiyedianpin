@@ -1,0 +1,93 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-countdown :datetime="datetime"></cl-countdown>
+			</demo-item>
+
+			<demo-item :label="t('隐藏为 00 的值')">
+				<cl-countdown :minute="60" hide-zero></cl-countdown>
+			</demo-item>
+
+			<demo-item :label="t('指定天数')">
+				<cl-countdown :day="2" format="{d}天{h}:{m}:{s}"></cl-countdown>
+			</demo-item>
+
+			<demo-item :label="t('自定义模板')">
+				<cl-countdown :day="1" format="{d}天{h}时{m}分{s}秒"></cl-countdown>
+			</demo-item>
+
+			<demo-item :label="t('指定小时')">
+				<cl-countdown :hour="2"></cl-countdown>
+			</demo-item>
+
+			<demo-item :label="t('指定分钟')">
+				<cl-countdown :minute="2"></cl-countdown>
+			</demo-item>
+
+			<demo-item :label="t('指定秒')">
+				<cl-countdown :second="10"></cl-countdown>
+			</demo-item>
+
+			<demo-item :label="t('完成后提示')">
+				<cl-countdown :second="5" @done="onDone"></cl-countdown>
+			</demo-item>
+
+			<demo-item :label="t('3秒后开始倒计时')">
+				<cl-countdown ref="countdownRef" :second="5" :auto="false"></cl-countdown>
+			</demo-item>
+
+			<demo-item :label="t('自定义样式')">
+				<cl-countdown
+					:hour="10"
+					:pt="{
+						text: {
+							className: parseClass([
+								'px-2 py-1 rounded-md',
+								[isDark, 'bg-surface-700', 'bg-surface-100']
+							])
+						},
+						splitor: {
+							className: 'px-2'
+						}
+					}"
+				></cl-countdown>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { onMounted, onUnmounted, ref } from "vue";
+import { dayUts, isDark, parseClass } from "@/cool";
+import { useUi } from "@/uni_modules/cool-ui";
+
+const ui = useUi();
+
+const datetime = ref(dayUts().add(1, "minute").toDate());
+
+function onDone() {
+	ui.showToast({
+		message: "倒计时完成"
+	});
+}
+
+const countdownRef = ref<ClCountdownComponentPublicInstance | null>(null);
+
+let timer: number = 0;
+
+onMounted(() => {
+	// @ts-ignore
+	timer = setTimeout(() => {
+		if (countdownRef.value != null) {
+			countdownRef.value.next();
+		}
+	}, 3000);
+});
+
+onUnmounted(() => {
+	clearTimeout(timer);
+});
+</script>

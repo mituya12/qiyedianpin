@@ -1,0 +1,92 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-switch v-model="checked"></cl-switch>
+			</demo-item>
+
+			<demo-item :label="t('自定义颜色')">
+				<view class="flex flex-row">
+					<cl-switch
+						v-model="checked"
+						:pt="{
+							className: 'mr-5',
+							track: {
+								className: '!bg-red-100'
+							},
+							thumb: {
+								className: '!bg-red-500'
+							}
+						}"
+					></cl-switch>
+
+					<cl-switch
+						v-model="checked"
+						:pt="{
+							track: {
+								className: '!bg-purple-100'
+							},
+							thumb: {
+								className: '!bg-purple-500'
+							}
+						}"
+					></cl-switch>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<cl-switch
+					v-model="checked"
+					:loading="isLoading"
+					:disabled="isDisabled"
+					:height="isSize ? 60 : 48"
+					:width="isSize ? 100 : 80"
+					:pt="{
+						track: {
+							className: parseClass([[isCustom, '!rounded-md']])
+						},
+						thumb: {
+							className: parseClass([[isCustom, '!rounded-md']])
+						}
+					}"
+				></cl-switch>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-3'
+					}"
+				>
+					<cl-list-item :label="t('禁用')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('加载中')">
+						<cl-switch v-model="isLoading"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('大一点')">
+						<cl-switch v-model="isSize"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('正方形')">
+						<cl-switch v-model="isCustom"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { parseClass } from "@/cool";
+import { t } from "@/locale";
+
+const checked = ref(false);
+const isDisabled = ref(false);
+const isLoading = ref(false);
+const isSize = ref(false);
+const isCustom = ref(false);
+</script>

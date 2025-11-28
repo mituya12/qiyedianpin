@@ -1,0 +1,67 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-textarea></cl-textarea>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<cl-textarea
+					v-model="content"
+					:border="isBorder"
+					:disabled="isDisabled"
+					:show-word-limit="isShowCount"
+					:auto-height="isAutoHeight"
+					:pt="{
+						className: parseClass({
+							'!bg-sky-100': isColor,
+							'!border-sky-700': isColor
+						}),
+						inner: {
+							className: parseClass({
+								'text-sky-700': isColor
+							})
+						}
+					}"
+				></cl-textarea>
+
+				<cl-list border :pt="{ className: 'mt-5' }">
+					<cl-list-item :label="t('边框')">
+						<cl-switch v-model="isBorder"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('显示字数')">
+						<cl-switch v-model="isShowCount"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('自动增高')">
+						<cl-switch v-model="isAutoHeight"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('禁用')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('其他颜色')">
+						<cl-switch v-model="isColor"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { parseClass } from "@/cool";
+import { t } from "@/locale";
+
+const content = ref("Cool Unix");
+
+const isBorder = ref(true);
+const isShowCount = ref(true);
+const isDisabled = ref(false);
+const isColor = ref(false);
+const isAutoHeight = ref(false);
+</script>

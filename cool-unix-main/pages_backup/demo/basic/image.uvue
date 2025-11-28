@@ -1,0 +1,116 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-image :src="url"></cl-image>
+			</demo-item>
+
+			<demo-item :label="t('不同裁剪')">
+				<view class="flex flex-row justify-between">
+					<view class="flex flex-col items-center justify-center">
+						<cl-image :src="url" mode="aspectFill"></cl-image>
+						<cl-text
+							:pt="{
+								className: 'text-sm mt-1'
+							}"
+							>aspectFill</cl-text
+						>
+					</view>
+
+					<view class="flex flex-col items-center justify-center">
+						<cl-image :src="url" mode="aspectFit"></cl-image>
+						<cl-text
+							:pt="{
+								className: 'text-sm mt-1'
+							}"
+							>aspectFit</cl-text
+						>
+					</view>
+
+					<view class="flex flex-col items-center justify-center">
+						<cl-image :src="url" mode="heightFix"></cl-image>
+						<cl-text
+							:pt="{
+								className: 'text-sm mt-1'
+							}"
+							>heightFix</cl-text
+						>
+					</view>
+
+					<view class="flex flex-col items-center justify-center">
+						<cl-image :src="url" mode="scaleToFill"></cl-image>
+						<cl-text
+							:pt="{
+								className: 'text-sm mt-1'
+							}"
+							>scaleToFill</cl-text
+						>
+					</view>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('点击可预览')">
+				<cl-image :src="url" preview></cl-image>
+			</demo-item>
+
+			<demo-item :label="t('失败时显示')">
+				<cl-image src="url"></cl-image>
+			</demo-item>
+
+			<demo-item :label="t('加载中')">
+				<cl-image src=""></cl-image>
+			</demo-item>
+
+			<demo-item :label="t('自定义圆角')">
+				<view class="flex flex-row">
+					<cl-image
+						:src="url"
+						:pt="{
+							inner: {
+								className: '!rounded-none'
+							}
+						}"
+					></cl-image>
+
+					<cl-image
+						:src="url"
+						:pt="{
+							className: 'ml-3',
+							inner: {
+								className: '!rounded-2xl'
+							}
+						}"
+					></cl-image>
+
+					<cl-image
+						:src="url"
+						:pt="{
+							className: 'ml-3',
+							inner: {
+								className: '!rounded-3xl'
+							}
+						}"
+					></cl-image>
+
+					<cl-image
+						:src="url"
+						:pt="{
+							className: 'ml-3',
+							inner: {
+								className: '!rounded-full'
+							}
+						}"
+					></cl-image>
+				</view>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+
+const url = ref("https://unix.cool-js.com/images/demo/avatar.jpg");
+</script>

@@ -1,0 +1,399 @@
+<template>
+	<cl-page>
+		<cl-sticky>
+			<cl-topbar fixed safe-area-top :height="isMp() ? null : 100">
+				<view class="flex flex-row items-center w-full pl-[72rpx] pr-3">
+					<cl-avatar
+						rounded
+						:size="60"
+						src="https://unix.cool-js.com/images/demo/avatar.jpg"
+					></cl-avatar>
+					<cl-text :pt="{ className: 'mx-3' }">神仙都没用</cl-text>
+
+					<cl-button
+						text
+						border
+						size="small"
+						rounded
+						:pt="{ className: parseClass(['!px-3', [!isMp(), 'ml-auto']]) }"
+						>立即关注</cl-button
+					>
+				</view>
+			</cl-topbar>
+		</cl-sticky>
+
+		<view class="banner">
+			<cl-banner
+				height="1000rpx"
+				:list="bannerList"
+				:pt="{
+					className: '!rounded-none',
+					image: {
+						className: '!rounded-none'
+					}
+				}"
+			></cl-banner>
+		</view>
+
+		<view class="bg-white dark:bg-surface-800 mb-3">
+			<view
+				class="p-4 border border-solid border-b-surface-200 dark:border-b-surface-600 border-t-0 border-l-0 border-r-0"
+			>
+				<cl-text bold :pt="{ className: 'mb-2 text-lg' }">❄️ 雪地旅行商务团价格表</cl-text>
+
+				<cl-text :pt="{ className: 'mb-3' }">
+					对于不想做攻略的小伙伴来说定制团真的是最佳选择。雪地自驾没有经验的真心不建议。费用清晰明了。预算很准确，收费很合理。</cl-text
+				>
+
+				<view class="flex-row mb-4">
+					<view
+						class="flex-row items-center border border-solid border-surface-300 dark:border-surface-600 rounded-lg px-3 py-1 pl-2"
+					>
+						<cl-icon name="map-pin-2-line" :size="30"></cl-icon>
+						<cl-text :pt="{ className: 'text-sm ml-1' }"
+							>哈尔滨 · 圣 · 索菲亚教堂</cl-text
+						>
+					</view>
+				</view>
+
+				<cl-text :pt="{ className: 'text-sm' }" color="info">编辑于 2天前</cl-text>
+			</view>
+
+			<!-- 评论 -->
+			<view class="p-4">
+				<cl-text :pt="{ className: 'mb-4 text-sm' }">共 10 条评论</cl-text>
+
+				<!-- 评论输入框 -->
+				<view class="flex-row reply items-center mb-5" @tap="openReply()">
+					<cl-avatar
+						:size="68"
+						rounded
+						:pt="{ className: 'mr-2' }"
+						src="https://unix.cool-js.com/images/demo/avatar.jpg"
+					></cl-avatar>
+
+					<view
+						class="h-[69rpx] flex-1 flex-row items-center bg-surface-100 dark:bg-surface-700 rounded-full px-4"
+					>
+						<cl-text color="info" :pt="{ className: 'text-sm flex-1' }"
+							>说点什么...</cl-text
+						>
+
+						<cl-icon name="user-smile-line" :size="40"></cl-icon>
+
+						<cl-icon
+							name="image-circle-line"
+							:pt="{ className: 'ml-2' }"
+							:size="40"
+						></cl-icon>
+					</view>
+				</view>
+
+				<view class="list">
+					<view class="flex-row mb-6" v-for="item in commentList" :key="item.id">
+						<cl-avatar :size="68" rounded :src="item.avatar"></cl-avatar>
+
+						<view class="ml-3 flex-1">
+							<!-- 评论者信息 -->
+							<view class="flex-row items-center mb-1">
+								<cl-text :pt="{ className: 'text-sm' }" color="info">{{
+									item.name
+								}}</cl-text>
+
+								<cl-tag
+									plain
+									rounded
+									:pt="{
+										className: '!px-1 !py-[2rpx] ml-2',
+										text: { className: '!text-xs' }
+									}"
+									v-if="item.isAuthor"
+									>作者</cl-tag
+								>
+							</view>
+
+							<!-- 评论内容 -->
+							<cl-text :pt="{ className: 'mb-1' }">{{ item.content }}</cl-text>
+
+							<view class="flex-row items-center">
+								<!-- 评论时间 -->
+								<cl-text :pt="{ className: 'text-sm' }" color="info">
+									{{ item.time }}
+								</cl-text>
+
+								<cl-text
+									color="info"
+									:pt="{ className: 'text-sm ml-3' }"
+									@tap="openReply()"
+									>回复</cl-text
+								>
+							</view>
+
+							<!-- 回复列表 -->
+							<view class="flex-row mt-3" v-for="reply in item.reply" :key="reply.id">
+								<cl-avatar :size="50" rounded :src="reply.avatar"> </cl-avatar>
+
+								<view class="ml-3 flex-1">
+									<view class="flex-row items-center mb-1">
+										<cl-text :pt="{ className: 'text-sm' }" color="info">{{
+											reply.name
+										}}</cl-text>
+
+										<cl-tag
+											plain
+											rounded
+											:pt="{
+												className: '!px-1 !py-[2rpx] ml-2',
+												text: { className: '!text-xs' }
+											}"
+											v-if="reply.isAuthor"
+											>作者</cl-tag
+										>
+									</view>
+
+									<cl-text :pt="{ className: 'mb-1' }">{{
+										reply.content
+									}}</cl-text>
+
+									<view class="flex-row items-center mb-1">
+										<cl-text :pt="{ className: 'text-sm' }" color="info">
+											{{ reply.time }}
+										</cl-text>
+
+										<cl-text
+											color="info"
+											:pt="{ className: 'text-sm ml-3' }"
+											@tap="openReply()"
+											>回复</cl-text
+										>
+									</view>
+
+									<cl-text color="info" :pt="{ className: 'text-sm' }"
+										>展开 1 条回复</cl-text
+									>
+								</view>
+							</view>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+
+		<cl-footer>
+			<view class="flex flex-row h-[68rpx]">
+				<view
+					class="flex-row items-center bg-surface-100 dark:bg-surface-700 rounded-full px-3 py-2 mr-6 w-[260rpx] h-full"
+					@tap="openReply"
+				>
+					<cl-icon name="edit-line" color="info" :size="32"></cl-icon>
+					<cl-text color="info" :pt="{ className: 'text-sm ml-2' }">说点什么...</cl-text>
+				</view>
+
+				<view class="flex flex-row flex-1 justify-end h-full items-center">
+					<view class="flex-row justify-center items-center mr-6">
+						<cl-icon name="heart-line" :size="40"></cl-icon>
+						<cl-text :pt="{ className: 'ml-2 text-sm' }">700</cl-text>
+					</view>
+
+					<view class="flex-row justify-center items-center">
+						<cl-icon name="chat-3-line" :size="40"></cl-icon>
+						<cl-text :pt="{ className: 'ml-2 text-sm' }">59</cl-text>
+					</view>
+				</view>
+			</view>
+		</cl-footer>
+
+		<!-- 回复弹窗 -->
+		<cl-popup v-model="replyVisible" direction="bottom" ref="replyPopupRef">
+			<view class="p-4 pt-0">
+				<view class="bg-surface-100 dark:bg-surface-800 rounded-2xl p-[8rpx] h-[168rpx]">
+					<cl-textarea
+						placeholder="说点什么..."
+						:border="false"
+						:pt="{
+							className: parseClass(['!bg-transparent'])
+						}"
+						autofocus
+						v-if="isApp() ? true : replyPopupRef?.isOpened == true"
+					></cl-textarea>
+				</view>
+
+				<view class="flex-row items-center mt-3 pl-2">
+					<cl-icon
+						name="image-circle-line"
+						:pt="{ className: 'mr-4' }"
+						:size="44"
+					></cl-icon>
+					<cl-icon
+						name="user-smile-line"
+						:pt="{ className: 'mr-4' }"
+						:size="44"
+					></cl-icon>
+
+					<cl-button :pt="{ className: 'ml-auto !px-4' }" rounded>发送</cl-button>
+				</view>
+			</view>
+		</cl-popup>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { isApp, isMp, parseClass } from "@/cool";
+import { ref } from "vue";
+
+const bannerList = ref<string[]>([
+	"https://unix.cool-js.com/images/demo/bg1.png",
+	"https://unix.cool-js.com/images/demo/bg2.png",
+	"https://unix.cool-js.com/images/demo/bg3.png"
+]);
+
+type Comment = {
+	id: number;
+	avatar: string;
+	name: string;
+	content: string;
+	time: string;
+	isAuthor: boolean;
+	order: number;
+	reply: Comment[];
+};
+
+const commentList = ref<Comment[]>([
+	{
+		id: 1,
+		avatar: "https://unix.cool-js.com/images/demo/avatar-1.jpg",
+		name: "李明",
+		content: "导游讲解很专业，风景绝美，是一次难忘的旅行体验！",
+		time: "2024-06-20 10:15",
+		isAuthor: false,
+		order: 1,
+		reply: []
+	},
+	{
+		id: 2,
+		avatar: "https://unix.cool-js.com/images/demo/avatar-2.jpg",
+		name: "小芳",
+		content: "酒店干净卫生，位置也很方便，强烈推荐给大家！",
+		time: "2024-06-20 11:08",
+		isAuthor: false,
+		order: 2,
+		reply: [
+			{
+				id: 201,
+				avatar: "https://unix.cool-js.com/images/demo/avatar.jpg",
+				name: "神仙都没用",
+				content: "感谢您的推荐，欢迎再次光临哦~",
+				time: "2024-06-20 12:00",
+				isAuthor: true,
+				order: 1,
+				reply: []
+			}
+		]
+	},
+	{
+		id: 3,
+		avatar: "https://unix.cool-js.com/images/demo/avatar-3.jpg",
+		name: "王科",
+		content: "行程安排合理，吃住都很满意，导游态度超级好。",
+		time: "2024-06-19 09:22",
+		isAuthor: false,
+		order: 3,
+		reply: []
+	},
+	{
+		id: 4,
+		avatar: "https://unix.cool-js.com/images/demo/avatar-4.jpg",
+		name: "艳艳",
+		content: "第一次带父母出游，家人都开心，下次还会选择这里~",
+		time: "2024-06-18 15:40",
+		isAuthor: false,
+		order: 4,
+		reply: []
+	},
+	{
+		id: 5,
+		avatar: "https://unix.cool-js.com/images/demo/avatar-5.jpg",
+		name: "孙强",
+		content: "车程舒适，时间安排紧凑但不赶，非常不错，非常棒！",
+		time: "2024-06-17 17:05",
+		isAuthor: false,
+		order: 5,
+		reply: [
+			{
+				id: 501,
+				avatar: "https://unix.cool-js.com/images/demo/avatar.jpg",
+				name: "神仙都没用",
+				content: "您的好评就是我们最大的动力，谢谢支持~",
+				time: "2024-06-17 17:45",
+				isAuthor: true,
+				order: 1,
+				reply: []
+			}
+		]
+	},
+	{
+		id: 6,
+		avatar: "https://unix.cool-js.com/images/demo/avatar-6.jpg",
+		name: "导游小陈",
+		content: "很高兴大家玩的开心，有问题随时联系我们。",
+		time: "2024-06-17 18:20",
+		isAuthor: false,
+		order: 6,
+		reply: []
+	},
+	{
+		id: 7,
+		avatar: "https://unix.cool-js.com/images/demo/avatar-7.jpg",
+		name: "Grace",
+		content: "风景如画，照片拍了一堆，朋友都夸赞说好美！",
+		time: "2024-06-16 14:10",
+		isAuthor: false,
+		order: 7,
+		reply: []
+	},
+	{
+		id: 8,
+		avatar: "https://unix.cool-js.com/images/demo/avatar-8.jpg",
+		name: "阿伟",
+		content: "活动内容丰富，小朋友特别喜欢，下次会再来~",
+		time: "2024-06-15 19:28",
+		isAuthor: false,
+		order: 8,
+		reply: []
+	},
+	{
+		id: 9,
+		avatar: "https://unix.cool-js.com/images/demo/avatar-9.jpg",
+		name: "小虎",
+		content: "天气晴朗，安排贴心，吃到了很多特色美食，值了！",
+		time: "2024-06-14 13:52",
+		isAuthor: false,
+		order: 9,
+		reply: []
+	},
+	{
+		id: 10,
+		avatar: "https://unix.cool-js.com/images/demo/avatar-10.jpg",
+		name: "Julia",
+		content: "贴心的讲解和服务，体验很棒，感谢本次旅行团队！",
+		time: "2024-06-13 16:34",
+		isAuthor: false,
+		order: 10,
+		reply: []
+	}
+]);
+
+const replyPopupRef = ref<ClPopupComponentPublicInstance | null>(null);
+
+const replyVisible = ref(false);
+
+function openReply() {
+	replyVisible.value = true;
+}
+
+function closeReply() {
+	replyVisible.value = false;
+}
+</script>
+
+<style lang="scss" scoped></style>

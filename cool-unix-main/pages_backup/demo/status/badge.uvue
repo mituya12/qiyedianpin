@@ -1,0 +1,80 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<view class="flex flex-row overflow-visible">
+					<cl-badge type="primary" value="1" class="mr-2"></cl-badge>
+					<cl-badge type="success" value="12" class="mr-2"></cl-badge>
+					<cl-badge type="warn" value="31" class="mr-2"></cl-badge>
+					<cl-badge type="error" value="24" class="mr-2"></cl-badge>
+					<cl-badge type="info" value="17" class="mr-2"></cl-badge>
+					<cl-badge type="primary" value="41" class="mr-2"></cl-badge>
+					<cl-badge type="success" value="56" class="mr-2"></cl-badge>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('结合按钮')">
+				<view class="flex flex-row overflow-visible">
+					<cl-button>
+						{{ t("购买") }}
+						<template #content>
+							<cl-badge type="error" value="1" position> </cl-badge>
+						</template>
+					</cl-button>
+
+					<cl-button :pt="{ className: '!ml-5' }">
+						{{ t("消息") }}
+						<template #content>
+							<cl-badge type="error" dot position> </cl-badge>
+						</template>
+					</cl-button>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('结合图片')">
+				<view class="flex flex-row overflow-visible">
+					<cl-image
+						:pt="{
+							className: 'overflow-visible'
+						}"
+						src="https://unix.cool-js.com/images/demo/bg1.png"
+					>
+						<cl-badge type="error" value="+9" position> </cl-badge>
+					</cl-image>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('结合图标')">
+				<view class="flex flex-row overflow-visible">
+					<view class="relative overflow-visible">
+						<cl-icon name="mail-line"> </cl-icon>
+						<cl-badge
+							type="error"
+							dot
+							position
+							:pt="{
+								className: '!top-[-6rpx] !right-[-6rpx]'
+							}"
+						>
+						</cl-badge>
+					</view>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('自定义样式')">
+				<view class="flex flex-row overflow-visible">
+					<cl-badge
+						type="info"
+						:pt="{ className: '!rounded-bl-none' }"
+						value="1"
+					></cl-badge>
+				</view>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+</script>

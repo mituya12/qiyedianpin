@@ -1,0 +1,516 @@
+<template>
+	<cl-page title="帮助与反馈">
+		<scroll-view scroll-y class="help-container">
+			<!-- 常见问题卡片 -->
+			<view class="card">
+				<view class="title-wrapper">
+					<view class="title-bar"></view>
+					<text class="card-title">常见问题</text>
+				</view>
+				
+				<view class="faq-list">
+					<view class="faq-item" @tap="toggleFaq(0)">
+						<view class="faq-header">
+							<text class="faq-question">如何发布企业评价？</text>
+							<cl-icon 
+								:name="expandedFaq === 0 ? 'arrow-up-s-line' : 'arrow-down-s-line'" 
+								:size="32" 
+								color="#64748b"
+							></cl-icon>
+						</view>
+						<view v-if="expandedFaq === 0" class="faq-answer">
+							<text class="answer-text">1. 登录您的账户</text>
+							<text class="answer-text">2. 搜索要评价的企业</text>
+							<text class="answer-text">3. 点击"写点评"按钮</text>
+							<text class="answer-text">4. 填写评价内容、评分和其他信息</text>
+							<text class="answer-text">5. 点击"发布"提交评价</text>
+						</view>
+					</view>
+
+					<view class="faq-divider"></view>
+
+					<view class="faq-item" @tap="toggleFaq(1)">
+						<view class="faq-header">
+							<text class="faq-question">如何编辑或删除我的评价？</text>
+							<cl-icon 
+								:name="expandedFaq === 1 ? 'arrow-up-s-line' : 'arrow-down-s-line'" 
+								:size="32" 
+								color="#64748b"
+							></cl-icon>
+						</view>
+						<view v-if="expandedFaq === 1" class="faq-answer">
+							<text class="answer-text">进入"我的点评"页面，找到要编辑或删除的评价，点击相应的操作按钮即可。</text>
+						</view>
+					</view>
+
+					<view class="faq-divider"></view>
+
+					<view class="faq-item" @tap="toggleFaq(2)">
+						<view class="faq-header">
+							<text class="faq-question">我的评价为什么没有显示？</text>
+							<cl-icon 
+								:name="expandedFaq === 2 ? 'arrow-up-s-line' : 'arrow-down-s-line'" 
+								:size="32" 
+								color="#64748b"
+							></cl-icon>
+						</view>
+						<view v-if="expandedFaq === 2" class="faq-answer">
+							<text class="answer-text">评价需要通过审核后才能显示。我们会在24小时内审核您的评价。如果评价违反了我们的社区准则，可能会被拒绝。</text>
+						</view>
+					</view>
+
+					<view class="faq-divider"></view>
+
+					<view class="faq-item" @tap="toggleFaq(3)">
+						<view class="faq-header">
+							<text class="faq-question">如何举报不当评价？</text>
+							<cl-icon 
+								:name="expandedFaq === 3 ? 'arrow-up-s-line' : 'arrow-down-s-line'" 
+								:size="32" 
+								color="#64748b"
+							></cl-icon>
+						</view>
+						<view v-if="expandedFaq === 3" class="faq-answer">
+							<text class="answer-text">在评价详情页面底部，点击举报图标，选择举报原因后提交即可。</text>
+						</view>
+					</view>
+				</view>
+			</view>
+
+			<!-- 反馈表单卡片 -->
+			<view class="card">
+				<view class="title-wrapper">
+					<view class="title-bar"></view>
+					<text class="card-title">提交反馈</text>
+				</view>
+				<text class="card-desc">如果您有任何建议或问题，欢迎向我们反馈</text>
+
+				<view class="form-item">
+					<text class="form-label">反馈类型</text>
+					<view class="type-selector">
+						<view 
+							v-for="(type, index) in feedbackTypes" 
+							:key="index"
+							class="type-chip"
+							:class="{ 'type-chip-active': feedbackType === type }"
+							@tap="feedbackType = type"
+						>
+							<text class="type-text" :class="{ 'type-text-active': feedbackType === type }">{{ type }}</text>
+						</view>
+					</view>
+				</view>
+
+				<view class="form-item">
+					<text class="form-label">反馈内容</text>
+					<textarea 
+						class="textarea-input"
+						v-model="feedbackContent"
+						placeholder="请详细描述您的反馈内容..."
+						:maxlength="500"
+						placeholder-class="textarea-placeholder"
+					/>
+					<text class="char-count">{{ feedbackContent.length }}/500</text>
+				</view>
+
+				<view class="form-item">
+					<text class="form-label">联系方式（可选）</text>
+					<input 
+						class="text-input"
+						v-model="contactInfo"
+						type="text"
+						placeholder="邮箱或手机号"
+						placeholder-class="input-placeholder"
+					/>
+				</view>
+
+				<view class="submit-btn" hover-class="submit-btn-hover" @tap="submitFeedback">
+					<text class="submit-btn-text">提交反馈</text>
+				</view>
+			</view>
+
+			<!-- 联系我们卡片 -->
+			<view class="card">
+				<view class="title-wrapper">
+					<view class="title-bar"></view>
+					<text class="card-title">联系我们</text>
+				</view>
+				
+				<view class="contact-list">
+					<view class="contact-item">
+						<view class="contact-icon">
+							<cl-icon name="mail-line" :size="40" color="#06b6d4"></cl-icon>
+						</view>
+						<view class="contact-content">
+							<text class="contact-label">邮箱</text>
+							<text class="contact-value">feedback@qiyedianping.com</text>
+						</view>
+					</view>
+
+					<view class="contact-item">
+						<view class="contact-icon">
+							<cl-icon name="phone-line" :size="40" color="#06b6d4"></cl-icon>
+						</view>
+						<view class="contact-content">
+							<text class="contact-label">客服热线</text>
+							<text class="contact-value">400-800-8888</text>
+						</view>
+					</view>
+
+					<view class="contact-item">
+						<view class="contact-icon">
+							<cl-icon name="wechat-line" :size="40" color="#06b6d4"></cl-icon>
+						</view>
+						<view class="contact-content">
+							<text class="contact-label">微信公众号</text>
+							<text class="contact-value">企业点评平台</text>
+						</view>
+					</view>
+				</view>
+			</view>
+		</scroll-view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import { createFeedback } from "@/common/api/feedback";
+import { user } from "@/cool/store/user";
+
+const expandedFaq = ref<number | null>(null);
+const feedbackType = ref("功能建议");
+const feedbackTypes = ["功能建议", "问题反馈", "内容举报", "其他"];
+const feedbackContent = ref("");
+const contactInfo = ref("");
+const isSubmitting = ref(false);
+
+// 反馈类型映射到API分类
+const categoryMap: Record<string, string> = {
+	"功能建议": "feature",
+	"问题反馈": "bug",
+	"内容举报": "content",
+	"其他": "other"
+};
+
+const toggleFaq = (index: number) => {
+	expandedFaq.value = expandedFaq.value === index ? null : index;
+};
+
+const submitFeedback = async () => {
+	// 检查登录状态
+	if (!user.token) {
+		uni.showToast({
+			title: "请先登录",
+			icon: "none"
+		});
+		return;
+	}
+
+	// 验证反馈内容
+	if (!feedbackContent.value.trim()) {
+		uni.showToast({
+			title: "请输入反馈内容",
+			icon: "none"
+		});
+		return;
+	}
+
+	// 防止重复提交
+	if (isSubmitting.value) {
+		return;
+	}
+
+	isSubmitting.value = true;
+	uni.showLoading({
+		title: "提交中..."
+	});
+
+	try {
+		await createFeedback({
+			category: categoryMap[feedbackType.value],
+			content: feedbackContent.value.trim(),
+			contact: contactInfo.value.trim() || undefined
+		});
+
+		uni.hideLoading();
+		uni.showToast({
+			title: "反馈已提交，感谢您的建议！",
+			icon: "none"
+		});
+		
+		// 清空表单
+		feedbackContent.value = "";
+		contactInfo.value = "";
+		feedbackType.value = "功能建议";
+	} catch (error: any) {
+		uni.hideLoading();
+		uni.showToast({
+			title: error?.message || "提交失败，请重试",
+			icon: "none"
+		});
+		console.error("提交反馈失败:", error);
+	} finally {
+		isSubmitting.value = false;
+	}
+};
+</script>
+
+<style lang="scss" scoped>
+.help-container {
+	background-color: #f8fafc;
+	min-height: 100vh;
+	padding: 32rpx;
+	box-sizing: border-box;
+}
+
+/* 卡片样式 */
+.card {
+	background-color: #ffffff;
+	border-radius: 24rpx;
+	padding: 48rpx;
+	margin-bottom: 32rpx;
+	border: 1px solid #f1f5f9;
+	box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+	flex-direction: column;
+}
+
+.title-wrapper {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 48rpx;
+}
+
+.title-bar {
+	width: 6rpx;
+	height: 36rpx;
+	background: linear-gradient(180deg, #06b6d4 0%, #14b8a6 100%);
+	border-radius: 3rpx;
+	margin-right: 16rpx;
+}
+
+.card-title {
+	font-size: 36rpx;
+	font-weight: bold;
+	color: #0f172a;
+	line-height: 1.4;
+}
+
+.card-desc {
+	font-size: 28rpx;
+	color: #475569;
+	line-height: 1.8;
+	margin-bottom: 48rpx;
+}
+
+/* FAQ列表 */
+.faq-list {
+	flex-direction: column;
+}
+
+.faq-item {
+	flex-direction: column;
+	padding: 32rpx 0;
+}
+
+.faq-header {
+	flex-direction: row;
+	align-items: flex-start;
+	justify-content: space-between;
+}
+
+.faq-question {
+	font-size: 30rpx;
+	font-weight: 600;
+	color: #0f172a;
+	flex: 1;
+	margin-right: 32rpx;
+	line-height: 1.6;
+}
+
+.faq-answer {
+	margin-top: 24rpx;
+	padding-top: 24rpx;
+	border-top: 1px solid #f1f5f9;
+	flex-direction: column;
+}
+
+.answer-text {
+	font-size: 28rpx;
+	color: #475569;
+	line-height: 1.8;
+	margin-bottom: 12rpx;
+}
+
+.faq-divider {
+	height: 1px;
+	background-color: #f1f5f9;
+	margin: 8rpx 0;
+}
+
+/* 表单样式 */
+.form-item {
+	margin-bottom: 48rpx;
+	flex-direction: column;
+}
+
+.form-item:first-child {
+	margin-top: 16rpx;
+}
+
+.form-label {
+	font-size: 30rpx;
+	font-weight: 600;
+	color: #0f172a;
+	margin-bottom: 24rpx;
+	line-height: 1.4;
+}
+
+/* 类型选择器 */
+.type-selector {
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+}
+
+.type-chip {
+	background-color: #ffffff;
+	border: 2px solid #e2e8f0;
+	border-radius: 32rpx;
+	padding: 20rpx 40rpx;
+	margin-right: 20rpx;
+	margin-bottom: 20rpx;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.type-chip-active {
+	background: linear-gradient(135deg, #06b6d4 0%, #14b8a6 100%);
+	border-color: #06b6d4;
+}
+
+.type-text {
+	font-size: 28rpx;
+	color: #1e293b;
+	font-weight: 500;
+}
+
+.type-text-active {
+	color: #ffffff;
+}
+
+/* 输入框样式 */
+.textarea-input {
+	background-color: #ffffff;
+	border: 2px solid #e2e8f0;
+	border-radius: 16rpx;
+	padding: 24rpx;
+	font-size: 28rpx;
+	color: #1e293b;
+	min-height: 240rpx;
+	line-height: 1.8;
+	box-sizing: border-box;
+}
+
+.textarea-placeholder {
+	color: #cbd5e1;
+	font-size: 28rpx;
+}
+
+.text-input {
+	background-color: #ffffff;
+	border: 2px solid #e2e8f0;
+	border-radius: 16rpx;
+	padding: 24rpx;
+	font-size: 28rpx;
+	color: #1e293b;
+	height: 96rpx;
+	box-sizing: border-box;
+}
+
+.input-placeholder {
+	color: #cbd5e1;
+	font-size: 28rpx;
+}
+
+.char-count {
+	font-size: 24rpx;
+	color: #94a3b8;
+	margin-top: 16rpx;
+	text-align: right;
+}
+
+/* 提交按钮 */
+.submit-btn {
+	background: linear-gradient(135deg, #06b6d4 0%, #14b8a6 100%);
+	border-radius: 16rpx;
+	padding: 28rpx;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-top: 32rpx;
+	margin-left: auto;
+	margin-right: auto;
+	width: 400rpx;
+	box-shadow: 0 4px 12px rgba(6, 182, 212, 0.3);
+}
+
+.submit-btn-hover {
+	opacity: 0.9;
+}
+
+.submit-btn-text {
+	font-size: 32rpx;
+	font-weight: 600;
+	color: #ffffff;
+}
+
+/* 联系方式列表 */
+.contact-list {
+	flex-direction: column;
+}
+
+.contact-item {
+	flex-direction: row;
+	align-items: center;
+	padding: 32rpx 0;
+	border-bottom: 1px solid #f1f5f9;
+}
+
+.contact-item:last-child {
+	border-bottom: none;
+}
+
+.contact-icon {
+	width: 88rpx;
+	height: 88rpx;
+	background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(20, 184, 166, 0.1) 100%);
+	border-radius: 50%;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	margin-right: 28rpx;
+	flex-shrink: 0;
+}
+
+.contact-content {
+	flex: 1;
+	flex-direction: column;
+	justify-content: center;
+}
+
+.contact-label {
+	font-size: 26rpx;
+	color: #94a3b8;
+	margin-bottom: 8rpx;
+	line-height: 1.4;
+}
+
+.contact-value {
+	font-size: 30rpx;
+	font-weight: 500;
+	color: #1e293b;
+	line-height: 1.4;
+	word-break: break-all;
+}
+</style>

@@ -1,0 +1,54 @@
+<template>
+	<cl-page>
+		<cl-sign ref="signRef" :height="height" :width="width" :enable-brush="isBrush"></cl-sign>
+
+		<view class="p-3">
+			<cl-list>
+				<cl-list-item :label="t('操作')">
+					<cl-button type="info" @click="clear">{{ t("清空") }}</cl-button>
+					<cl-button @click="preview">{{ t("预览") }}</cl-button>
+				</cl-list-item>
+
+				<cl-list-item :label="t('设置高度')">
+					<cl-switch v-model="isFullscreen" @change="onFullscreenChange"></cl-switch>
+				</cl-list-item>
+
+				<cl-list-item :label="t('毛笔效果')">
+					<cl-switch v-model="isBrush"></cl-switch>
+				</cl-list-item>
+			</cl-list>
+		</view>
+	</cl-page>
+</template>
+
+<script setup lang="ts">
+import { t } from "@/locale";
+import { ref } from "vue";
+
+const height = ref(200);
+const width = ref(0);
+
+const isFullscreen = ref(false);
+const isBrush = ref(true);
+const signRef = ref<ClSignComponentPublicInstance | null>(null);
+
+function clear() {
+	signRef.value!.clear();
+}
+
+function preview() {
+	signRef.value!.toPng().then((url) => {
+		uni.previewImage({
+			urls: [url]
+		});
+	});
+}
+
+function onFullscreenChange() {
+	height.value = isFullscreen.value ? uni.getWindowInfo().windowHeight - 200 : 200;
+}
+
+onReady(() => {
+	width.value = uni.getWindowInfo().windowWidth;
+});
+</script>

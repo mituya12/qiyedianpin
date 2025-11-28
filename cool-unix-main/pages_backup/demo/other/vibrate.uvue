@@ -1,0 +1,19 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-button @tap="onVibrate">{{ t("点击触发") }}</cl-button>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { vibrate } from "@/uni_modules/cool-vibrate";
+
+function onVibrate() {
+	vibrate(1);
+}
+</script>

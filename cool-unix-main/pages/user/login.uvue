@@ -1,0 +1,253 @@
+<template>
+	<cl-page>
+		<view class="login-container">
+			<view class="login-card">
+
+				<view class="card-content">
+					<view class="logo-wrapper">
+						<cl-icon name="chat-3-fill" :size="80" color="#ffffff"></cl-icon>
+					</view>
+
+					<text class="title">欢迎来到企业点评</text>
+					<text class="subtitle">登录后即可发布评价、回复内容</text>
+					<text class="subtitle">您的身份信息将严格保密</text>
+
+					<view class="login-btn" hover-class="login-btn-hover" @tap="handleWxLogin">
+						<cl-icon name="wechat-fill" :size="40" color="#ffffff"></cl-icon>
+						<text class="login-btn-text">微信快捷登录</text>
+					</view>
+
+					<view class="agreement">
+						<text class="agreement-text">登录即代表您同意我们的 </text>
+						<text class="agreement-link" @tap="goToUserAgreement">用户协议</text>
+						<text class="agreement-text"> 和 </text>
+						<text class="agreement-link" @tap="goToPrivacyPolicy">隐私政策</text>
+					</view>
+				</view>
+			</view>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { loginByWechat } from "@/common/api";
+import { user } from "@/cool/store/user";
+
+const goToUserAgreement = () => {
+	uni.navigateTo({
+		url: "/pages/set/user-agreement"
+	});
+};
+
+const goToPrivacyPolicy = () => {
+	uni.navigateTo({
+		url: "/pages/set/privacy-policy"
+	});
+};
+
+const handleWxLogin = () => {
+	console.log('开始微信登录...');
+	
+	// 显示加载提示
+	uni.showLoading({
+		title: "登录中..."
+	});
+	
+	// 调用微信登录获取code
+	uni.login({
+		provider: "weixin",
+		success: (loginRes) => {
+			console.log('获取到微信code:', loginRes.code);
+			
+			// 调用后端登录接口
+			loginByWechat(loginRes.code)
+				.then((res) => {
+					console.log('登录成功，返回数据:', res);
+					
+					// 存储token
+					if (res.token) {
+						user.setToken(res.token);
+					}
+					
+					// 存储用户信息
+					if (res.userInfo) {
+						user.set(res.userInfo);
+					}
+					
+					// 隐藏加载提示
+					uni.hideLoading();
+					
+					// 显示成功提示
+					uni.showToast({
+						title: "登录成功",
+						icon: "success"
+					});
+					
+					// 跳转到个人中心
+					setTimeout(() => {
+						uni.switchTab({
+							url: "/pages/index/my"
+						});
+					}, 1500);
+				})
+				.catch((err) => {
+					console.error('登录失败:', err);
+					
+					// 隐藏加载提示
+					uni.hideLoading();
+					
+					// 显示错误提示
+					uni.showToast({
+						title: err.message || "登录失败",
+						icon: "none"
+					});
+				});
+		},
+		fail: (err) => {
+			console.error('获取微信code失败:', err);
+			
+			// 隐藏加载提示
+			uni.hideLoading();
+			
+			// 显示错误提示
+			uni.showToast({
+				title: "获取登录凭证失败",
+				icon: "none"
+			});
+		}
+	});
+};
+</script>
+
+<style lang="scss" scoped>
+.login-container {
+	min-height: 100vh;
+	background: linear-gradient(135deg,
+		rgba(207, 250, 254, 0.3) 0%,
+		rgba(248, 250, 252, 1) 30%,
+		rgba(248, 250, 252, 1) 60%,
+		rgba(204, 251, 241, 0.25) 100%);
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 32rpx;
+}
+
+.login-card {
+	width: 100%;
+	max-width: 768rpx;
+	background: linear-gradient(135deg,
+		rgba(255, 255, 255, 1) 0%,
+		rgba(240, 253, 250, 0.8) 50%,
+		rgba(255, 255, 255, 1) 100%);
+	border-radius: 64rpx;
+	padding: 80rpx;
+	text-align: center;
+	border: 1px solid #f1f5f9;
+	position: relative;
+	overflow: hidden;
+}
+
+.deco-circle {
+	position: absolute;
+	border-radius: 50%;
+	opacity: 0.3;
+}
+
+.deco-circle-1 {
+	top: -80rpx;
+	right: -80rpx;
+	width: 256rpx;
+	height: 256rpx;
+	background: linear-gradient(135deg, #ccfbf1 0%, #a7f3d0 100%);
+}
+
+.deco-circle-2 {
+	bottom: -80rpx;
+	left: -80rpx;
+	width: 256rpx;
+	height: 256rpx;
+	background: linear-gradient(135deg, #cffafe 0%, #a5f3fc 100%);
+}
+
+.card-content {
+	position: relative;
+	z-index: 10;
+}
+
+.logo-wrapper {
+	width: 160rpx;
+	height: 160rpx;
+	background: linear-gradient(135deg, #34d399 0%, #10b981 100%);
+	border-radius: 48rpx;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0 auto 64rpx;
+	box-shadow: 0 20px 25px -5px rgba(16, 185, 129, 0.3);
+	transform: rotate(3deg);
+	transition: transform 0.3s ease;
+}
+
+.title {
+	font-size: 48rpx;
+	font-weight: bold;
+	color: #1e293b;
+	margin-bottom: 24rpx;
+	display: block;
+}
+
+.subtitle {
+	font-size: 28rpx;
+	color: #64748b;
+	line-height: 1.6;
+	display: block;
+}
+
+.login-btn {
+	width: 100%;
+	background-color: #07c160;
+	border-radius: 24rpx;
+	padding: 28rpx;
+	margin-top: 80rpx;
+	display: flex;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+	box-shadow: 0 20px 25px -5px rgba(7, 193, 96, 0.2);
+	transition: all 0.3s ease;
+}
+
+.login-btn-hover {
+	background-color: #06a954;
+	transform: scale(0.95);
+}
+
+.login-btn-text {
+	font-size: 32rpx;
+	font-weight: 500;
+	color: #ffffff;
+	margin-left: 16rpx;
+}
+
+.agreement {
+	margin-top: 64rpx;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+}
+
+.agreement-text {
+	font-size: 20rpx;
+	color: #cbd5e1;
+}
+
+.agreement-link {
+	font-size: 20rpx;
+	color: #475569;
+	text-decoration: underline;
+}
+</style>

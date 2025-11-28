@@ -1,0 +1,83 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('分享文本')">
+				<cl-button @tap="shareText">{{ t("分享文本") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('分享图片')">
+				<cl-button @tap="shareImage">{{ t("分享图片") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('分享文件')">
+				<cl-button @tap="shareFile">{{ t("分享文件") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('分享链接')">
+				<cl-button @tap="shareLink">{{ t("分享链接") }}</cl-button>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+// #ifdef APP
+import { shareWithSystem } from "@/uni_modules/cool-share";
+// #endif
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+
+function shareText() {
+	// #ifdef APP
+	shareWithSystem({
+		type: "text",
+		title: "Cool Unix",
+		summary: "Cool Unix 是一个高效的项目脚手架",
+		success: () => {
+			console.log("success");
+		},
+		fail: (error) => {
+			console.log("fail", error);
+		}
+	});
+	// #endif
+}
+
+function shareImage() {
+	// #ifdef APP
+	shareWithSystem({
+		type: "image",
+		url: "https://cool-js.com/logo.png",
+		success: () => {
+			console.log("success");
+		}
+	});
+	// #endif
+}
+
+function shareFile() {
+	// #ifdef APP
+	shareWithSystem({
+		type: "file",
+		url: "https://show.cool-admin.com/用户导入模版.xlsx",
+		success: () => {
+			console.log("success");
+		}
+	});
+	// #endif
+}
+
+function shareLink() {
+	// #ifdef APP
+	shareWithSystem({
+		type: "link",
+		url: "https://cool-js.com/",
+		success: () => {
+			console.log("success");
+		}
+	});
+	// #endif
+}
+</script>
+
+<style lang="scss" scoped></style>

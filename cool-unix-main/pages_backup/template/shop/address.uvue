@@ -1,0 +1,221 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<view
+				class="flex flex-col bg-white rounded-2xl p-4 mb-3 dark:!bg-surface-800"
+				:class="{
+					'!mb-0': index == addressList.length - 1
+				}"
+				v-for="(item, index) in addressList"
+				:key="item.id"
+			>
+				<view class="flex flex-col">
+					<cl-text color="info" :pt="{ className: '!text-sm' }"
+						>{{ item.province }} {{ item.city }} {{ item.district }}</cl-text
+					>
+
+					<cl-text
+						:pt="{
+							className: 'my-1'
+						}"
+						>{{ item.address }}</cl-text
+					>
+
+					<view class="flex flex-row">
+						<cl-text :pt="{ className: '!text-sm' }">{{ item.contact }}</cl-text>
+						<cl-text color="info" :pt="{ className: 'ml-3 !text-sm' }">{{
+							item.phone
+						}}</cl-text>
+					</view>
+				</view>
+
+				<view
+					class="flex flex-row border border-solid border-gray-100 border-b-0 border-l-0 border-r-0 pt-4 mt-4 dark:!border-surface-700"
+				>
+					<cl-radio
+						v-model="defaultId"
+						active-icon="checkbox-circle-fill"
+						inactive-icon="checkbox-blank-circle-line"
+						:pt="{
+							className: 'max-w-[300rpx]',
+							label: {
+								className: '!text-sm'
+							},
+							icon: {
+								size: 32
+							}
+						}"
+						:value="item.id"
+						@change="onDefaultChange(item)"
+						>{{ item.isDefault ? t("已设为默认") : t("设为默认") }}</cl-radio
+					>
+
+					<view
+						class="flex flex-row items-center justify-center ml-auto"
+						@tap="onDelete(item.id!)"
+					>
+						<cl-icon name="delete-bin-line" :size="28"></cl-icon>
+						<cl-text :pt="{ className: 'ml-2 !text-sm' }">{{ t("删除") }}</cl-text>
+					</view>
+
+					<view
+						class="flex flex-row items-center justify-center ml-6"
+						@tap="toEdit(item.id!)"
+					>
+						<cl-icon name="edit-line" :size="28"></cl-icon>
+						<cl-text :pt="{ className: 'ml-2 !text-sm' }">{{ t("修改") }}</cl-text>
+					</view>
+				</view>
+			</view>
+
+			<cl-empty v-if="list.length == 0"></cl-empty>
+		</view>
+
+		<cl-footer>
+			<cl-button @tap="toAdd()">{{ t("添加地址") }}</cl-button>
+		</cl-footer>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { useUi } from "@/uni_modules/cool-ui";
+import { parse, request, router, usePager, type Response } from "@/cool";
+import { t } from "@/locale";
+import { computed, ref } from "vue";
+import type { UserAddress } from "../types";
+
+const ui = useUi();
+
+const { refresh, list, loadMore } = usePager(async (data, { render }) => {
+	await request({
+		url: "/app/user/address/page",
+		method: "POST",
+		data
+	})
+		.then((res) => {
+			if (res != null) {
+				render(res);
+			}
+		})
+		.catch((err) => {
+			ui.showToast({
+				message: (err as Response).message!
+			});
+		})
+		.finally(() => {
+			ui.hideLoading();
+		});
+});
+
+// 默认地址id
+const defaultId = ref<number>(0);
+
+// 地址列表数据
+const addressList = computed(() =>
+	list.value.map((e) => {
+		e["isDefault"] = e["isDefault"] == 1 ? true : false;
+
+		const d = parse<UserAddress>(e)!;
+
+		if (d.isDefault) {
+			defaultId.value = d.id!;
+		}
+
+		return d;
+	})
+);
+
+// 添加地址
+function toAdd() {
+	router.to("/pages/template/shop/address-edit");
+}
+
+// 编辑地址
+function toEdit(id: number) {
+	router.push({
+		path: "/pages/template/shop/address-edit",
+		query: { id }
+	});
+}
+
+// 删除地址
+function onDelete(id: number) {
+	ui.showConfirm({
+		title: t("提示"),
+		message: t("删除地址后无法恢复，确认要删除该地址吗？"),
+		callback: (action) => {
+			if (action == "confirm") {
+				request({
+					url: "/app/user/address/delete",
+					method: "POST",
+					data: { ids: [id] }
+				})
+					.then(() => {
+						ui.showToast({
+							message: t("删除成功")
+						});
+
+						refresh({});
+					})
+					.catch((err) => {
+						ui.showToast({
+							message: (err as Response).message!
+						});
+					});
+			}
+		}
+	});
+}
+
+// 设为默认地址
+function onDefaultChange(item: UserAddress) {
+	// 遍历地址列表，设置选中的地址为默认地址，其他地址取消默认
+	addressList.value.forEach((e) => {
+		if (e.id == item.id) {
+			// 切换当前地址的默认状态
+			e.isDefault = !e.isDefault;
+
+			// 如果取消了默认，则重置默认地址ID
+			if (!e.isDefault) {
+				defaultId.value = 0;
+			}
+		} else {
+			// 其他地址全部取消默认
+			e.isDefault = false;
+		}
+	});
+
+	request({
+		url: "/app/user/address/update",
+		method: "POST",
+		data: {
+			id: item.id,
+			isDefault: item.isDefault
+		}
+	});
+}
+
+onPullDownRefresh(() => {
+	refresh({ page: 1 }).finally(() => {
+		uni.stopPullDownRefresh();
+	});
+});
+
+onReachBottom(() => {
+	loadMore();
+});
+
+onReady(() => {
+	ui.showLoading(t("加载中"));
+
+	// 默认请求
+	refresh({
+		page: 1,
+		size: 20
+	});
+
+	onPageShow(() => {
+		refresh({});
+	});
+});
+</script>

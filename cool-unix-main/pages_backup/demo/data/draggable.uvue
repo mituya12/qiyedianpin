@@ -1,0 +1,217 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item>
+				<cl-text color="info">
+					{{ t("长按项即可拖动排序") }}
+				</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('单列排序')">
+				<cl-draggable v-model="list">
+					<template #item="{ item, index }">
+						<view
+							class="flex flex-row items-center p-3 bg-surface-100 rounded-lg mb-2 dark:!bg-surface-700"
+							:class="{
+								'opacity-50': item['disabled']
+							}"
+						>
+							<cl-text>{{ (item as UTSJSONObject).label }}</cl-text>
+						</view>
+					</template>
+				</cl-draggable>
+			</demo-item>
+
+			<demo-item :label="t('不需要长按')">
+				<cl-draggable v-model="list5" :long-press="false">
+					<template #item="{ item }">
+						<view
+							class="flex flex-row items-center p-3 bg-surface-100 rounded-lg mb-2 dark:!bg-surface-700"
+						>
+							<cl-text>{{ (item as UTSJSONObject).label }}</cl-text>
+						</view>
+					</template>
+				</cl-draggable>
+			</demo-item>
+
+			<demo-item :label="t('结合列表使用')">
+				<cl-list border>
+					<cl-draggable v-model="list2">
+						<template #item="{ item, index, dragging, dragIndex }">
+							<cl-list-item
+								icon="chat-thread-line"
+								:label="(item as UTSJSONObject).label"
+								arrow
+								:pt="{
+									inner: {
+										className: parseClass([
+											[
+												dragging && dragIndex == index,
+												isDark ? '!bg-surface-700' : '!bg-surface-100'
+											]
+										])
+									}
+								}"
+							></cl-list-item>
+						</template>
+					</cl-draggable>
+				</cl-list>
+			</demo-item>
+
+			<demo-item :label="t('多列排序')">
+				<cl-draggable v-model="list3" :columns="4">
+					<template #item="{ item, index }">
+						<view
+							class="flex flex-row items-center justify-center p-3 bg-surface-100 rounded-lg m-1 dark:!bg-surface-700"
+							:class="{
+								'opacity-50': item['disabled']
+							}"
+						>
+							<cl-text>{{ (item as UTSJSONObject).label }}</cl-text>
+						</view>
+					</template>
+				</cl-draggable>
+			</demo-item>
+
+			<demo-item :label="t('结合图片使用')">
+				<cl-draggable v-model="list4" :columns="4">
+					<template #item="{ item, index }">
+						<view class="p-[2px]">
+							<cl-image
+								:src="(item as UTSJSONObject).url"
+								mode="widthFix"
+								:pt="{
+									className: '!w-full'
+								}"
+								preview
+							></cl-image>
+						</view>
+					</template>
+				</cl-draggable>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { ref } from "vue";
+import { isDark, parseClass } from "@/cool";
+
+// list：李白《将进酒》
+const list = ref<UTSJSONObject[]>([
+	{
+		label: "君不见黄河之水天上来"
+	},
+	{
+		label: "奔流到海不复回",
+		disabled: true
+	},
+	{
+		label: "君不见高堂明镜悲白发"
+	},
+	{
+		label: "朝如青丝暮成雪"
+	},
+	{
+		label: "人生得意须尽欢"
+	}
+]);
+
+// list5：杜甫《春望》
+const list5 = ref<UTSJSONObject[]>([
+	{
+		label: "国破山河在"
+	},
+	{
+		label: "城春草木深"
+	},
+	{
+		label: "感时花溅泪"
+	}
+]);
+
+// list2：王之涣《登鹳雀楼》
+const list2 = ref<UTSJSONObject[]>([
+	{
+		label: "白日依山尽"
+	},
+	{
+		label: "黄河入海流"
+	},
+	{
+		label: "欲穷千里目"
+	},
+	{
+		label: "更上一层楼"
+	},
+	{
+		label: "一览众山小"
+	}
+]);
+
+const list3 = ref<UTSJSONObject[]>([
+	{
+		label: "项目1"
+	},
+	{
+		label: "项目2"
+	},
+	{
+		label: "项目3"
+	},
+	{
+		label: "项目4"
+	},
+	{
+		label: "项目5"
+	},
+	{
+		label: "项目6"
+	},
+	{
+		label: "项目7"
+	},
+	{
+		label: "项目8",
+		disabled: true
+	},
+	{
+		label: "项目9"
+	},
+	{
+		label: "项目10"
+	},
+	{
+		label: "项目11"
+	},
+	{
+		label: "项目12"
+	}
+]);
+
+const list4 = ref<UTSJSONObject[]>([
+	{
+		url: "https://unix.cool-js.com/images/demo/1.jpg"
+	},
+	{
+		url: "https://unix.cool-js.com/images/demo/2.jpg"
+	},
+	{
+		url: "https://unix.cool-js.com/images/demo/3.jpg"
+	},
+	{
+		url: "https://unix.cool-js.com/images/demo/4.jpg"
+	},
+	{
+		url: "https://unix.cool-js.com/images/demo/5.jpg"
+	},
+	{
+		url: "https://unix.cool-js.com/images/demo/6.jpg"
+	},
+	{
+		url: "https://unix.cool-js.com/images/demo/7.jpg"
+	}
+]);
+</script>

@@ -1,0 +1,70 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('横向滚动')">
+				<cl-marquee
+					:list="list"
+					direction="horizontal"
+					:item-height="200"
+					:item-width="360"
+					:pt="{
+						className: 'h-[200rpx] rounded-xl'
+					}"
+				></cl-marquee>
+			</demo-item>
+
+			<demo-item :label="t('纵向滚动')">
+				<cl-marquee
+					ref="marqueeRef"
+					:list="list"
+					direction="vertical"
+					:item-height="260"
+					:duration="isSpeed ? 2000 : 5000"
+					:pt="{
+						className: 'h-[500rpx] rounded-xl'
+					}"
+				></cl-marquee>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-5'
+					}"
+				>
+					<cl-list-item :label="t('快一点')">
+						<cl-switch v-model="isSpeed"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('暂停')">
+						<cl-switch v-model="isPause" @change="onPauseChange"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+import { ref } from "vue";
+
+const marqueeRef = ref<ClMarqueeComponentPublicInstance | null>(null);
+
+const list = ref<string[]>([
+	"https://unix.cool-js.com/images/demo/bg1.png",
+	"https://unix.cool-js.com/images/demo/bg2.png",
+	"https://unix.cool-js.com/images/demo/bg3.png"
+]);
+
+const isSpeed = ref(false);
+const isPause = ref(false);
+
+function onPauseChange(value: boolean) {
+	if (value) {
+		marqueeRef.value!.pause();
+	} else {
+		marqueeRef.value!.play();
+	}
+}
+</script>

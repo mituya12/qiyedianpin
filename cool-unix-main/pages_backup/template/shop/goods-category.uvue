@@ -1,0 +1,335 @@
+<template>
+	<cl-page>
+		<view class="flex flex-col h-full">
+			<view class="flex flex-row p-3">
+				<cl-input
+					:pt="{
+						className: parseClass(['flex-1 !border-2 !rounded-xl'])
+					}"
+					prefix-icon="search-line"
+					placeholder="iPhone 16 Pro Max"
+				></cl-input>
+			</view>
+
+			<view class="flex flex-row flex-1">
+				<!-- 左侧分类列表 -->
+				<view class="h-full w-[200rpx] bg-white dark:bg-surface-800 mr-2 rounded-tr-xl">
+					<scroll-view direction="vertical" :show-scrollbar="false" class="h-full">
+						<view
+							class="h-[100rpx] p-2"
+							v-for="(item, index) in list"
+							:key="item.label"
+							@click="onCategoryChange(index)"
+						>
+							<view
+								class="flex flex-row items-center justify-center h-full rounded-lg"
+								:class="[
+									categoryActive == index
+										? isDark
+											? 'bg-primary-500'
+											: 'bg-primary-50'
+										: ''
+								]"
+							>
+								<cl-text
+									:pt="{
+										className: parseClass([
+											[
+												categoryActive == index,
+												isDark ? '!text-white' : '!text-primary-500',
+												isDark ? '!text-surface-300' : '!text-surface-500'
+											]
+										])
+									}"
+									>{{ item.label }}</cl-text
+								>
+							</view>
+						</view>
+					</scroll-view>
+				</view>
+
+				<!-- 右侧商品列表 -->
+				<view class="flex-1">
+					<scroll-view
+						direction="vertical"
+						:scroll-into-view="scrollIntoView"
+						:scroll-with-animation="!scrollLock"
+						class="h-full"
+						@scroll="onScroll"
+					>
+						<view class="pr-2">
+							<view
+								class="category-item flex rounded-xl bg-white dark:bg-surface-800 mb-2 pb-3"
+								v-for="(item, index) in list"
+								:key="item.label"
+								:id="`category-item-${index}`"
+							>
+								<cl-text
+									:pt="{
+										className: 'p-3'
+									}"
+									>{{ item.label }}</cl-text
+								>
+
+								<view class="px-1">
+									<cl-row :gutter="10">
+										<cl-col
+											v-for="goods in item.list"
+											:key="goods.name"
+											:span="8"
+										>
+											<view class="flex items-center flex-col justify-center">
+												<cl-image :src="goods.image"></cl-image>
+												<cl-text
+													:ellipsis="true"
+													:pt="{ className: '!text-xs text-center mt-2' }"
+													>{{ goods.name }}</cl-text
+												>
+											</view>
+										</cl-col>
+									</cl-row>
+								</view>
+							</view>
+						</view>
+					</scroll-view>
+				</view>
+			</view>
+		</view>
+	</cl-page>
+</template>
+
+<script setup lang="ts">
+import { isDark, parseClass } from "@/cool";
+import { getCurrentInstance, ref } from "vue";
+
+const { proxy } = getCurrentInstance()!;
+
+// 商品类型
+type Goods = {
+	name: string;
+	price: number;
+	image: string;
+};
+
+// 分类类型
+type Category = {
+	label: string;
+	top?: number;
+	list: Goods[];
+};
+
+// 商品分类示例数据
+const list = ref<Category[]>([
+	{
+		label: "推荐",
+		list: [
+			{
+				name: "iPhone 15 Pro",
+				price: 8999,
+				image: "/static/goods/iphone15pro.png"
+			},
+			{
+				name: "华为 Mate 60 Pro",
+				price: 6999,
+				image: "/static/goods/mate60pro.png"
+			},
+			{
+				name: "小米 14 Ultra",
+				price: 5999,
+				image: "/static/goods/xiaomi14ultra.png"
+			}
+		]
+	},
+	{
+		label: "Apple",
+		list: [
+			{
+				name: "iPhone 15 Pro",
+				price: 8999,
+				image: "/static/goods/iphone15pro.png"
+			},
+			{
+				name: "iPhone 14",
+				price: 5999,
+				image: "/static/goods/iphone14.png"
+			}
+		]
+	},
+	{
+		label: "华为",
+		list: [
+			{
+				name: "华为 Mate 60 Pro",
+				price: 6999,
+				image: "/static/goods/mate60pro.png"
+			},
+			{
+				name: "华为 P60",
+				price: 4999,
+				image: "/static/goods/p60.png"
+			}
+		]
+	},
+	{
+		label: "小米",
+		list: [
+			{
+				name: "小米 14 Ultra",
+				price: 5999,
+				image: "/static/goods/xiaomi14ultra.png"
+			},
+			{
+				name: "小米 13",
+				price: 3999,
+				image: "/static/goods/xiaomi13.png"
+			}
+		]
+	},
+	{
+		label: "三星",
+		list: [
+			{
+				name: "三星 Galaxy S24",
+				price: 7999,
+				image: "/static/goods/galaxys24.png"
+			},
+			{
+				name: "三星 Galaxy Z Flip5",
+				price: 8999,
+				image: "/static/goods/galaxyzflip5.png"
+			}
+		]
+	},
+	{
+		label: "OPPO",
+		list: [
+			{
+				name: "OPPO Find X7",
+				price: 4999,
+				image: "/static/goods/findx7.png"
+			}
+		]
+	},
+	{
+		label: "VIVO",
+		list: [
+			{
+				name: "VIVO X100 Pro",
+				price: 5999,
+				image: "/static/goods/x100pro.png"
+			}
+		]
+	},
+	{
+		label: "荣耀",
+		list: [
+			{
+				name: "荣耀 Magic6",
+				price: 4599,
+				image: "/static/goods/magic6.png"
+			}
+		]
+	},
+	{
+		label: "一加",
+		list: [
+			{
+				name: "一加 12",
+				price: 4299,
+				image: "/static/goods/oneplus12.png"
+			}
+		]
+	},
+	{
+		label: "红米",
+		list: [
+			{
+				name: "红米 K70 Pro",
+				price: 3299,
+				image: "/static/goods/k70pro.png"
+			}
+		]
+	},
+	{
+		label: "魅族",
+		list: [
+			{
+				name: "魅族 21",
+				price: 3999,
+				image: "/static/goods/meizu21.png"
+			}
+		]
+	},
+	{
+		label: "坚果",
+		list: [
+			{
+				name: "坚果 R2",
+				price: 2999,
+				image: "/static/goods/nutR2.png"
+			}
+		]
+	},
+	{
+		label: "其他",
+		list: [
+			{
+				name: "诺基亚 X30",
+				price: 2599,
+				image: "/static/goods/nokiax30.png"
+			}
+		]
+	}
+]);
+
+// 滚动到指定分类
+const scrollIntoView = ref("");
+
+// 滚动锁定
+const scrollLock = ref(false);
+
+// 当前选中的分类
+const categoryActive = ref(0);
+
+// 分类切换
+function onCategoryChange(index: number) {
+	categoryActive.value = index;
+
+	scrollIntoView.value = `category-item-${index}`;
+	scrollLock.value = true;
+
+	setTimeout(() => {
+		scrollLock.value = false;
+	}, 350);
+}
+
+// 滚动时，更新当前选中的分类
+function onScroll(e: UniScrollEvent) {
+	if (scrollLock.value) return;
+
+	const top = e.detail.scrollTop;
+
+	list.value.forEach((e, i) => {
+		if (top >= e.top!) {
+			categoryActive.value = i;
+		}
+	});
+}
+
+// 初始化
+function init() {
+	uni.createSelectorQuery()
+		.in(proxy!.$root)
+		.selectAll(".category-item")
+		.boundingClientRect((res) => {
+			(res as NodeInfo[]).forEach((e, i, arr) => {
+				list.value[i].top = (e.top ?? 0) - (arr[0].top ?? 0);
+			});
+		})
+		.exec();
+}
+
+onReady(() => {
+	init();
+});
+</script>

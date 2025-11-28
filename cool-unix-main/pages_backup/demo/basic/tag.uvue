@@ -1,0 +1,72 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<view class="flex flex-row">
+					<cl-tag>{{ t("标签") }}</cl-tag>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('不同类型')">
+				<view class="flex flex-row flex-wrap">
+					<cl-tag type="primary">{{ t("主要") }}</cl-tag>
+					<cl-tag type="success">{{ t("成功") }}</cl-tag>
+					<cl-tag type="warn">{{ t("警告") }}</cl-tag>
+					<cl-tag type="error">{{ t("危险") }}</cl-tag>
+					<cl-tag type="info">{{ t("信息") }}</cl-tag>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('带图标')">
+				<view class="flex flex-row">
+					<cl-tag icon="mail-line">{{ t("邮件") }}</cl-tag>
+					<cl-tag icon="calendar-line">{{ t("日历") }}</cl-tag>
+					<cl-tag icon="file-line">{{ t("文件") }}</cl-tag>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('圆角')">
+				<view class="flex flex-row">
+					<cl-tag rounded>{{ t("圆角") }}</cl-tag>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('可关闭')">
+				<view class="flex flex-row">
+					<cl-tag closable>{{ t("可关闭") }}</cl-tag>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('镂空')">
+				<view class="flex flex-row flex-wrap">
+					<cl-tag type="primary" plain>{{ t("主要") }}</cl-tag>
+					<cl-tag type="success" plain>{{ t("成功") }}</cl-tag>
+					<cl-tag type="warn" plain>{{ t("警告") }}</cl-tag>
+					<cl-tag type="error" plain>{{ t("危险") }}</cl-tag>
+					<cl-tag type="info" plain>{{ t("信息") }}</cl-tag>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<view class="flex flex-row">
+					<cl-tag
+						:pt="{
+							className: '!bg-sky-200',
+							text: {
+								className: '!text-sky-700'
+							}
+						}"
+						>{{ t("自定义颜色") }}</cl-tag
+					>
+
+					<cl-tag :pt="{ className: '!rounded-none' }">{{ t("自定义无圆角") }}</cl-tag>
+				</view>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+</script>

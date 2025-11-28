@@ -1,0 +1,100 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('自定义')">
+				<cl-button @tap="openPopup">{{ t("打开弹窗") }}</cl-button>
+
+				<cl-list border class="mt-3">
+					<view class="w-full p-2">
+						<cl-tabs
+							v-model="direction"
+							:list="directionList"
+							show-slider
+							:height="66"
+						></cl-tabs>
+					</view>
+
+					<cl-list-item :label="t('设置宽度 80%')">
+						<cl-switch v-model="isWidth"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('无头')">
+						<cl-switch v-model="unShowHeader"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('自定义样式')">
+						<cl-switch v-model="isCustom"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+
+		<cl-popup
+			v-model="visible"
+			:title="t('标题')"
+			:direction="direction"
+			:size="size"
+			:show-header="!unShowHeader"
+			:pt="{
+				className: parseClass([[isCustom, '!p-3']]),
+				inner: {
+					className: parseClass([[isCustom, '!rounded-2xl']])
+				}
+			}"
+		>
+			<view
+				class="p-3"
+				:class="{
+					'pt-0': !unShowHeader
+				}"
+			>
+				<cl-image
+					src="https://unix.cool-js.com/images/demo/bg1.png"
+					class="mb-3"
+					height="auto"
+					width="100%"
+					mode="widthFix"
+				></cl-image>
+
+				<cl-text
+					>春江花月夜， 花草复青青。 江水流不尽， 月光照无情。 夜来风雨急， 愁思满心头。
+					何时再相见， 共赏月明楼。
+				</cl-text>
+			</view>
+		</cl-popup>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { computed, ref } from "vue";
+import type { ClPopupDirection, ClTabsItem } from "@/uni_modules/cool-ui";
+import { parseClass } from "@/cool";
+
+const visible = ref(false);
+const isWidth = ref(true);
+const unShowHeader = ref(false);
+const isCustom = ref(false);
+
+const direction = ref<ClPopupDirection>("bottom");
+const directionList = ref<ClTabsItem[]>([
+	{ label: t("底部"), value: "bottom" },
+	{ label: t("顶部"), value: "top" },
+	{ label: t("左侧"), value: "left" },
+	{ label: t("右侧"), value: "right" },
+	{ label: t("中间"), value: "center" }
+]);
+
+const size = computed(() => {
+	if (direction.value == "left" || direction.value == "right" || direction.value == "center") {
+		return isWidth.value ? "80%" : "";
+	}
+
+	return "";
+});
+
+function openPopup() {
+	visible.value = true;
+}
+</script>

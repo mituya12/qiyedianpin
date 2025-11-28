@@ -1,0 +1,55 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('自定义')">
+				<cl-button @tap="chooseImage">{{ t("选择图片") }}</cl-button>
+
+				<cl-list border :pt="{ className: 'mt-5' }">
+					<cl-list-item :label="t('可调节裁剪框大小')">
+						<cl-switch v-model="resizable"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+
+	<cl-cropper
+		ref="cropperRef"
+		:resizable="resizable"
+		@crop="onCrop"
+		@load="onImageLoad"
+	></cl-cropper>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+import { ref } from "vue";
+
+const cropperRef = ref<ClCropperComponentPublicInstance | null>(null);
+
+const resizable = ref(true);
+
+function chooseImage() {
+	uni.chooseImage({
+		count: 1,
+		sizeType: ["original", "compressed"],
+		sourceType: ["album", "camera"],
+		success: (res) => {
+			if (res.tempFilePaths.length > 0) {
+				cropperRef.value!.open(res.tempFilePaths[0]);
+			}
+		}
+	});
+}
+
+function onCrop(url: string) {
+	uni.previewImage({
+		urls: [url]
+	});
+}
+
+function onImageLoad(e: UniImageLoadEvent) {
+	console.log("onImageLoad", e);
+}
+</script>

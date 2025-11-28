@@ -1,0 +1,312 @@
+<template>
+	<cl-page>
+		<!-- 主内容区域 -->
+		<view class="page-container">
+			<!-- 渐变背景 -->
+			<view class="bg-layer">
+				<view class="bg-gradient-1"></view>
+				<view class="bg-gradient-2"></view>
+			</view>
+
+			<!-- 内容 -->
+			<view class="content-wrapper">
+				<!-- 标题区域 -->
+				<view class="title-section">
+					<!-- 标签 -->
+					<view class="badge">
+						<cl-icon name="sparkling-fill" :size="28" color="#0891b2"></cl-icon>
+						<text class="badge-text">千万职场人信赖的口碑平台</text>
+					</view>
+
+					<!-- 主标题 -->
+					<view class="main-title">
+						<text class="title-text">发现真实的</text>
+						<text class="title-gradient">职场世界</text>
+					</view>
+
+					<!-- 副标题 -->
+					<view class="subtitle">
+						<text class="subtitle-text">匿名、透明、真实。</text>
+						<text class="subtitle-text">查询公司待遇、福利与评价，做出明智的职业选择。</text>
+					</view>
+				</view>
+
+				<!-- 搜索框 -->
+				<view class="search-section">
+					<view class="search-box">
+						<view class="search-icon-wrapper">
+							<cl-icon name="search-line" :size="48" color="#94a3b8"></cl-icon>
+						</view>
+						<input
+							class="search-input"
+							placeholder="输入企业名称，例如：字节跳动..."
+							v-model="searchTerm"
+							@confirm="handleSearch"
+						/>
+						<view class="search-btn" hover-class="search-btn-hover" @tap="handleSearch">
+							<cl-icon name="arrow-right-line" :size="40" color="#ffffff"></cl-icon>
+						</view>
+					</view>
+				</view>
+
+				<!-- 热门企业 -->
+				<view class="trending-section">
+					<text class="trending-title">热门企业</text>
+					<view class="trending-list">
+						<view
+							v-for="company in trendingCompanies"
+							:key="company.id"
+							class="company-item"
+							hover-class="company-item-hover"
+							@tap="handleCompanyClick(company.id)"
+						>
+							<cl-icon name="store-2-line" :size="28" color="#64748b"></cl-icon>
+							<text class="company-name">{{ company.name }}</text>
+						</view>
+					</view>
+				</view>
+			</view>
+		</view>
+
+		<!-- 自定义底部导航栏 -->
+		<custom-tabbar></custom-tabbar>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref, onMounted } from "vue";
+import CustomTabbar from "@/components/tabbar.uvue";
+import { getTrendingCompanies } from "@/common/api";
+
+const searchTerm = ref("");
+
+// 热门企业数据
+const trendingCompanies = ref<any[]>([]);
+
+// 获取热门企业
+const fetchTrendingCompanies = async () => {
+	try {
+		const res = await getTrendingCompanies();
+		if (res && Array.isArray(res)) {
+			// 只保留前5个企业
+			trendingCompanies.value = res.slice(0, 5);
+		}
+	} catch (err: any) {
+		// 静默失败
+	}
+};
+
+// 页面加载时获取热门企业
+onMounted(() => {
+	fetchTrendingCompanies();
+});
+
+const handleSearch = () => {
+	if (searchTerm.value.trim()) {
+		uni.navigateTo({
+			url: "/pages/search/result?keyword=" + encodeURIComponent(searchTerm.value)
+		});
+	} else {
+		uni.showToast({
+			title: "请输入企业名称",
+			icon: "none"
+		});
+	}
+};
+
+const handleCompanyClick = (id: number) => {
+	uni.navigateTo({
+		url: "/pages/company/detail?id=" + id
+	});
+};
+</script>
+
+<style lang="scss" scoped>
+.page-container {
+	min-height: 100vh;
+	background: linear-gradient(135deg, 
+		rgba(207, 250, 254, 0.3) 0%, 
+		rgba(248, 250, 252, 1) 30%, 
+		rgba(248, 250, 252, 1) 60%, 
+		rgba(204, 251, 241, 0.25) 100%);
+	padding: 16px;
+	padding-top: 40px;
+	position: relative;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+}
+
+.bg-layer {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.bg-gradient-1 {
+	display: none;
+}
+
+.bg-gradient-2 {
+	display: none;
+}
+
+.content-wrapper {
+	width: 100%;
+	max-width: 640px;
+	flex-direction: column;
+	align-items: center;
+	z-index: 10;
+}
+
+.title-section {
+	flex-direction: column;
+	align-items: center;
+	margin-bottom: 40px;
+}
+
+.badge {
+	flex-direction: row;
+	align-items: center;
+	padding: 6px 16px;
+	border-radius: 9999px;
+	background-color: rgba(255, 255, 255, 0.8);
+	border: 1px solid #cffafe;
+	margin-bottom: 24px;
+	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.badge-text {
+	font-size: 12px;
+	color: #0891b2;
+	font-weight: 500;
+	margin-left: 8px;
+}
+
+.main-title {
+	flex-direction: row;
+	align-items: center;
+	margin-bottom: 16px;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.title-text {
+	font-size: 36px;
+	font-weight: bold;
+	color: #1e293b;
+}
+
+.title-gradient {
+	font-size: 36px;
+	font-weight: bold;
+	color: #14b8a6;
+	margin-left: 8px;
+}
+
+.subtitle {
+	flex-direction: column;
+	align-items: center;
+}
+
+.subtitle-text {
+	font-size: 18px;
+	color: #64748b;
+	text-align: center;
+	line-height: 28px;
+}
+
+.search-section {
+	width: 100%;
+	margin-bottom: 40px;
+}
+
+.search-box {
+	position: relative;
+	width: 100%;
+}
+
+.search-icon-wrapper {
+	position: absolute;
+	left: 20px;
+	top: 50%;
+	transform: translateY(-50%);
+	z-index: 20;
+	pointer-events: none;
+}
+
+.search-input {
+	width: 100%;
+	height: 60px;
+	padding-left: 54px;
+	padding-right: 96px;
+	border-radius: 30px;
+	border: 1px solid #e2e8f0;
+	background-color: rgba(255, 255, 255, 0.9);
+	font-size: 18px;
+	color: #1e293b;
+}
+
+.search-btn {
+	position: absolute;
+	right: 12px;
+	top: 12px;
+	bottom: 12px;
+	padding-left: 24px;
+	padding-right: 24px;
+	background: linear-gradient(to right, #06b6d4, #14b8a6);
+	border-radius: 16px;
+	flex-direction: row;
+	align-items: center;
+	justify-content: center;
+}
+
+.search-btn-hover {
+	box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+}
+
+.trending-section {
+	width: 100%;
+	flex-direction: column;
+	align-items: center;
+}
+
+.trending-title {
+	font-size: 12px;
+	color: #94a3b8;
+	font-weight: 500;
+	margin-bottom: 16px;
+	text-align: center;
+}
+
+.trending-list {
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: center;
+}
+
+.company-item {
+	flex-direction: row;
+	align-items: center;
+	padding: 10px 20px;
+	background-color: #ffffff;
+	border-radius: 12px;
+	border: 1px solid #f1f5f9;
+	margin-right: 12px;
+	margin-bottom: 12px;
+}
+
+.company-item-hover {
+	border-color: #a5f3fc;
+}
+
+.company-name {
+	font-size: 14px;
+	color: #475569;
+	margin-left: 8px;
+}
+</style>

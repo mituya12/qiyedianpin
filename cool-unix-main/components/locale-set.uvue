@@ -1,0 +1,84 @@
+<template>
+	<cl-select
+		ref="selectRef"
+		v-model="active"
+		:options="options"
+		:show-trigger="false"
+		:title="t('切换语言')"
+		:cancel-text="t('取消')"
+		:confirm-text="t('确定')"
+	></cl-select>
+</template>
+
+<script setup lang="ts">
+import { locale, setLocale, t } from "@/locale";
+import { useUi, type ClSelectOption } from "@/uni_modules/cool-ui";
+import { ref } from "vue";
+
+const ui = useUi();
+
+// 语言列表
+const options = [
+	{
+		label: "简体中文",
+		value: "zh-cn"
+	},
+	{
+		label: "繁体中文",
+		value: "zh-tw"
+	},
+	{
+		label: "English",
+		value: "en"
+	},
+	{
+		label: "Español",
+		value: "es"
+	},
+	{
+		label: "日本語",
+		value: "ja"
+	},
+	{
+		label: "한국어",
+		value: "ko"
+	},
+	{
+		label: "Français",
+		value: "fr"
+	}
+] as ClSelectOption[];
+
+const selectRef = ref<ClSelectComponentPublicInstance | null>(null);
+
+// 当前语言
+const active = ref(locale.value);
+
+// 打开
+function open() {
+	active.value = locale.value;
+
+	if (["zh-Hans", "zh"].some((e) => e == locale.value)) {
+		active.value = "zh-cn";
+	}
+
+	selectRef.value!.open((value) => {
+		ui.showLoading(t("切换中"));
+
+		setTimeout(() => {
+			setLocale(value as string);
+			ui.hideLoading();
+		}, 500);
+	});
+}
+
+// 关闭
+function close() {
+	selectRef.value!.close();
+}
+
+defineExpose({
+	open,
+	close
+});
+</script>

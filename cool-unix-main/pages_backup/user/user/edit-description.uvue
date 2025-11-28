@@ -1,0 +1,52 @@
+<template>
+	<cl-page>
+		<cl-topbar safe-area-top :title="t('编辑简介')" background-color="transparent"> </cl-topbar>
+
+		<view class="p-3">
+			<cl-textarea
+				v-model="content"
+				:placeholder="t('介绍一下自己')"
+				:border="false"
+				:height="200"
+			>
+			</cl-textarea>
+		</view>
+
+		<cl-footer>
+			<cl-button size="large" :disabled="content == ''" @tap="confirm">{{
+				t("确认")
+			}}</cl-button>
+		</cl-footer>
+	</cl-page>
+</template>
+
+<script setup lang="ts">
+import { router, userInfo, useStore } from "@/cool";
+import { t } from "@/locale";
+import { useUi } from "@/uni_modules/cool-ui";
+import { ref } from "vue";
+
+const ui = useUi();
+const { user } = useStore();
+
+// 输入框内容
+const content = ref("");
+
+async function confirm() {
+	if (content.value == "") {
+		return ui.showToast({
+			message: t("简介不能为空")
+		});
+	}
+
+	await user.update({
+		description: content.value
+	});
+
+	router.back();
+}
+
+onReady(() => {
+	content.value = userInfo.value?.description ?? "";
+});
+</script>

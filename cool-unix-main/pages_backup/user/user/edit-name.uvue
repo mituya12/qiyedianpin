@@ -1,0 +1,80 @@
+<template>
+	<cl-page>
+		<cl-topbar safe-area-top :title="t('编辑昵称')" background-color="transparent"> </cl-topbar>
+
+		<view class="p-3">
+			<cl-input
+				v-model="content"
+				autofocus
+				:placeholder="t('请输入昵称')"
+				:border="false"
+				:pt="{
+					className: '!h-[80rpx]'
+				}"
+			>
+				<template #append>
+					<cl-text color="info" :pt="{ className: 'text-sm ml-2' }"
+						>{{ content.length }}/20</cl-text
+					>
+				</template>
+			</cl-input>
+
+			<view class="p-3">
+				<cl-text color="info" :pt="{ className: 'text-sm' }">{{
+					t("请设置2-20个字符，不包括@<>/等无效字符")
+				}}</cl-text>
+			</view>
+		</view>
+
+		<cl-footer>
+			<cl-button size="large" :disabled="content == ''" @tap="confirm">{{
+				t("确认")
+			}}</cl-button>
+		</cl-footer>
+	</cl-page>
+</template>
+
+<script setup lang="ts">
+import { router, userInfo, useStore } from "@/cool";
+import { t } from "@/locale";
+import { useUi } from "@/uni_modules/cool-ui";
+import { ref } from "vue";
+
+const ui = useUi();
+const { user } = useStore();
+
+// 输入框内容
+const content = ref("");
+
+// 确认按钮点击事件
+async function confirm() {
+	// 检查昵称长度和特殊字符
+	if (content.value.length < 2 || content.value.length > 20) {
+		ui.showToast({
+			message: t("昵称长度需在2-20个字符之间")
+		});
+		return;
+	}
+
+	// 正则匹配 - 不允许特殊字符@<>/等
+	const reg = /^[^@<>\/]*$/;
+	if (!reg.test(content.value)) {
+		ui.showToast({
+			message: t("昵称不能包含@<>/等特殊字符")
+		});
+		return;
+	}
+
+	// 更新用户昵称
+	await user.update({
+		nickName: content.value
+	});
+
+	router.back();
+}
+
+// 页面加载时，设置输入框内容
+onReady(() => {
+	content.value = userInfo.value?.nickName ?? "";
+});
+</script>

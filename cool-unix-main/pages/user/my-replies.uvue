@@ -1,0 +1,223 @@
+<template>
+	<cl-page>
+		<scroll-view scroll-y class="container">
+			<view v-if="replies.length > 0" class="list">
+				<view
+					v-for="reply in replies"
+					:key="reply.id"
+					class="reply-card"
+					hover-class="item-hover"
+					@tap="goToReview(reply.companyId, reply.reviewId)"
+				>
+					<!-- 回复卡片头部 -->
+					<view class="reply-header">
+						<view class="reply-author-info">
+							<cl-avatar :src="reply.avatar" :size="80"></cl-avatar>
+							<view class="author-details">
+								<text class="author-name">我</text>
+								<text class="reply-date">{{ reply.date }}</text>
+							</view>
+						</view>
+					</view>
+
+					<!-- 回复的原点评信息 -->
+					<view class="reply-meta">
+						<text class="meta-text">回复了 </text>
+						<text class="meta-author">@{{ reply.reviewAuthor }}</text>
+						<text class="meta-text"> 在 </text>
+						<text class="meta-company">{{ reply.companyName }}</text>
+						<text class="meta-text"> 的点评</text>
+					</view>
+
+					<!-- 回复内容 -->
+					<text class="reply-content">{{ reply.content }}</text>
+
+					<!-- 底部操作 -->
+					<view class="reply-footer">
+						<view class="footer-action">
+							<cl-icon name="chat-3-line" :size="32" color="#64748b"></cl-icon>
+							<text class="action-text">查看原点评</text>
+						</view>
+					</view>
+				</view>
+			</view>
+			<view v-else class="empty-state">
+				<cl-icon name="message-2-line" :size="128" color="#cbd5e1"></cl-icon>
+				<text class="empty-text">您还没有回复过他人</text>
+			</view>
+		</scroll-view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref, onMounted } from "vue";
+import { getMyReplies } from "@/common/api";
+
+const replies = ref<any[]>([]);
+const currentPage = ref(1);
+const pageSize = ref(10);
+
+// 页面加载时获取数据
+onMounted(() => {
+	fetchMyReplies();
+});
+
+// 获取我的回复列表
+const fetchMyReplies = async () => {
+	uni.showLoading({
+		title: "加载中..."
+	});
+	
+	try {
+		const res = await getMyReplies({
+			page: currentPage.value,
+			pageSize: pageSize.value
+		});
+		
+		if (res && res.items) {
+			replies.value = res.items;
+		}
+	} catch (err: any) {
+		console.error("获取我的回复失败:", err);
+		uni.showToast({
+			title: err.message || "加载失败",
+			icon: "none"
+		});
+	} finally {
+		uni.hideLoading();
+	}
+};
+
+const goToReview = (companyId: number, reviewId: number) => {
+	uni.navigateTo({
+		url: `/pages/review/detail?id=${reviewId}`
+	});
+};
+</script>
+
+<style lang="scss" scoped>
+.container {
+	min-height: 100vh;
+	background: linear-gradient(135deg,
+		rgba(207, 250, 254, 0.3) 0%,
+		rgba(248, 250, 252, 1) 30%,
+		rgba(248, 250, 252, 1) 60%,
+		rgba(204, 251, 241, 0.25) 100%);
+	padding: 32rpx;
+    box-sizing: border-box;
+
+}
+
+.list {
+	flex-direction: column;
+}
+
+.reply-card {
+	background-color: #ffffff;
+	border-radius: 24rpx;
+	padding: 32rpx;
+	margin-bottom: 32rpx;
+	border: 1px solid #f1f5f9;
+	flex-direction: column;
+}
+
+.item-hover {
+	background-color: #f8fafc;
+}
+
+.reply-header {
+	flex-direction: row;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 24rpx;
+}
+
+.reply-author-info {
+	flex-direction: row;
+	align-items: center;
+	flex: 1;
+}
+
+.author-details {
+	flex-direction: column;
+	margin-left: 24rpx;
+}
+
+.author-name {
+	font-size: 28rpx;
+	font-weight: 500;
+	color: #1e293b;
+	margin-bottom: 8rpx;
+}
+
+.reply-date {
+	font-size: 24rpx;
+	color: #94a3b8;
+}
+
+.reply-meta {
+	flex-direction: row;
+	flex-wrap: wrap;
+	margin-bottom: 24rpx;
+	padding: 16rpx;
+	background-color: #f8fafc;
+	border-radius: 12rpx;
+}
+
+.meta-text {
+	font-size: 24rpx;
+	color: #64748b;
+}
+
+.meta-author {
+	font-size: 24rpx;
+	color: #06b6d4;
+	font-weight: 500;
+}
+
+.meta-company {
+	font-size: 24rpx;
+	color: #1e293b;
+	font-weight: 500;
+}
+
+.reply-content {
+	font-size: 28rpx;
+	color: #475569;
+	line-height: 1.6;
+	margin-bottom: 24rpx;
+}
+
+.reply-footer {
+	flex-direction: row;
+	align-items: center;
+	padding-top: 24rpx;
+	border-top: 1px solid #f1f5f9;
+}
+
+.footer-action {
+	flex-direction: row;
+	align-items: center;
+}
+
+.action-text {
+	font-size: 24rpx;
+	color: #64748b;
+	margin-left: 8rpx;
+}
+
+.empty-state {
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	padding: 128rpx 48rpx;
+	background-color: #ffffff;
+	border-radius: 24rpx;
+}
+
+.empty-text {
+	font-size: 28rpx;
+	color: #94a3b8;
+	margin-top: 32rpx;
+}
+</style>

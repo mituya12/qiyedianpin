@@ -1,0 +1,32 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-avatar src="https://unix.cool-js.com/images/demo/avatar.jpg"></cl-avatar>
+			</demo-item>
+
+			<demo-item :label="t('无图片')">
+				<cl-avatar></cl-avatar>
+			</demo-item>
+
+			<demo-item :label="t('圆角')">
+				<cl-avatar
+					rounded
+					src="https://unix.cool-js.com/images/demo/avatar.jpg"
+				></cl-avatar>
+			</demo-item>
+
+			<demo-item :label="t('自定义大小')">
+				<cl-avatar
+					:size="120"
+					src="https://unix.cool-js.com/images/demo/avatar.jpg"
+				></cl-avatar>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+</script>

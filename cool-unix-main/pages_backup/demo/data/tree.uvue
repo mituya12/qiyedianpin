@@ -1,0 +1,391 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('树形结构')">
+				<cl-tree
+					v-model="checkedKeys"
+					ref="treeRef"
+					:list="list"
+					:icon="isCustomIcon ? 'add-circle-line' : 'arrow-right-s-fill'"
+					:expand-icon="isCustomIcon ? 'indeterminate-circle-line' : 'arrow-down-s-fill'"
+					:checkable="true"
+					:multiple="true"
+					:check-strictly="checkStrictly"
+				></cl-tree>
+
+				<cl-list border :pt="{ className: 'mt-5' }">
+					<cl-list-item :label="t('父子关联')">
+						<cl-switch v-model="checkStrictly"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('换个图标')">
+						<cl-switch v-model="isCustomIcon"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+
+			<demo-item :label="t('选中值')">
+				<cl-text>{{ checkedKeys.join("、") }}</cl-text>
+			</demo-item>
+
+			<demo-item :label="t('选中操作')">
+				<view class="mb-2">
+					<cl-button @tap="setChecked">{{ t("选中部分节点") }}</cl-button>
+				</view>
+
+				<view class="mb-2">
+					<cl-button @tap="getChecked">{{ t("获取选中节点") }}</cl-button>
+				</view>
+
+				<view class="mb-2">
+					<cl-button @tap="getHalfChecked">{{ t("获取半选节点") }}</cl-button>
+
+					<cl-text
+						v-if="halfCheckedKeys.length > 0"
+						:pt="{
+							className: 'text-sm p-2'
+						}"
+						>{{ halfCheckedKeys.join("、") }}</cl-text
+					>
+				</view>
+
+				<view class="mb-2">
+					<cl-button @tap="clearChecked">{{ t("清空选中") }}</cl-button>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('展开操作')">
+				<view class="mb-2">
+					<cl-button @tap="expand">{{ t("展开部分节点") }}</cl-button>
+				</view>
+
+				<view class="mb-2">
+					<cl-button @tap="getExpanded">{{ t("获取展开节点") }}</cl-button>
+
+					<cl-text
+						v-if="expandedKeys.length > 0"
+						:pt="{
+							className: 'text-sm p-2'
+						}"
+						>{{ expandedKeys.join("、") }}</cl-text
+					>
+				</view>
+
+				<view class="mb-2">
+					<cl-button @tap="expandAll">{{ t("展开所有") }}</cl-button>
+				</view>
+
+				<view class="mb-2">
+					<cl-button @tap="collapseAll">{{ t("收起所有") }}</cl-button>
+				</view>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+import { ref } from "vue";
+import { useTree, useUi, type ClTreeItem } from "@/uni_modules/cool-ui";
+
+const ui = useUi();
+
+const list = ref<ClTreeItem[]>([]);
+
+function refresh() {
+	ui.showLoading();
+
+	setTimeout(() => {
+		list.value = useTree([
+			{
+				id: "1",
+				label: "华为",
+				children: [
+					{
+						id: "1-1",
+						label: "手机",
+						children: [
+							{
+								id: "1-1-1",
+								label: "Mate系列",
+								children: [
+									{
+										id: "1-1-1-1",
+										label: "Mate 50"
+									},
+									{
+										id: "1-1-1-2",
+										disabled: true,
+										label: "Mate 40"
+									},
+									{
+										id: "1-1-1-3",
+										label: "Mate 30"
+									}
+								]
+							},
+							{
+								id: "1-1-2",
+								label: "P系列",
+								children: [
+									{
+										id: "1-1-2-1",
+										disabled: true,
+										label: "P60"
+									},
+									{
+										id: "1-1-2-2",
+										label: "P50"
+									},
+									{
+										id: "1-1-2-3",
+										label: "P40"
+									}
+								]
+							}
+						]
+					},
+					{
+						id: "1-2",
+						label: "笔记本",
+						children: [
+							{
+								id: "1-2-1",
+								label: "MateBook X",
+								children: [
+									{
+										id: "1-2-1-1",
+										label: "MateBook X Pro"
+									},
+									{
+										id: "1-2-1-2",
+										label: "MateBook X 2022"
+									}
+								]
+							},
+							{
+								id: "1-2-2",
+								label: "MateBook D",
+								children: [
+									{
+										id: "1-2-2-1",
+										label: "MateBook D 14"
+									},
+									{
+										id: "1-2-2-2",
+										label: "MateBook D 15"
+									}
+								]
+							},
+							{
+								id: "1-2-3",
+								label: "MateBook 13"
+							}
+						]
+					}
+				]
+			},
+			{
+				id: "2",
+				label: "小米",
+				isExpand: true,
+				children: [
+					{
+						id: "2-1",
+						label: "手机",
+						children: [
+							{
+								id: "2-1-1",
+								label: "小米数字系列"
+							},
+							{
+								id: "2-1-2",
+								label: "Redmi系列"
+							}
+						]
+					},
+					{
+						id: "2-2",
+						label: "家电",
+						children: [
+							{
+								id: "2-2-1",
+								label: "电视"
+							},
+							{
+								id: "2-2-2",
+								label: "空调"
+							}
+						]
+					}
+				]
+			},
+			{
+				id: "3",
+				label: "苹果",
+				children: [
+					{
+						id: "3-1",
+						label: "手机",
+						children: [
+							{
+								id: "3-1-1",
+								label: "iPhone 14"
+							},
+							{
+								id: "3-1-2",
+								label: "iPhone 13"
+							}
+						]
+					},
+					{
+						id: "3-2",
+						label: "平板",
+						children: [
+							{
+								id: "3-2-1",
+								label: "iPad Pro"
+							},
+							{
+								id: "3-2-2",
+								label: "iPad Air"
+							}
+						]
+					}
+				]
+			},
+			{
+				id: "4",
+				label: "OPPO",
+				children: [
+					{
+						id: "4-1",
+						label: "手机",
+						children: [
+							{
+								id: "4-1-1",
+								label: "Find系列"
+							},
+							{
+								id: "4-1-2",
+								label: "Reno系列"
+							}
+						]
+					},
+					{
+						id: "4-2",
+						label: "配件",
+						children: [
+							{
+								id: "4-2-1",
+								label: "耳机"
+							},
+							{
+								id: "4-2-2",
+								label: "手环"
+							}
+						]
+					}
+				]
+			},
+			{
+				id: "5",
+				label: "vivo",
+				children: [
+					{
+						id: "5-1",
+						label: "手机",
+						children: [
+							{
+								id: "5-1-1",
+								label: "X系列"
+							},
+							{
+								id: "5-1-2",
+								label: "S系列"
+							}
+						]
+					},
+					{
+						id: "5-2",
+						label: "智能设备",
+						children: [
+							{
+								id: "5-2-1",
+								label: "手表"
+							},
+							{
+								id: "5-2-2",
+								label: "耳机"
+							}
+						]
+					}
+				]
+			}
+		]);
+
+		ui.hideLoading();
+	}, 500);
+}
+
+// 是否严格的遵循父子不互相关联
+const checkStrictly = ref(false);
+
+// 是否自定义图标
+const isCustomIcon = ref(false);
+
+// 树形组件引用
+const treeRef = ref<ClTreeComponentPublicInstance | null>(null);
+
+// 选中节点的keys
+const checkedKeys = ref<(string | number)[]>(["1-1-1-1", "2-1-1", "2-1-2"]);
+const checkedKeys2 = ref<string | null>("1-1-1");
+
+// 半选节点的keys
+const halfCheckedKeys = ref<(string | number)[]>([]);
+
+// 展开节点的keys
+const expandedKeys = ref<(string | number)[]>([]);
+
+// 演示方法
+function setChecked() {
+	treeRef.value!.setCheckedKeys(["1-1", "2"]);
+}
+
+function getChecked() {
+	checkedKeys.value = treeRef.value!.getCheckedKeys();
+}
+
+function clearChecked() {
+	treeRef.value!.clearChecked();
+	checkedKeys.value = [];
+	halfCheckedKeys.value = [];
+}
+
+function getHalfChecked() {
+	halfCheckedKeys.value = treeRef.value!.getHalfCheckedKeys();
+}
+
+function expand() {
+	treeRef.value!.setExpandedKeys(["4", "5"]);
+}
+
+function getExpanded() {
+	expandedKeys.value = treeRef.value!.getExpandedKeys();
+}
+
+function expandAll() {
+	treeRef.value!.expandAll();
+	expandedKeys.value = treeRef.value!.getExpandedKeys();
+}
+
+function collapseAll() {
+	treeRef.value!.collapseAll();
+	expandedKeys.value = [];
+}
+
+onReady(() => {
+	refresh();
+});
+</script>

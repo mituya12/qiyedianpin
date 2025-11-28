@@ -1,0 +1,111 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('数字键盘')">
+				<view class="mb-3 overflow-visible">
+					<cl-input type="number" v-model="content"></cl-input>
+				</view>
+
+				<cl-button @tap="openKeyboardNumber">{{ t("打开键盘") }}</cl-button>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-3'
+					}"
+				>
+					<cl-list-item :label="t('是否显示输入值')">
+						<cl-switch v-model="isShowValue"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('输入即绑定')">
+						<cl-switch v-model="isInputImmediate"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('身份证键盘')">
+						<cl-switch v-model="isIdcard"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+
+			<demo-item :label="t('密码键盘')">
+				<cl-button @tap="openKeyboardPassword">{{ t("打开键盘") }}</cl-button>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-3'
+					}"
+				>
+					<cl-list-item :label="t('是否加密')">
+						<cl-switch v-model="isEncrypt"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+
+			<demo-item :label="t('车牌号键盘')">
+				<view class="flex mb-3 justify-center flex-row overflow-visible">
+					<cl-input-otp
+						input-type="text"
+						:length="8"
+						:pt="{
+							className: 'w-full',
+							list: {
+								className: 'justify-between'
+							},
+							item: {
+								className: '!h-9 !w-9'
+							},
+							cursor: {
+								className: '!h-3'
+							}
+						}"
+						v-model="carNumber"
+					></cl-input-otp>
+				</view>
+
+				<cl-button @tap="openKeyboardCar">{{ t("打开键盘") }}</cl-button>
+			</demo-item>
+		</view>
+
+		<cl-keyboard-number
+			v-model="content"
+			ref="keyboardNumberRef"
+			:show-value="isShowValue"
+			:input-immediate="isInputImmediate"
+			:type="isIdcard ? 'idcard' : 'number'"
+		></cl-keyboard-number>
+		<cl-keyboard-car v-model="carNumber" ref="keyboardCarRef"></cl-keyboard-car>
+		<cl-keyboard-password ref="keyboardPasswordRef" :encrypt="isEncrypt"></cl-keyboard-password>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+
+const keyboardNumberRef = ref<ClKeyboardNumberComponentPublicInstance | null>(null);
+const isShowValue = ref(true);
+const isInputImmediate = ref(false);
+const isIdcard = ref(false);
+const content = ref("");
+
+function openKeyboardNumber() {
+	keyboardNumberRef.value!.open();
+}
+
+const keyboardPasswordRef = ref<ClKeyboardPasswordComponentPublicInstance | null>(null);
+const isEncrypt = ref(false);
+
+function openKeyboardPassword() {
+	keyboardPasswordRef.value!.open();
+}
+
+const keyboardCarRef = ref<ClKeyboardCarComponentPublicInstance | null>(null);
+const carNumber = ref("");
+
+function openKeyboardCar() {
+	keyboardCarRef.value!.open();
+}
+</script>

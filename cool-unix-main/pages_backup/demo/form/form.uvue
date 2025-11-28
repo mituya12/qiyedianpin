@@ -1,0 +1,381 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item>
+				<cl-form
+					:pt="{
+						className: 'p-2 pb-0'
+					}"
+					v-model="formData"
+					ref="formRef"
+					:rules="rules"
+					:disabled="saving"
+					label-position="top"
+				>
+					<cl-form-item prop="avatarUrl">
+						<cl-upload v-model="formData.avatarUrl" test></cl-upload>
+					</cl-form-item>
+
+					<cl-form-item :label="t('用户名')" prop="nickName" required>
+						<cl-input
+							v-model="formData.nickName"
+							:placeholder="t('请输入用户名')"
+							clearable
+						></cl-input>
+					</cl-form-item>
+
+					<cl-form-item :label="t('邮箱')" prop="email">
+						<cl-input
+							v-model="formData.email"
+							:placeholder="t('请输入邮箱地址')"
+						></cl-input>
+					</cl-form-item>
+
+					<cl-form-item :label="t('动态验证')" required prop="contacts">
+						<view
+							class="contacts border border-solid border-surface-200 rounded-xl p-3 dark:!border-surface-700"
+						>
+							<cl-form-item
+								v-for="(item, index) in formData.contacts"
+								:key="index"
+								:label="t('联系人') + ` - ${index + 1}`"
+								:prop="`contacts[${index}].phone`"
+								:rules="
+									[
+										{
+											required: true,
+											message: t('手机号不能为空')
+										}
+									] as ClFormRule[]
+								"
+								required
+							>
+								<view class="flex flex-row items-center">
+									<cl-input
+										:pt="{
+											className: 'flex-1 mr-2'
+										}"
+										v-model="item.phone"
+										:placeholder="t('请输入手机号')"
+									></cl-input>
+
+									<cl-button
+										type="light"
+										icon="subtract-line"
+										@tap="removeContact(index)"
+									></cl-button>
+								</view>
+							</cl-form-item>
+
+							<cl-button icon="add-line" @tap="addContact">{{
+								t("添加联系人")
+							}}</cl-button>
+						</view>
+					</cl-form-item>
+
+					<cl-form-item :label="t('身高')" prop="height" required>
+						<cl-slider v-model="formData.height" :max="220" show-value>
+							<template #value="{ value }">
+								<cl-text
+									:pt="{
+										className: 'text-center w-[120rpx]'
+									}"
+									>{{ value }} cm</cl-text
+								>
+							</template>
+						</cl-slider>
+					</cl-form-item>
+
+					<cl-form-item :label="t('体重')" prop="weight" required>
+						<cl-slider v-model="formData.weight" :max="150" show-value>
+							<template #value="{ value }">
+								<cl-text
+									:pt="{
+										className: 'text-center w-[120rpx]'
+									}"
+									>{{ value }} kg</cl-text
+								>
+							</template>
+						</cl-slider>
+					</cl-form-item>
+
+					<cl-form-item :label="t('标签')" prop="tags" required>
+						<view class="flex flex-row flex-wrap">
+							<cl-checkbox
+								v-model="formData.tags"
+								v-for="(item, index) in tagsOptions"
+								:key="index"
+								:value="index"
+								:pt="{
+									className: 'mr-5 mt-2'
+								}"
+								>{{ item.label }}</cl-checkbox
+							>
+						</view>
+					</cl-form-item>
+
+					<cl-form-item :label="t('性别')" prop="gender" required>
+						<cl-select v-model="formData.gender" :options="genderOptions"></cl-select>
+					</cl-form-item>
+
+					<cl-form-item :label="t('所在地区')" prop="pca" required>
+						<cl-cascader v-model="formData.pca" :options="pcaOptions"></cl-cascader>
+					</cl-form-item>
+
+					<cl-form-item :label="t('出生年月')" prop="birthday" required>
+						<cl-select-date v-model="formData.birthday" type="date"></cl-select-date>
+					</cl-form-item>
+
+					<cl-form-item :label="t('个人简介')" prop="description">
+						<cl-textarea
+							v-model="formData.description"
+							:placeholder="t('请输入个人简介')"
+							:maxlength="200"
+						></cl-textarea>
+					</cl-form-item>
+
+					<cl-form-item :label="t('公开状态')">
+						<cl-switch v-model="formData.isPublic"></cl-switch>
+					</cl-form-item>
+				</cl-form>
+			</demo-item>
+
+			<demo-item>
+				<cl-text pre-wrap :pt="{ className: 'text-sm p-2' }">{{
+					JSON.stringify(formData, null, 4)
+				}}</cl-text>
+			</demo-item>
+		</view>
+
+		<cl-footer>
+			<view class="flex flex-row">
+				<cl-button type="info" :pt="{ className: 'flex-1' }" @click="reset">{{
+					t("重置")
+				}}</cl-button>
+				<cl-button
+					type="primary"
+					:loading="saving"
+					:pt="{ className: 'flex-1' }"
+					@click="submit"
+					>{{ t("提交") }}</cl-button
+				>
+			</view>
+		</cl-footer>
+	</cl-page>
+</template>
+
+<script setup lang="ts">
+import { ref, type Ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import {
+	useCascader,
+	useForm,
+	useUi,
+	type ClFormRule,
+	type ClSelectOption
+} from "@/uni_modules/cool-ui";
+import pca from "@/data/pca.json";
+import { t } from "@/locale";
+import { dayUts } from "@/cool";
+
+const ui = useUi();
+const { formRef, validate, clearValidate } = useForm();
+
+// 性别选项
+const genderOptions = [
+	{
+		label: t("未知"),
+		value: 0
+	},
+	{
+		label: t("男"),
+		value: 1
+	},
+	{
+		label: t("女"),
+		value: 2
+	}
+] as ClSelectOption[];
+
+// 标签选项
+const tagsOptions = [
+	{
+		label: t("篮球"),
+		value: 1
+	},
+	{
+		label: t("足球"),
+		value: 2
+	},
+	{
+		label: t("羽毛球"),
+		value: 3
+	},
+	{
+		label: t("乒乓球"),
+		value: 4
+	},
+	{
+		label: t("游泳"),
+		value: 5
+	}
+] as ClSelectOption[];
+
+// 地区选项
+const pcaOptions = useCascader(pca);
+
+type Contact = {
+	phone: string;
+};
+
+// 自定义表单数据类型
+type FormData = {
+	avatarUrl: string;
+	nickName: string;
+	email: string;
+	height: number;
+	weight: number;
+	gender: number;
+	description: string;
+	pca: string[];
+	tags: number[];
+	birthday: string;
+	isPublic: boolean;
+	contacts: Contact[];
+};
+
+// 表单数据
+const formData = ref<FormData>({
+	avatarUrl: "",
+	nickName: "神仙都没用",
+	email: "",
+	height: 180,
+	weight: 70,
+	gender: 0,
+	description: "",
+	pca: [],
+	tags: [1, 2],
+	birthday: "",
+	isPublic: false,
+	contacts: []
+}) as Ref<FormData>;
+
+// 表单验证规则
+const rules = new Map<string, ClFormRule[]>([
+	[
+		"nickName",
+		[
+			{ required: true, message: t("用户名不能为空") },
+			{ min: 3, max: 20, message: t("用户名长度在3-20个字符之间") }
+		]
+	],
+	[
+		"email",
+		[
+			{ required: true, message: t("邮箱不能为空") },
+			{ pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/, message: t("邮箱格式不正确") }
+		]
+	],
+	[
+		"height",
+		[
+			{ required: true, message: t("身高不能为空") },
+			{ min: 160, max: 190, message: t("身高在160-190cm之间") }
+		]
+	],
+	[
+		"weight",
+		[
+			{ required: true, message: t("体重不能为空") },
+			{ min: 40, max: 100, message: t("体重在40-100kg之间") }
+		]
+	],
+	[
+		"tags",
+		[
+			{ required: true, message: t("标签不能为空") },
+			{ min: 1, max: 2, message: t("标签最多选择2个") }
+		]
+	],
+	["gender", [{ required: true, message: t("性别不能为空") }]],
+	["pca", [{ required: true, message: t("所在地区不能为空") }]],
+	[
+		"birthday",
+		[
+			{ required: true, message: t("出生年月不能为空") },
+			{
+				validator(value) {
+					if (dayUts(value).isAfter(dayUts("2010-01-01"))) {
+						return t("出生年月不大于2010-01-01");
+					}
+
+					return true;
+				}
+			}
+		]
+	],
+	[
+		"contacts",
+		[
+			{
+				required: true,
+				message: t("联系人不能为空")
+			}
+		]
+	]
+]);
+
+// 是否保存中
+const saving = ref(false);
+
+// 重置表单数据
+function reset() {
+	formData.value.avatarUrl = "";
+	formData.value.nickName = "";
+	formData.value.email = "";
+	formData.value.height = 180;
+	formData.value.weight = 70;
+	formData.value.gender = 0;
+	formData.value.description = "";
+	formData.value.pca = [];
+	formData.value.tags = [];
+	formData.value.birthday = "";
+	formData.value.isPublic = false;
+	formData.value.contacts = [];
+
+	clearValidate();
+}
+
+// 提交表单
+function submit() {
+	validate((valid, errors) => {
+		if (valid) {
+			saving.value = true;
+
+			setTimeout(() => {
+				ui.showToast({
+					message: t("提交成功"),
+					icon: "check-line"
+				});
+
+				saving.value = false;
+				reset();
+			}, 2000);
+		} else {
+			ui.showToast({
+				message: errors[0].message
+			});
+		}
+	});
+}
+
+function addContact() {
+	formData.value.contacts.push({
+		phone: ""
+	});
+}
+
+function removeContact(index: number) {
+	formData.value.contacts.splice(index, 1);
+}
+</script>

@@ -1,0 +1,94 @@
+<template>
+	<cl-select
+		ref="selectRef"
+		v-model="size"
+		:title="t('全局字号')"
+		:options="list"
+		:show-trigger="false"
+		@changing="onChanging"
+	>
+		<template #prepend>
+			<view class="px-3 absolute top-0 left-0 z-10">
+				<cl-text
+					:style="{
+						fontSize: 28 * size + 'rpx'
+					}"
+					>{{ t("这是一段示例文字，用于预览不同字号的效果。") }}</cl-text
+				>
+			</view>
+		</template>
+	</cl-select>
+</template>
+
+<script setup lang="ts">
+import { t } from "@/locale";
+import { type ClSelectOption } from "@/uni_modules/cool-ui";
+import { config } from "@/uni_modules/cool-ui/config";
+import { ref } from "vue";
+
+defineOptions({
+	name: "size-set"
+});
+
+const selectRef = ref<ClSelectComponentPublicInstance | null>(null);
+
+// 语言列表
+const list = [
+	{
+		label: "0.9",
+		value: 0.9
+	},
+	{
+		label: t("默认 1.0"),
+		value: 1
+	},
+	{
+		label: "1.1",
+		value: 1.1
+	},
+	{
+		label: "1.2",
+		value: 1.2
+	},
+	{
+		label: "1.3",
+		value: 1.3
+	},
+	{
+		label: "1.4",
+		value: 1.4
+	}
+] as ClSelectOption[];
+
+// 当前语言
+const size = ref(1);
+
+// 是否可见
+const visible = ref(false);
+
+// 打开
+function open() {
+	visible.value = true;
+	size.value = config.fontSize ?? 1;
+
+	selectRef.value!.open((value) => {
+		config.fontSize = value == 1 ? null : (value as number);
+	});
+}
+
+// 关闭
+function close() {
+	visible.value = false;
+}
+
+// 切换
+function onChanging(value: number) {
+	size.value = value;
+}
+
+defineExpose({
+	visible,
+	open,
+	close
+});
+</script>

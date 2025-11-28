@@ -1,0 +1,150 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-input></cl-input>
+			</demo-item>
+
+			<demo-item :label="t('数字输入')">
+				<cl-input type="number"></cl-input>
+			</demo-item>
+
+			<demo-item :label="t('密码输入')">
+				<cl-input password></cl-input>
+			</demo-item>
+
+			<demo-item :label="t('可清除')">
+				<cl-input clearable :pt="{ className: 'mb-2' }"></cl-input>
+
+				<demo-tips>设置 hold-keyboard 属性后，清除内容时输入框将保持聚焦状态</demo-tips>
+
+				<cl-input clearable hold-keyboard></cl-input>
+			</demo-item>
+
+			<demo-item :label="t('左右插槽')">
+				<cl-input
+					:pt="{
+						className: '!pr-1 mb-2'
+					}"
+				>
+					<template #append>
+						<cl-button
+							type="primary"
+							size="small"
+							icon="send-plane-fill"
+							:pt="{
+								className: 'ml-2'
+							}"
+							@tap="toAlert"
+						></cl-button>
+					</template>
+				</cl-input>
+
+				<cl-input
+					:pt="{
+						className: '!pl-1'
+					}"
+				>
+					<template #prepend>
+						<cl-button
+							type="primary"
+							size="small"
+							icon="search-line"
+							:pt="{
+								className: 'mr-2'
+							}"
+							@tap="toAlert"
+						></cl-button>
+					</template>
+				</cl-input>
+			</demo-item>
+
+			<demo-item :label="t('保留精度')">
+				<demo-tips>当 type 为 digit 时，可设置 precision 属性来保留精度</demo-tips>
+
+				<cl-input type="digit" :precision="precision"></cl-input>
+
+				<cl-list border :pt="{ className: 'mt-5' }">
+					<cl-list-item :label="t('精度')">
+						<cl-input-number v-model="precision"></cl-input-number>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<cl-input
+					v-model="content"
+					:border="isBorder"
+					:suffix-icon="isRightIcon ? 'text' : ''"
+					:prefix-icon="isLeftIcon ? 'search-line' : ''"
+					:disabled="isDisabled"
+					:pt="{
+						className: parseClass({
+							'!bg-sky-100': isColor,
+							'!border-sky-700': isColor
+						}),
+						inner: {
+							className: parseClass({
+								'!text-sky-700': isColor
+							})
+						},
+						prefixIcon: {
+							className: parseClass({
+								'!text-sky-700': isColor
+							})
+						}
+					}"
+				></cl-input>
+
+				<cl-list border :pt="{ className: 'mt-5' }">
+					<cl-list-item :label="t('边框')">
+						<cl-switch v-model="isBorder"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('左图标')">
+						<cl-switch v-model="isLeftIcon"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('右图标')">
+						<cl-switch v-model="isRightIcon"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('禁用')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('其他颜色')">
+						<cl-switch v-model="isColor"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import DemoTips from "../components/tips.uvue";
+import { parseClass } from "@/cool";
+import { useUi } from "@/uni_modules/cool-ui";
+import { t } from "@/locale";
+
+const ui = useUi();
+
+const content = ref("Cool Unix");
+
+const isBorder = ref(true);
+const isLeftIcon = ref(true);
+const isRightIcon = ref(false);
+const isDisabled = ref(false);
+const isColor = ref(false);
+
+const precision = ref<number>(2);
+
+function toAlert() {
+	ui.showToast({
+		message: "Hello"
+	});
+}
+</script>

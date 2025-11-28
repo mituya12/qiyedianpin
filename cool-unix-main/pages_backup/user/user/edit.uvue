@@ -1,0 +1,247 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<view class="flex flex-col justify-center items-center py-10 mb-3">
+				<view class="relative overflow-visible">
+					<!-- #ifdef MP-WEIXIN -->
+					<button
+						class="absolute top-0 left-0 w-full h-full opacity-0 z-10"
+						open-type="chooseAvatar"
+						@chooseavatar="uploadAvatar"
+					></button>
+					<!-- #endif -->
+
+					<cl-avatar
+						:src="userInfo?.avatarUrl"
+						:size="150"
+						:pt="{ className: '!rounded-3xl', icon: { size: 60 } }"
+						@tap="uploadAvatar"
+					>
+					</cl-avatar>
+
+					<view
+						class="flex flex-col justify-center items-center absolute bottom-0 right-[-6rpx] bg-black rounded-full p-1 border border-solid border-white"
+					>
+						<cl-icon name="edit-line" color="white" :size="24"></cl-icon>
+					</view>
+				</view>
+			</view>
+
+			<cl-list :pt="{ className: 'mb-3' }">
+				<cl-list-item
+					:label="t('我的昵称')"
+					hoverable
+					arrow
+					justify="start"
+					@tap="router.to('/pages/user/edit-name')"
+				>
+					<cl-text>{{ userInfo?.nickName }}</cl-text>
+				</cl-list-item>
+				<cl-list-item label="手机号" hoverable justify="start">
+					<cl-text>{{ userInfo?.phone }}</cl-text>
+				</cl-list-item>
+			</cl-list>
+
+			<cl-list :pt="{ className: 'mb-3' }">
+				<cl-list-item
+					:label="t('简介')"
+					hoverable
+					arrow
+					justify="start"
+					@tap="router.to('/pages/user/edit-description')"
+				>
+					<cl-text color="info" v-if="userInfo?.description == null">{{
+						t("介绍一下自己")
+					}}</cl-text>
+					<cl-text ellipsis v-else>{{ userInfo?.description }}</cl-text>
+				</cl-list-item>
+			</cl-list>
+
+			<cl-list :pt="{ className: 'mb-3' }">
+				<cl-list-item
+					:label="t('性别')"
+					hoverable
+					arrow
+					justify="start"
+					@tap="open('gender')"
+				>
+					<cl-text>{{ genderText }}</cl-text>
+					<cl-text color="info" v-if="genderText == ''">{{ t("编辑性别") }}</cl-text>
+				</cl-list-item>
+
+				<cl-list-item
+					:label="t('生日')"
+					hoverable
+					arrow
+					justify="start"
+					@tap="open('birthday')"
+				>
+					<cl-text>{{ userInfo?.birthday }}</cl-text>
+					<cl-text color="info" v-if="userInfo?.birthday == null">{{
+						t("选择生日")
+					}}</cl-text>
+				</cl-list-item>
+
+				<cl-list-item
+					:label="t('地区')"
+					hoverable
+					arrow
+					justify="start"
+					@tap="open('region')"
+				>
+					<cl-text>{{ regionText }}</cl-text>
+					<cl-text color="info" v-if="regionText == ''">{{
+						t("选择所在的地区")
+					}}</cl-text>
+				</cl-list-item>
+			</cl-list>
+
+			<cl-select
+				:title="t('选择性别')"
+				:model-value="userInfo?.gender"
+				:ref="refs.set('gender')"
+				:options="genderOptions"
+				:show-trigger="false"
+				@change="onGenderChange"
+			></cl-select>
+
+			<cl-select-date
+				:title="t('选择生日')"
+				:model-value="userInfo?.birthday"
+				:ref="refs.set('birthday')"
+				type="date"
+				:end="today"
+				:show-trigger="false"
+				@change="onBirthdayChange"
+			></cl-select-date>
+
+			<cl-cascader
+				:title="t('选择所在的地区')"
+				:ref="refs.set('region')"
+				:options="regionOptions"
+				:show-trigger="false"
+				@change="onRegionChange"
+			></cl-cascader>
+		</view>
+	</cl-page>
+</template>
+
+<script setup lang="ts">
+import { dayUts, router, upload, useRefs, useStore, type Response, userInfo } from "@/cool";
+import { t } from "@/locale";
+import { useCascader, useUi, type ClSelectOption } from "@/uni_modules/cool-ui";
+import { computed, ref } from "vue";
+import pca from "@/data/pca.json";
+
+const { user } = useStore();
+const ui = useUi();
+const refs = useRefs();
+
+// 今天
+const today = dayUts().format("YYYY-MM-DD");
+
+// 性别选项
+const genderOptions = ref<ClSelectOption[]>([
+	{
+		label: t("保密"),
+		value: 0
+	},
+	{
+		label: t("男"),
+		value: 1
+	},
+	{
+		label: t("女"),
+		value: 2
+	}
+]);
+
+// 性别文本
+const genderText = computed(() => {
+	return [t("保密"), t("男"), t("女")][userInfo.value?.gender!];
+});
+
+// 性别改变
+function onGenderChange(val: number) {
+	user.update({
+		gender: val
+	});
+
+	ui.showToast({
+		message: t("性别设置成功")
+	});
+}
+
+// 生日改变
+function onBirthdayChange(val: string) {
+	user.update({
+		birthday: val
+	});
+
+	ui.showToast({
+		message: t("生日设置成功")
+	});
+}
+
+// 地区选项
+const regionOptions = useCascader(pca);
+
+// 地区文本
+const regionText = computed(() => {
+	return [userInfo.value?.province, userInfo.value?.city, userInfo.value?.district]
+		.filter((e) => e != null)
+		.join(" - ");
+});
+
+// 地区改变
+function onRegionChange(arr: string[]) {
+	user.update({
+		province: arr[0],
+		city: arr[1],
+		district: arr[2]
+	});
+
+	ui.showToast({
+		message: t("地区设置成功")
+	});
+}
+
+// 打开弹窗
+function open(name: string) {
+	refs.open(name);
+}
+
+// 上传头像
+function uploadAvatar(e: UniEvent) {
+	function next(path: string) {
+		upload(path)
+			.then((url) => {
+				ui.showToast({
+					message: t("头像上传成功")
+				});
+
+				user.update({
+					avatarUrl: url
+				});
+			})
+			.catch((err) => {
+				ui.showToast({
+					message: (err as Response).message!
+				});
+			});
+	}
+
+	// #ifdef MP-WEIXIN
+	next(e.detail.avatarUrl);
+	// #endif
+
+	// #ifndef MP-WEIXIN
+	uni.chooseImage({
+		count: 1,
+		success(res) {
+			next(res.tempFiles[0].path);
+		}
+	});
+	// #endif
+}
+</script>

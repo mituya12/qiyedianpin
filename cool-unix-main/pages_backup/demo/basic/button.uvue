@@ -1,0 +1,133 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-button>{{ t("普通") }}</cl-button>
+			</demo-item>
+
+			<demo-item :label="t('不同类型')">
+				<view class="flex flex-row flex-wrap mb-2 overflow-visible">
+					<cl-button type="primary">{{ t("主要") }}</cl-button>
+					<cl-button type="success">{{ t("成功") }}</cl-button>
+					<cl-button type="warn">{{ t("警告") }}</cl-button>
+				</view>
+
+				<view class="flex flex-row mb-2 overflow-visible">
+					<cl-button type="error">{{ t("危险") }}</cl-button>
+					<cl-button type="info">{{ t("信息") }}</cl-button>
+				</view>
+
+				<view class="flex flex-row overflow-visible">
+					<cl-button type="light">{{ t("浅色") }}</cl-button>
+					<cl-button type="dark">{{ t("深色") }}</cl-button>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('只显示图标')">
+				<view class="flex flex-row">
+					<cl-button type="primary" icon="send-plane-fill"></cl-button>
+					<cl-button type="error" icon="verified-badge-fill"></cl-button>
+					<cl-button type="info" icon="edit-fill"></cl-button>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<view class="flex flex-row justify-center mb-5 h-14 items-center">
+					<cl-button
+						:type="type"
+						:size="size"
+						:text="isText"
+						:border="isBorder"
+						:rounded="isRounded"
+						:loading="isLoading"
+						:disabled="isDisabled"
+						:icon="isIcon ? 'send-plane-fill' : ''"
+						:color="isColor ? '#4286e0' : ''"
+						:pt="{
+							className: parseClass([
+								{
+									'!bg-transparent': isColor
+								}
+							])
+						}"
+						>{{ t("自定义") }}</cl-button
+					>
+				</view>
+
+				<cl-list border>
+					<view class="p-2">
+						<cl-tabs
+							v-model="size"
+							:height="66"
+							:list="sizeOptions"
+							show-slider
+							fill
+						></cl-tabs>
+					</view>
+
+					<cl-list-item :label="t('文本模式')">
+						<cl-switch v-model="isText"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('带边框')">
+						<cl-switch v-model="isBorder"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('圆角按钮')">
+						<cl-switch v-model="isRounded"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('带左侧图标')">
+						<cl-switch v-model="isIcon"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('加载中')">
+						<cl-switch v-model="isLoading"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('禁用')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('自定义颜色')">
+						<cl-switch v-model="isColor"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import type { ClButtonType, ClTabsItem, Size } from "@/uni_modules/cool-ui";
+import { parseClass } from "@/cool";
+import { t } from "@/locale";
+
+const type = ref<ClButtonType>("primary");
+
+const isText = ref(false);
+const isBorder = ref(false);
+const isRounded = ref(false);
+const isLoading = ref(false);
+const isIcon = ref(false);
+const isDisabled = ref(false);
+const isColor = ref(false);
+
+const size = ref<Size>("normal");
+const sizeOptions = ref<ClTabsItem[]>([
+	{
+		label: t("小"),
+		value: "small"
+	},
+	{
+		label: t("默认"),
+		value: "normal"
+	},
+	{
+		label: t("大"),
+		value: "large"
+	}
+]);
+</script>

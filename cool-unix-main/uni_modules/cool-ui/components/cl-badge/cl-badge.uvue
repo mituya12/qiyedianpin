@@ -1,0 +1,109 @@
+<template>
+	<view
+		class="cl-badge"
+		:class="[
+			{
+				'bg-primary-500': type == 'primary',
+				'bg-green-500': type == 'success',
+				'bg-yellow-500': type == 'warn',
+				'bg-red-500': type == 'error',
+				'bg-surface-500': type == 'info',
+				'cl-badge--dot': dot,
+				'cl-badge--position': position
+			},
+			pt.className
+		]"
+		:style="badgeStyle"
+	>
+		<cl-text
+			:pt="{
+				className: parseClass(['cl-badge__text text-white text-xs', pt.text?.className])
+			}"
+			v-if="!dot"
+		>
+			{{ value }}
+		</cl-text>
+
+		<slot></slot>
+	</view>
+</template>
+
+<script setup lang="ts">
+import { computed } from "vue";
+import type { PropType } from "vue";
+import type { PassThroughProps, Type } from "../../types";
+import { parseClass, parsePt } from "@/cool";
+import { useSize } from "../../hooks";
+
+defineOptions({
+	name: "cl-badge"
+});
+
+const props = defineProps({
+	pt: {
+		type: Object,
+		default: () => ({})
+	},
+	type: {
+		type: String as PropType<Type>,
+		default: "error"
+	},
+	dot: {
+		type: Boolean,
+		default: false
+	},
+	value: {
+		type: [Number, String],
+		default: 0
+	},
+	position: {
+		type: Boolean,
+		default: false
+	}
+});
+
+const { getRpx } = useSize();
+
+type PassThrough = {
+	className?: string;
+	text?: PassThroughProps;
+};
+
+const pt = computed(() => parsePt<PassThrough>(props.pt));
+
+const badgeStyle = computed(() => {
+	const style = {};
+
+	if (props.dot) {
+		style["height"] = getRpx(10);
+		style["width"] = getRpx(10);
+		style["minWidth"] = getRpx(10);
+		style["padding"] = 0;
+	} else {
+		style["height"] = getRpx(30);
+		style["minWidth"] = getRpx(30);
+		style["padding"] = `0 ${getRpx(6)}`;
+	}
+
+	if (props.position) {
+		style["transform"] = "translate(50%, -50%)";
+
+		if (props.dot) {
+			style["transform"] = `translate(-${getRpx(5)}, ${getRpx(5)})`;
+		}
+	}
+
+	return style;
+});
+</script>
+
+<style lang="scss" scoped>
+.cl-badge {
+	@apply flex flex-row items-center justify-center;
+	@apply rounded-full;
+
+	&--position {
+		@apply absolute z-10 right-0 top-0;
+	}
+}
+</style>

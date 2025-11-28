@@ -1,0 +1,46 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-noticebar
+					text="云想衣裳花想容，春风拂槛露华浓。若非群玉山头见，会向瑶台月下逢。"
+				></cl-noticebar>
+			</demo-item>
+
+			<demo-item :label="t('带图标')">
+				<view class="flex flex-row items-center">
+					<cl-icon name="notification-4-line" class="mr-2"></cl-icon>
+					<cl-noticebar
+						text="云想衣裳花想容，春风拂槛露华浓。若非群玉山头见，会向瑶台月下逢。"
+					></cl-noticebar>
+				</view>
+			</demo-item>
+
+			<demo-item :label="t('设置速度')">
+				<cl-noticebar
+					:speed="40"
+					text="云想衣裳花想容，春风拂槛露华浓。若非群玉山头见，会向瑶台月下逢。"
+				></cl-noticebar>
+			</demo-item>
+
+			<demo-item :label="t('垂直方向')">
+				<cl-noticebar
+					direction="vertical"
+					:text="[
+						'江南可采莲，莲叶何田田',
+						'鱼戏莲叶间',
+						'鱼戏莲叶东',
+						'鱼戏莲叶西',
+						'鱼戏莲叶南',
+						'鱼戏莲叶北'
+					]"
+				></cl-noticebar>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import DemoItem from "../components/item.uvue";
+</script>

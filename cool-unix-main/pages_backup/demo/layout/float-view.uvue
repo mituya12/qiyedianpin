@@ -1,0 +1,50 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item>
+				<view class="flex flex-row items-center">
+					<cl-icon name="notification-4-fill" class="mr-2"></cl-icon>
+					<cl-text>{{ t("禁用状态，无法拖拽") }}</cl-text>
+				</view>
+			</demo-item>
+
+			<demo-item>
+				<view class="flex flex-row items-center">
+					<cl-icon name="heart-fill" class="mr-2"></cl-icon>
+					<cl-text>{{ t("不吸附边缘，任意位置可拖拽") }}</cl-text>
+				</view>
+			</demo-item>
+
+			<cl-float-view :left="200" :bottom="50" :no-snapping="true">
+				<view
+					class="w-[40px] h-[40px] bg-primary-500 flex flex-row items-center justify-center"
+					@tap="toAlert"
+				>
+					<cl-icon name="heart-fill" color="white"></cl-icon>
+				</view>
+			</cl-float-view>
+
+			<cl-float-view disabled :left="20" :bottom="400" :gap="10">
+				<view
+					class="w-[40px] h-[40px] bg-surface-400 rounded-full flex flex-row items-center justify-center"
+				>
+					<cl-icon name="notification-4-fill" color="white"></cl-icon>
+				</view>
+			</cl-float-view>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { t } from "@/locale";
+import { useUi } from "@/uni_modules/cool-ui";
+import DemoItem from "../components/item.uvue";
+
+const ui = useUi();
+
+function toAlert() {
+	ui.showToast({
+		message: t("这是一个提示")
+	});
+}
+</script>

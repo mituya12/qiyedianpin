@@ -1,0 +1,62 @@
+<template>
+	<cl-page>
+		<view class="p-3">
+			<demo-item :label="t('基础用法')">
+				<cl-rate v-model="num"></cl-rate>
+			</demo-item>
+
+			<demo-item :label="t('自定义')">
+				<cl-rate
+					v-model="num2"
+					:disabled="isDisabled"
+					:show-score="isShowScore"
+					:allow-half="isAllowHalf"
+					:size="isSize ? 50 : 40"
+					:void-icon="isIcon ? 'heart-fill' : 'star-fill'"
+					:icon="isIcon ? 'heart-fill' : 'star-fill'"
+				></cl-rate>
+
+				<cl-list
+					border
+					:pt="{
+						className: 'mt-3'
+					}"
+				>
+					<cl-list-item :label="t('只读')">
+						<cl-switch v-model="isDisabled"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('显示分数')">
+						<cl-switch v-model="isShowScore"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('允许半星')">
+						<cl-switch v-model="isAllowHalf"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('换个图标')">
+						<cl-switch v-model="isIcon"></cl-switch>
+					</cl-list-item>
+
+					<cl-list-item :label="t('大一点')">
+						<cl-switch v-model="isSize"></cl-switch>
+					</cl-list-item>
+				</cl-list>
+			</demo-item>
+		</view>
+	</cl-page>
+</template>
+
+<script lang="ts" setup>
+import { ref } from "vue";
+import DemoItem from "../components/item.uvue";
+import { t } from "@/locale";
+
+const num = ref(1);
+const num2 = ref(3.5);
+const isDisabled = ref(false);
+const isShowScore = ref(true);
+const isAllowHalf = ref(true);
+const isSize = ref(false);
+const isIcon = ref(false);
+</script>

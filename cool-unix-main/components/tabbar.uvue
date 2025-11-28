@@ -1,0 +1,83 @@
+<template>
+	<cl-footer
+		:pt="{
+			content: {
+				className: '!p-0 h-[60px]'
+			}
+		}"
+	>
+		<view class="custom-tabbar" :class="{ 'is-dark': isDark }">
+			<view
+				class="custom-tabbar-item"
+				v-for="item in list"
+				:key="item.pagePath"
+				@tap="router.to(item.pagePath)"
+			>
+				<cl-image
+					:src="path == item.pagePath ? item.icon2 : item.icon"
+					:height="56"
+					:width="56"
+				></cl-image>
+
+				<cl-text
+					v-if="item.text != null"
+					:pt="{
+						className: parseClass([
+							'text-xs mt-1',
+							[path == item.pagePath, 'text-primary-500', 'text-surface-400']
+						])
+					}"
+					>{{ t(item.text!) }}</cl-text
+				>
+			</view>
+		</view>
+	</cl-footer>
+</template>
+
+<script setup lang="ts">
+import { ctx, isDark, parseClass, router } from "@/cool";
+import { t } from "@/locale";
+import { computed } from "vue";
+
+defineOptions({
+	name: "custom-tabbar"
+});
+
+type Item = {
+	icon: string;
+	icon2: string;
+	pagePath: string;
+	text: string | null;
+};
+
+const path = computed(() => router.path());
+
+// tabbar 列表
+const list = computed<Item[]>(() => {
+	return (ctx.tabBar.list ?? []).map((e) => {
+		return {
+			icon: e.iconPath!,
+			icon2: e.selectedIconPath!,
+			pagePath: e.pagePath,
+			text: t(e.text?.replaceAll("%", "")!)
+		} as Item;
+	});
+});
+
+// 隐藏原生 tabBar
+// #ifndef MP
+if (ctx.tabBar.list != null) {
+	uni.hideTabBar();
+}
+// #endif
+</script>
+
+<style lang="scss" scoped>
+.custom-tabbar {
+	@apply flex flex-row items-center flex-1;
+
+	&-item {
+		@apply flex flex-col items-center justify-center flex-1;
+	}
+}
+</style>
